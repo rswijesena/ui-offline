@@ -1,0 +1,17 @@
+{
+    "files": [
+        "typings/index.d.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "pretty": true,
+        "target": "es5",
+        "allowJs": true,
+        "jsx": "react",
+        "lib": ["dom", "es6", "es5"],
+        "outFile": "ui-offline.js"
+    }
+}
