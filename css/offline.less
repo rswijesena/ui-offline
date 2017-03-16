@@ -1,0 +1,41 @@
+.mw-bs {
+    .offline {
+        background: transparent;
+        bottom: 0;
+        height: 100%;
+        left: 0;
+        pointer-events: none;
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 100%;
+
+        & > .btn {
+            bottom: 1em;
+            left: 1em;
+            position: absolute;
+            pointer-events: initial;
+        }
+
+        & > .offline-status {
+            background: rgba(192, 192, 192, 0.5);
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            left: 0;
+            position: absolute;
+            pointer-events: initial;
+            right: 0;
+            top: 0;
+            width: 100%;
+
+            & > .panel {
+                align-self: center;
+                width: 50%;
+                text-align: center;
+            }
+        }
+    }
+}

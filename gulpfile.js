@@ -5,7 +5,6 @@ var argv = require('yargs').argv;
 var path = require('path');
 var requestPromise = require('request-promise');
 var fs = require('fs');
-var browserSync = require('browser-sync');
 
 function getTask(task) {
     return require('./gulp-tasks/' + task)(gulp, plugins, argv);
@@ -15,28 +14,19 @@ function getTask(task) {
 gulp.task('pre-commit', getTask('hooks/pre-commit'));   
 
 // Dev
+gulp.task('dev-less', getTask('dev/less'));
 gulp.task('dev-ts', getTask('dev/ts'));
 
-gulp.task('watch', ['dev-ts'], function() {
+gulp.task('watch', ['dev-ts', 'dev-less'], function() {
     gulp.watch(['js/**/*.*'], ['dev-ts']);
-});
-
-gulp.task('refresh', function () {
-    browserSync.init({
-        server: {
-            baseDir: './',
-            index: 'test.html',
-            middleware: function (req, res, next) {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                next();
-            }
-        },
-        ghostMode: false
-    });
+    gulp.watch(['css/**/*.*'], ['dev-less']);
 });
 
 // Dist
-gulp.task('dist', getTask('dist/ts'));
+gulp.task('dist-less', getTask('dist/less'));
+gulp.task('dist-ts', getTask('dist/ts'));
+
+gulp.task('dist', ['dist-less', 'dist-ts']);
 
 gulp.task('offline', function() {
     return gulp.src('package.json')

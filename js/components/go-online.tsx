@@ -9,6 +9,7 @@ manywho.GoOnline = class GoOnline extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
+            status: 'Syncing Data',
             progress: 0,
             isDismissVisible: false
         };
@@ -52,15 +53,19 @@ manywho.GoOnline = class GoOnline extends React.Component<any, any> {
 
         let progress = null;
         if (this.state.isProgressVisible)
-            progress = <div className="go-offline-status">
-                <div className="wait-spinner" />
-                <div className="progress">
-                    <div className="progress-bar progress-bar-striped active" style={style} />
+            progress = <div className="offline-status">
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <h4>{this.state.status}</h4>
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-striped active" style={style} />
+                        </div>
+                        {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Online</button> : null}
+                    </div>
                 </div>
-                {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Online</button> : <h4>Syncing Data...</h4>}
             </div>;
 
-        return <div className="go-offline">
+        return <div className="offline">
             <button className="btn btn-info" onClick={this.onClick}>Go Online</button>
             {progress}
         </div>;

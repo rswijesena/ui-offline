@@ -55,14 +55,6 @@ function getChunkedObjectDataRequests(request) {
     return pages;
 }
 
-const Queue = function () {
-    let previous: any = $.Deferred().resolve();
-
-    return function (fn, fail) {
-        return previous = previous.then(fn, fail || fn);
-    };
-};
-
 manywho.settings.initialize({
     offline: {
         isEnabled: true,
@@ -75,9 +67,6 @@ manywho.settings.initialize({
         storage: {
             drivers: ['asyncStorage', 'webSQLStorage']
         }
-    },
-    platform: {
-        uri: 'https://flow.manywho.com'
     }
 });
 

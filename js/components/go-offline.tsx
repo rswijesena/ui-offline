@@ -9,6 +9,7 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
+            status: 'Caching Data',
             progress: 0,
             isProgressVisible: false,
             isDismissVisible: false
@@ -50,15 +51,19 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
 
         let progress = null;
         if (this.state.isProgressVisible)
-            progress = <div className="go-offline-status">
-                <div className="wait-spinner" />
-                <div className="progress">
-                    <div className="progress-bar progress-bar-striped active" style={style} />
+            progress = <div className="offline-status">
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <h4>{this.state.status}</h4>
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-striped active" style={style} />
+                        </div>
+                        {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Offline</button> : null}
+                    </div>
                 </div>
-                {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Offline</button> : <h4>Fetching Data...</h4>}
             </div>;
 
-        return <div className="go-offline">
+        return <div className="offline">
             <button className="btn btn-primary" onClick={this.onClick}>Go Offline</button>
             {progress}
         </div>;
