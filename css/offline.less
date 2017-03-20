@@ -9,12 +9,17 @@
         right: 0;
         top: 0;
         width: 100%;
+        z-index: 2000;
 
         & > .btn {
             bottom: 1em;
             left: 1em;
-            position: absolute;
             pointer-events: initial;
+            position: absolute;
+
+            & > .glyphicon {
+                margin-right: 0.5em;
+            }
         }
 
         & > .offline-status {
@@ -25,16 +30,16 @@
             height: 100%;
             justify-content: center;
             left: 0;
-            position: absolute;
             pointer-events: initial;
+            position: absolute;
             right: 0;
             top: 0;
             width: 100%;
 
             & > .panel {
                 align-self: center;
-                width: 50%;
                 text-align: center;
+                width: 50%;
             }
         }
     }

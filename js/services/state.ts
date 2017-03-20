@@ -38,9 +38,17 @@ manywho.offline.state = class State {
         return null;
     }
 
-    setValue(id, typeElementId, value) {
-        // TODO: support setting properties
-        this.values[id.id] = JSON.parse(JSON.stringify(value));
+    setValue(id, typeElementId, snapshot, value) {
+        if (id.typeElementPropertyId) {
+            if (!this.values[id.id])
+                this.values[id.id].objectData = JSON.parse(JSON.stringify(snapshot.typeElements.find(type => type.id === typeElementId)));
+
+            const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId = id.typeElementPropertyId);
+            property.contentValue = value.contentValue;
+            property.objectData = value.objectData;
+        }
+        else
+            this.values[id.id] = JSON.parse(JSON.stringify(value));
     }
 
     update(inputs, mapElement, snapshot) {
@@ -50,7 +58,7 @@ manywho.offline.state = class State {
 
             if (component.valueElementValueBindingReferenceId) {
                 const value = snapshot.getValue(component.valueElementValueBindingReferenceId);
-                this.setValue(component.valueElementValueBindingReferenceId, value.typeElementId, input);
+                this.setValue(component.valueElementValueBindingReferenceId, value.typeElementId, snapshot, input);
             }
         });
     }

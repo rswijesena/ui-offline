@@ -10,32 +10,22 @@ function getPageContainers(container) {
     return container;
 }
 
-    function flattenContainers(containers, parent, result, propertyName) {
+function flattenContainers(containers, parent, result, propertyName) {
+    if (containers != null)
+        for (let index = 0; index < containers.length; index++) {
+            const item = containers[index];
 
-        propertyName = propertyName || 'pageContainerResponses';
-
-        if (containers != null) {
-
-            for (let index = 0; index < containers.length; index++) {
-
-                let item = containers[index];
-
-                if (parent) {
-
-                    item.parent = parent.id;
-
-                    parent.childCount = containers.length;
-                }
-
-                result.push(item);
-                flattenContainers(item[propertyName], item, result, propertyName);
-
+            if (parent) {
+                item.parent = parent.id;
+                parent.childCount = containers.length;
             }
+
+            result.push(item);
+            flattenContainers(item[propertyName], item, result, propertyName);
         }
 
-        return result;
-
-    }
+    return result;
+}
 
 manywho.offline.page = class Page {
 

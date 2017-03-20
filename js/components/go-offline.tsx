@@ -12,7 +12,7 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
             status: 'Caching Data',
             progress: 0,
             isProgressVisible: false,
-            isDismissVisible: false
+            isDismissEnabled: false
         };
     }
 
@@ -36,7 +36,7 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
                     isOnline: false
                 }
             });
-            this.setState({ progress: 100, isDismissVisible: true });
+            this.setState({ progress: 100, isDismissEnabled: true });
         }
     }
 
@@ -58,13 +58,15 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
                         <div className="progress">
                             <div className="progress-bar progress-bar-striped active" style={style} />
                         </div>
-                        {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Offline</button> : null}
+                        <button className="btn btn-success" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>Continue Offline</button>
                     </div>
                 </div>
             </div>;
 
         return <div className="offline">
-            <button className="btn btn-primary" onClick={this.onClick}>Go Offline</button>
+            <button className="btn btn-primary" onClick={this.onClick} disabled={!manywho.offline.metadata}>
+                <span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline
+            </button>
             {progress}
         </div>;
     }

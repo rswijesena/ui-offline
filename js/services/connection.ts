@@ -4,77 +4,63 @@ declare var manywho: any;
 
 const onlineStatus: any = {};
 
-manywho.connection = class Connection {
+manywho.connection.isOnline = function() {
+    const override = manywho.settings.global('offline.isOnline');
+    if (override !== undefined)
+        return ($.Deferred()).resolve(override);
 
-    static isOnline() {
-        const override = manywho.settings.global('offline.isOnline');
-        if (override !== undefined)
-            return ($.Deferred()).resolve(override);
+    return $.ajax({
+        url: manywho.settings.global('platform.uri') + '/api/health',
+        timeout: 1000
+    })
+    .then(() => true)
+    .fail(() => false);
+};
 
-        return $.ajax({
-            url: manywho.settings.global('platform.uri') + '/api/health',
-            timeout: 1000
+manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
+    let json = null;
+
+    if (request != null)
+        json = JSON.stringify(request);
+
+    return $.ajax({
+            url: manywho.settings.global('platform.uri') + urlPart,
+            type: methodType,
+            dataType: 'json',
+            contentType: 'application/json',
+            processData: true,
+            data: json,
+            beforeSend: xhr => {
+                manywho.connection.beforeSend.call(this, xhr, tenantId, authenticationToken, event, request);
+
+                if (manywho.utils.isNullOrWhitespace(stateId) === false)
+                    xhr.setRequestHeader('ManyWhoState', stateId);
+            }
         })
-        .then(() => true)
-        .fail(() => false);
-    }
+        .done(manywho.settings.event(event + '.done'))
+        .fail(manywho.connection.onError)
+        .fail(manywho.settings.event(event + '.fail'));
+};
 
-    static beforeSend(xhr, tenantId, authenticationToken, event, request) {
-        xhr.setRequestHeader('ManyWhoTenant', tenantId);
+manywho.connection.offlineRequest = function(resolveContext, event, urlPart, request) {
+    const deferred = jQuery.Deferred();
 
-        if (authenticationToken)
-            xhr.setRequestHeader('Authorization', authenticationToken);
+    manywho.offline.getResponse(request, resolveContext)
+        .then(response => {
+            deferred.resolveWith(resolveContext, [response]);
+        });
 
-        if (manywho.settings.event(event + '.beforeSend'))
-            manywho.settings.event(event + '.beforeSend').call(this, xhr, request);
-    }
+    return deferred
+        .done(manywho.settings.event(event + '.done'))
+        .fail(manywho.connection.onError)
+        .fail(manywho.settings.event(event + '.fail'));
+};
 
-    static getOnlineDeferred(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
-        let json = null;
-
-        if (request != null)
-            json = JSON.stringify(request);
-
-        return $.ajax({
-                url: manywho.settings.global('platform.uri') + urlPart,
-                type: methodType,
-                dataType: 'json',
-                contentType: 'application/json',
-                processData: true,
-                data: json,
-                beforeSend: xhr => {
-                    manywho.connection.beforeSend.call(this, xhr, tenantId, authenticationToken, event, request);
-
-                    if (manywho.utils.isNullOrWhitespace(stateId) === false)
-                        xhr.setRequestHeader('ManyWhoState', stateId);
-                }
-            })
-            .done(manywho.settings.event(event + '.done'))
-            .fail(manywho.connection.onError)
-            .fail(manywho.settings.event(event + '.fail'));
-    }
-
-    static getOfflineDeferred(resolveContext, event, urlPart, request) {
-        const deferred = jQuery.Deferred();
-
-        manywho.offline.getResponse(request, resolveContext)
-            .then(response => {
-                deferred.resolveWith(resolveContext, [response]);
-            });
-
-        return deferred
-            .done(manywho.settings.event(event + '.done'))
-            .fail(manywho.connection.onError)
-            .fail(manywho.settings.event(event + '.fail'));
-    }
-
-    static getDeferred(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
-        return manywho.connection.isOnline()
-            .then(isOnline => {
-                return isOnline ?
-                    manywho.connection.getOnlineDeferred(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) :
-                    manywho.connection.getOfflineDeferred(resolveContext, event, urlPart, request);
-            });
-    }
-
+manywho.connection.request = function(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
+    return manywho.connection.isOnline()
+        .then(isOnline => {
+            return isOnline ?
+                manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) :
+                manywho.connection.offlineRequest(resolveContext, event, urlPart, request);
+        });
 };

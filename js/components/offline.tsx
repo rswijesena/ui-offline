@@ -2,7 +2,9 @@
 
 declare var manywho: any;
 
-manywho.Offline = class Offline extends React.Component<any, any> {
+manywho.offline.components = manywho.offline.components || {};
+
+manywho.offline.components.offline = class Offline extends React.Component<any, any> {
 
     displayName = 'Offline';
 
@@ -22,6 +24,16 @@ manywho.Offline = class Offline extends React.Component<any, any> {
     }
 
     render() {
-        return this.state.isOnline ? <manywho.GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} /> : <manywho.GoOnline onOnline={this.onOnline} flowKey={this.props.flowKey} />;
+        return this.state.isOnline ?
+            <manywho.GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} /> :
+            <manywho.GoOnline onOnline={this.onOnline} flowKey={this.props.flowKey} />;
     }
 };
+
+manywho.settings.initialize({
+    components: {
+        static: [
+            manywho.offline.components.offline
+        ]
+    }
+});

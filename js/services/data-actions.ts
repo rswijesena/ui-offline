@@ -9,13 +9,9 @@ manywho.offline.dataActions = class DataActions {
 
         switch (action.crudOperationType.toUpperCase()) {
             case 'LOAD':
-                // TODO: filter data here
+                objectData = manywho.offline.objectData.filter(objectData, action.objectDataRequest.listFilter);
                 const value = snapshot.getValue(action.valueElementToApplyId.id);
-                state.setValue(action.valueElementToApplyId, value.typeElementId, { objectData });
-                break;
-
-            case 'SAVE':
-                // TODO: cache the save request as the objectdata being saved could change later in the flow
+                state.setValue(action.valueElementToApplyId, value.typeElementId, snapshot, { objectData });
                 break;
         }
 

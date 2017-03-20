@@ -66,7 +66,9 @@ manywho.GoOnline = class GoOnline extends React.Component<any, any> {
             </div>;
 
         return <div className="offline">
-            <button className="btn btn-info" onClick={this.onClick}>Go Online</button>
+            <button className="btn btn-info" onClick={this.onClick}>
+                <span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online
+            </button>
             {progress}
         </div>;
     }

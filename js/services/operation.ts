@@ -22,7 +22,7 @@ manywho.offline.operation = class Operation {
 
         if (operation.valueElementToReferenceId) {
             if (!isCommandSupported(operation.valueElementToReferenceId.command))
-                return;
+                return state;
 
             const value = snapshot.getValue(operation.valueElementToReferenceId.id);
             valueToReference = state.getValue(operation.valueElementToReferenceId, value.typeElementId);
@@ -30,14 +30,14 @@ manywho.offline.operation = class Operation {
 
         if (operation.valueElementToApplyId) {
             if (!isCommandSupported(operation.valueElementToApplyId.command))
-                return;
+                return state;
 
             const value = snapshot.getValue(operation.valueElementToApplyId.id);
 
             if (operation.valueElementToApplyId.command === 'NEW' || operation.valueElementToApplyId.command === 'EMPTY')
                 valueToReference = { objectData: null, contentValue: null };
 
-            state.setValue(operation.valueElementToApplyId, value.typeElementId, { objectData: null, contentValue: null });
+            state.setValue(operation.valueElementToApplyId, value.typeElementId, snapshot, valueToReference);
         }
 
         return state;

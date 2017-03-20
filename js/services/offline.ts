@@ -170,9 +170,12 @@ manywho.offline = class Offline {
     }
 
     static getResponse(request, context) {
-        return request.mapElementInvokeRequest ?
-            manywho.offline.getMapElementResponse(request, context) :
-            manywho.offline.getObjectDataResponse(request, context);
+        if (request.mapElementInvokeRequest)
+            return manywho.offline.getMapElementResponse(request, context);
+        else if (request.navigationElementId)
+            return manywho.offline.getNavigationResponse(request, context);
+        else
+            return manywho.offline.getObjectDataResponse(request, context);
     }
 
     static getMapElementResponse(request, context) {
@@ -256,10 +259,14 @@ manywho.offline = class Offline {
             })
             .then(() => manywho.offline.storage.setState(state.values))
             .then(() => {
+                let navigationResponse = {
+                    id: snapshot.metadata.navigationElements[0].id
+                };
                 return {
                     currentMapElementId: nextMapElement.id,
                     invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
                     mapElementInvokeResponses: [pageResponse],
+                    navigationElementReferences: [navigationResponse],
                     stateId: request.stateId,
                     stateToken: request.stateToken,
                     statusCode: '200'
@@ -270,5 +277,34 @@ manywho.offline = class Offline {
     static getObjectDataResponse(request, context) {
         return manywho.offline.storage.getObjectData(request.typeElementId)
             .then(objectData => manywho.offline.objectdata.filter(objectData, request.listFilter));
+    }
+
+    static getNavigationResponse(request, context) {
+        if (!manywho.offline.metadata)
+            return;
+
+        const deferred = $.Deferred();
+        const navigation = manywho.offline.metadata.navigationElements[0];
+        const response = {
+            developerName: navigation.developerName,
+            isEnabled: true,
+            isVisible: true,
+            label: navigation.label,
+            navigationItemResponses: navigation.navigationItems,
+            navigationItemDataResponses: manywho.utils.flatten(navigation.navigationItems, null, [], 'navigationItems', null).map(item => {
+                return {
+                    navigationItemId: item.id,
+                    navigationItemDeveloperName: item.developerName,
+                    isActive: false,
+                    isCurrent: false,
+                    isEnabled: true,
+                    isVisible: true,
+                    locationMapElementId: item.locationMapElementId
+                };
+            })
+        };
+
+        deferred.resolveWith(context, [response]);
+        return deferred;
     }
 };
