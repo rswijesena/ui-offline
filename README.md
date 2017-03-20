@@ -44,4 +44,4 @@ Contribution are welcome to the project - whether they are feature requests, imp
 
 ## License
 
-This service is released under the [MIT license](https://opensource.org/licenses/MIT).
+ui-offline is released under our shared source license: https://manywho.com/sharedsource
