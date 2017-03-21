@@ -6,13 +6,21 @@ module.exports = function(gulp, plugins) {
     });
 
     return  guppy.src('pre-commit', function (files) {
+        var typescriptFilter = plugins.filter(['js/components/*.tsx', 'js/services/*.ts'], { restore: true });
+        var lessFilter = plugins.filter(['css/*.less']);
+
         return gulp.src(files)
-            .pipe(plugins.filter(['js/services/*.tsx', 'js/services/*.ts']))
+            .pipe(typescriptFilter)
             .pipe(plugins.tslint({
                 formatter: 'verbose',
             }))
             .pipe(plugins.tslint.report({
                 summarizeFailureOutput: true
-            }));
+            }))
+            .pipe(typescriptFilter.restore)
+            .pipe(lessFilter)
+            .pipe(plugins.lesshint())
+            .pipe(plugins.lesshint.reporter())
+            .pipe(plugins.lesshint.failOnError());
     });
 }

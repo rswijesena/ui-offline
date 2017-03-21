@@ -239,34 +239,40 @@ manywho.offline = class Offline {
                         .forEach(operation => {
                             state = manywho.offline.operation.execute(operation, state, snapshot);
                         });
-
+            })
+            .then(() => manywho.offline.storage.setState(state.values))
+            .then(() => {
                 if (nextMapElement.elementType === 'step')
                     pageResponse = manywho.offline.step.generate(nextMapElement);
                 else if (nextMapElement.elementType === 'input')
                     pageResponse = manywho.offline.page.generate(request, nextMapElement, state, snapshot);
-                else if (nextMapElement.outcomes)
-                    return manywho.offline.getResponse({
-                        currentMapElementId: nextMapElement.id,
-                        mapElementInvokeRequest: {
-                            selectedOutcomeId: manywho.offline.rules.getOutcome(nextMapElement.outcomes, state, snapshot)
-                        }
-                    });
                 else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0)
                     pageResponse = {
                         developerName: 'done',
                         mapElementId: nextMapElement.id,
                     };
+                else if (nextMapElement.outcomes)
+                    return manywho.offline.getResponse({
+                        currentMapElementId: nextMapElement.id,
+                        mapElementInvokeRequest: {
+                            selectedOutcomeId: manywho.offline.rules.getOutcome(nextMapElement.outcomes, state, snapshot).id
+                        },
+                        invokeType: 'FORWARD'
+                    });
             })
-            .then(() => manywho.offline.storage.setState(state.values))
-            .then(() => {
-                let navigationResponse = {
-                    id: snapshot.metadata.navigationElements[0].id
-                };
+            .then(response => {
+                if (response)
+                    return response;
+
+                // Let navigationResponse = {
+                //     Id: snapshot.metadata.navigationElements[0].id
+                // };
+
                 return {
                     currentMapElementId: nextMapElement.id,
                     invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
                     mapElementInvokeResponses: [pageResponse],
-                    navigationElementReferences: [navigationResponse],
+                    // NavigationElementReferences: [navigationResponse],
                     stateId: request.stateId,
                     stateToken: request.stateToken,
                     statusCode: '200'

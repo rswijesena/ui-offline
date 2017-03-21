@@ -144,10 +144,25 @@ manywho.offline.snapshot = class Snapshot {
             value = this.metadata.valueElements.find(element => element.id === id.id);
 
         if (id.typeElementPropertyId && value.defaultObjectData) {
-            return value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
+            return JSON.parse(JSON.stringify(value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId)));
         }
         else
-            return value;
+            return JSON.parse(JSON.stringify(value));
+    }
+
+    getContentTypeForValue(id) {
+        let value = getSystemValue(id.id);
+
+        if (!value && this.metadata.valueElements)
+            value = this.metadata.valueElements.find(element => element.id === id.id);
+
+        if (id.typeElementPropertyId) {
+            const type = this.metadata.typeElements.find(element => element.id === value.typeElementId);
+            const property = type.properties.find(prop => prop.id === id.typeElementPropertyId);
+            return property.contentType;
+        }
+        else
+            return value.contentType;
     }
 
 };

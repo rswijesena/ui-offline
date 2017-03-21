@@ -46,13 +46,24 @@ manywho.offline.page = class Page {
         let pageComponentDataResponses = [];
         if (pageElement.pageComponents)
             pageComponentDataResponses = pageElement.pageComponents.map(component => {
-                let value = null;
-                if (component.valueElementValueBindingReferenceId) {
-                    value = snapshot.getValue(component.valueElementValueBindingReferenceId);
+                let selectedValue = null;
+                let sourceValue = null;
+                const value = {
+                    pageComponentId: component.id,
+                    contentValue: null,
+                    objectData: null,
+                    contentType: manywho.component.contentTypes.string,
+                    isVisible: true,
+                    isValid: true
+                };
 
-                    const stateValue = state.getValue(component.valueElementValueBindingReferenceId, value.typeElementId, value.contentType);
+                if (component.valueElementValueBindingReferenceId) {
+                    selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
+                    value.contentType = snapshot.getContentTypeForValue(component.valueElementValueBindingReferenceId);
+
+                    const stateValue = state.getValue(component.valueElementValueBindingReferenceId, selectedValue.typeElementId, selectedValue.contentType);
                     if (stateValue)
-                        value = stateValue;
+                        selectedValue = stateValue;
                 }
 
                 if (component.columns) {
@@ -60,7 +71,12 @@ manywho.offline.page = class Page {
                     if (component.objectDataRequest)
                         typeElementId = component.objectDataRequest.typeElementId;
                     else if (component.valueElementDataBindingReferenceId) {
-                        typeElementId = null;
+                        sourceValue = snapshot.getValue(component.valueElementDataBindingReferenceId);
+                        typeElementId = sourceValue.typeElementId;
+
+                        const stateValue = state.getValue(component.valueElementDataBindingReferenceId, sourceValue.typeElementId, sourceValue.contentType);
+                        if (stateValue)
+                            sourceValue = stateValue;
                     }
 
                     if (typeElementId) {
@@ -72,19 +88,20 @@ manywho.offline.page = class Page {
                     }
                 }
 
-                // TODO: support getting objectdata and setting it as selected
+                if (selectedValue)
+                    value.contentValue = selectedValue.contentValue || selectedValue.defaultContentValue;
 
-                return Object.assign({
-                    pageComponentId: component.id,
-                    contentValue: value ? value.contentValue || value.defaultContentValue : null,
-                    objectData: value ? value.objectData || value.defaultObjectData : null,
-                    isVisible: true,
-                    isValid: true
-                },
-                component,
-                {
-                    attributes: component.attributes || {}
-                });
+                if (sourceValue) {
+                    value.objectData = sourceValue.objectData || sourceValue.defaultObjectData;
+
+                    if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData))
+                        value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map(objectData => {
+                        objectData.isSelected = !!selectedValue.objectData.find(item => item.externalId === objectData.externalId && item.isSelected);
+                        return objectData;
+                    });
+                }
+
+                return Object.assign(value, component, { attributes: component.attributes || {} });
             });
 
         return {

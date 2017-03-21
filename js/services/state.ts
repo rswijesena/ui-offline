@@ -10,16 +10,14 @@ manywho.offline.state = class State {
         this.values = values;
     }
 
-    getValue(id, typeElementId, contentType) {
+    getValue(id, typeElementId, contentType, command) {
         if (this.values[id.id]) {
             let value = null;
 
             if (manywho.utils.isNullOrEmpty(typeElementId))
-                value = {
-                    contentValue: this.values[id.id]
-                };
+                value = JSON.parse(JSON.stringify(this.values[id.id]));
             else {
-                value = this.values[id.id];
+                value = JSON.parse(JSON.stringify(this.values[id.id]));
 
                 if (manywho.utils.isEqual(contentType, manywho.component.contentTypes.object, true) && value.objectData && value.objectData.length > 1) {
                     // TODO: log error;
@@ -29,6 +27,16 @@ manywho.offline.state = class State {
                     const property = value.objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
                     value.contentValue = property.contentValue;
                     value.objectData = property.objectData;
+                    value.index = 0;
+                }
+
+                if (manywho.utils.isEqual(command, 'GET_FIRST', true) && value.objectData) {
+                    value.objectData = [value.objectData[0]];
+                    value.index = 0;
+                }
+                else if (manywho.utils.isEqual(command, 'GET_NEXT', true) && value.objectData) {
+                    value.index++;
+                    value.objectData = value.index < value.objectData.length ? [value.objectData[value.index]] : [];
                 }
             }
 
@@ -43,7 +51,7 @@ manywho.offline.state = class State {
             if (!this.values[id.id])
                 this.values[id.id].objectData = JSON.parse(JSON.stringify(snapshot.typeElements.find(type => type.id === typeElementId)));
 
-            const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId = id.typeElementPropertyId);
+            const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
             property.contentValue = value.contentValue;
             property.objectData = value.objectData;
         }

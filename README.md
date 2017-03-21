@@ -18,13 +18,13 @@ typings install
 Then run the dev build:
 
 ```
-gulp dev-ts
+gulp watch
 ```
 
 Or dist build:
 
 ```
-gulp dist-ts
+gulp dist
 ```
 
 ### Running
@@ -35,11 +35,11 @@ You can run:
 gulp watch
 ``` 
 
-Which will re-run the `dev-ts` task whenever a change to the JavaScript files is made.
+Which will re-run the relevant dev tasks whenever a change to the JavaScript files is made.
 
 ## Contributing
 
-Contribution are welcome to the project - whether they are feature requests, improvements or bug fixes! Refer to 
+Contributions are welcome to the project - whether they are feature requests, improvements or bug fixes! Refer to 
 [CONTRIBUTING.md](CONTRIBUTING.md) for our contribution requirements.
 
 ## License
