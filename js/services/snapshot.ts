@@ -144,10 +144,10 @@ manywho.offline.snapshot = class Snapshot {
             value = this.metadata.valueElements.find(element => element.id === id.id);
 
         if (id.typeElementPropertyId && value.defaultObjectData) {
-            return JSON.parse(JSON.stringify(value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId)));
+            return manywho.utils.clone(value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId));
         }
         else
-            return JSON.parse(JSON.stringify(value));
+            return manywho.utils.clone(value);
     }
 
     getContentTypeForValue(id) {

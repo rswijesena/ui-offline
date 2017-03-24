@@ -15,9 +15,9 @@ manywho.offline.state = class State {
             let value = null;
 
             if (manywho.utils.isNullOrEmpty(typeElementId))
-                value = JSON.parse(JSON.stringify(this.values[id.id]));
+                value = manywho.utils.clone(this.values[id.id]);
             else {
-                value = JSON.parse(JSON.stringify(this.values[id.id]));
+                value = manywho.utils.clone(this.values[id.id]);
 
                 if (manywho.utils.isEqual(contentType, manywho.component.contentTypes.object, true) && value.objectData && value.objectData.length > 1) {
                     // TODO: log error;
@@ -49,14 +49,14 @@ manywho.offline.state = class State {
     setValue(id, typeElementId, snapshot, value) {
         if (id.typeElementPropertyId) {
             if (!this.values[id.id])
-                this.values[id.id].objectData = JSON.parse(JSON.stringify(snapshot.typeElements.find(type => type.id === typeElementId)));
+                this.values[id.id].objectData = manywho.utils.clone(snapshot.typeElements.find(type => type.id === typeElementId));
 
             const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
             property.contentValue = value.contentValue;
             property.objectData = value.objectData;
         }
         else
-            this.values[id.id] = JSON.parse(JSON.stringify(value));
+            this.values[id.id] = manywho.utils.clone(value);
     }
 
     update(inputs, mapElement, snapshot) {

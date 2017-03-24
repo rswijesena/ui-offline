@@ -11,7 +11,7 @@ manywho.offline.objectdata = class {
                 objectData
             };
 
-        let filteredObjectData = JSON.parse(JSON.stringify(objectData));
+        let filteredObjectData = manywho.utils.clone(objectData);
 
         if (filter.search)
             filteredObjectData = filteredObjectData.filter(item => {

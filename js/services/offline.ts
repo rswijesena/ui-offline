@@ -46,7 +46,7 @@ function getChunkedObjectDataRequests(request) {
     const pages = [];
 
     for (let i = 0; i < iterations; i++) {
-        const page = JSON.parse(JSON.stringify(request));
+        const page = manywho.utils.clone(request);
         page.listFilter.limit = pageSize;
         page.listFilter.offset = i * pageSize;
         pages.push(page);

@@ -47,7 +47,7 @@ manywho.offline.operation = class Operation {
                         developerName: type.developerName,
                         order: 0,
                         isSelected: false,
-                        properties: JSON.parse(JSON.stringify(type.properties)).map(property => {
+                        properties: manywho.utils.clone(type.properties).map(property => {
                             property.contentValue = null;
                             property.objectData = null;
                             property.typeElementPropertyId = property.id;

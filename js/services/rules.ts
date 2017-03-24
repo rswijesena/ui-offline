@@ -64,48 +64,38 @@ manywho.offline.rules = class Rules {
 
     static compareValues(left, right, contentType, criteriaType) {
         switch (contentType) {
-            case 'CONTENTEOBJECT':
+            case manywho.component.contentTypes.object:
                 return manywho.offline.rules.compareObjects(left, right, criteriaType);
-            case 'CONTENTLIST':
+            case manywho.component.contentTypes.list:
                 return manywho.offline.rules.compareLists(left, right, criteriaType);
             default:
-                const values = manywho.offline.rules.getContentValues(left, right, contentType);
-                return manywho.offline.rules.compareContentValues(values.left, values.right, criteriaType);
+                let rightContentValue = criteriaType === 'IS_EMPTY' ?
+                    manywho.offline.rules.getContentValue(right, manywho.component.contentTypes.boolean) :
+                    manywho.offline.rules.getContentValue(right, contentType);
+
+                return manywho.offline.rules.compareContentValues(manywho.offline.rules.getContentValue(left, contentType), rightContentValue, criteriaType);
         }
     }
 
-    static getContentValues(left, right, contentType) {
-        const leftContentValue = left.defaultContentValue || left.contentValue;
-        const rightContentValue = right.defaultContentValue || right.contentValue;
+    static getContentValue(value, contentType) {
+        const contentValue = value.defaultContentValue || value.contentValue;
 
         switch (contentType) {
-            case 'CONTENTSTRING':
-            case 'CONTENTCONTENT':
-            case 'CONTENTPASSWORD':
-            case 'CONTENTENCRYPTED':
-                return {
-                    left: leftContentValue ? leftContentValue.toUpperCase() : leftContentValue,
-                    right: rightContentValue ? rightContentValue.toUpperCase() : rightContentValue
-                };
-            case 'CONTENTNUMBER':
-                return {
-                    left: leftContentValue ? parseFloat(leftContentValue) : leftContentValue,
-                    right: rightContentValue ? parseFloat(rightContentValue) : rightContentValue
-                };
-            case 'CONTENTDATETIME':
-               return {
-                    left: leftContentValue ? moment(leftContentValue) : leftContentValue,
-                    right: rightContentValue ? moment(rightContentValue) : rightContentValue
-                };
-            case 'CONTENTBOOLEAN':
-                return {
-                    left: leftContentValue ? new Boolean(leftContentValue) : leftContentValue,
-                    right: rightContentValue ? new Boolean(rightContentValue) : rightContentValue
-                };
+            case manywho.component.contentTypes.string:
+            case manywho.component.contentTypes.content:
+            case manywho.component.contentTypes.password:
+            case manywho.component.contentTypes.encrypted:
+                return contentValue ? contentValue.toUpperCase() : contentValue;
+            case manywho.component.contentTypes.number:
+                return contentValue ? parseFloat(contentValue) : contentValue;
+            case manywho.component.contentTypes.datetime:
+                return contentValue ? moment(contentValue) : contentValue;
+            case manywho.component.contentTypes.boolean:
+                return contentValue ? new Boolean(contentValue) : contentValue;
         }
     }
 
-    static compareContentValues(left, right, criteriaType) {
+    static compareContentValues(left, right, criteriaType, contentType) {
         switch (criteriaType.toUpperCase()) {
             case 'EQUAL':
                 return left === right;
@@ -135,7 +125,17 @@ manywho.offline.rules = class Rules {
                 return left.indexOf(right) !== -1;
 
             case 'IS_EMPTY':
-                return manywho.utils.isNullOrEmpty(left);
+                switch (contentType.toUpperCase()) {
+                    case manywho.component.contentTypes.string:
+                    case manywho.component.contentTypes.password:
+                    case manywho.component.contentTypes.content:
+                    case manywho.component.contentTypes.encrypted:
+                        return (manywho.utils.isNullOrEmpty(left) && right) || (!manywho.utils.isNullOrEmpty(left) && !right);
+                    case manywho.component.contentTypes.number:
+                    case manywho.component.contentTypes.boolean:
+                    case manywho.component.contentTypes.datetime:
+                        return (left === null && right) || (left !== null && !right);
+                }
         }
     }
 
