@@ -17,3 +17,7 @@ manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
 
     return result;
 };
+
+manywho.utils.clone = function(object) {
+    return JSON.parse(JSON.stringify(object));
+};

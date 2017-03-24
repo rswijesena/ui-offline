@@ -48,7 +48,7 @@ manywho.offline.page = class Page {
             pageComponentDataResponses = pageElement.pageComponents.map(component => {
                 let selectedValue = null;
                 let sourceValue = null;
-                const value = {
+                const value: any = {
                     pageComponentId: component.id,
                     contentValue: null,
                     objectData: null,

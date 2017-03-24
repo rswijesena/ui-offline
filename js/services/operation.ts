@@ -12,10 +12,10 @@ function isCommandSupported(command) {
 
 manywho.offline.operation = class Operation {
 
-    static commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD'];
+    static commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'];
 
     static execute(operation, state, snapshot) {
-        let valueToReference = null;
+        let valueToReference: any = { objectData: null, contentValue: null };
 
         if (operation.valueElementToReferenceId) {
             if (!isCommandSupported(operation.valueElementToReferenceId.command))
@@ -32,20 +32,34 @@ manywho.offline.operation = class Operation {
                 return state;
 
             let valueToApply = snapshot.getValue(operation.valueElementToApplyId);
+            const typeElementId = valueToApply ? valueToApply.typeElementId : null;
+            let type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
+
             const stateValue = state.getValue(operation.valueElementToApplyId, valueToApply.typeElementId, valueToApply.contentType, operation.valueElementToApplyId.command);
             if (stateValue)
                 valueToApply = stateValue;
 
             switch (operation.valueElementToApplyId.command) {
                 case 'NEW':
-                case 'EMPTY':
-                    valueToApply = { objectData: null, contentValue: null };
+                    valueToReference.objectData = [{
+                        externalId: manywho.utils.guid(),
+                        internalId: manywho.utils.guid(),
+                        developerName: type.developerName,
+                        order: 0,
+                        isSelected: false,
+                        properties: JSON.parse(JSON.stringify(type.properties)).map(property => {
+                            property.contentValue = null;
+                            property.objectData = null;
+                            property.typeElementPropertyId = property.id;
+                            return property;
+                        })
+                    }];
                     break;
 
                 case 'ADD':
                     valueToReference.objectData = valueToReference.objectData || [];
 
-                    let objectData = JSON.parse(JSON.stringify(valueToApply.objectData || valueToApply.defaultObjectData || [])).map(objectData => {
+                    let objectData = manywho.utils.clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map(objectData => {
                         if (valueToReference.objectData.length > 0) {
                             const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
                             if (existingItem) {
@@ -56,12 +70,19 @@ manywho.offline.operation = class Operation {
                         return objectData;
                     });
 
-                    objectData = objectData.concat(JSON.parse(JSON.stringify(valueToReference.objectData)));
+                    objectData = objectData.concat(manywho.utils.clone(valueToReference.objectData));
                     valueToReference.objectData = objectData;
+                    break;
+
+                case 'REMOVE':
+                    valueToReference.objectData = valueToReference.objectData || [];
+
+                    valueToReference.objectData = manywho.utils.clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
+                        .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
                     break;
             }
 
-            state.setValue(operation.valueElementToApplyId, valueToReference.typeElementId, snapshot, valueToReference);
+            state.setValue(operation.valueElementToApplyId, typeElementId, snapshot, valueToReference);
         }
 
         return state;
