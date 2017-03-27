@@ -19,7 +19,7 @@ manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
 };
 
 manywho.utils.clone = function(object) {
-    return JSON.parse(JSON.stringify(object));
+    return !manywho.utils.isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
 };
 
 manywho.utils.guid = function() {

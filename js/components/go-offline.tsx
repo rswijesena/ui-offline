@@ -20,24 +20,22 @@ manywho.GoOffline = class GoOffline extends React.Component<any, any> {
         const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const authenticationToken = manywho.state.getAuthenticationToken(stateId);
+        const state = manywho.state.getState(this.props.flowKey);
 
-        this.setState({ isProgressVisible: true });
-
-        manywho.offline.initialize();
-        manywho.offline.cacheObjectData(stateId, tenantId, authenticationToken, this.onProgress);
+        manywho.offline.initialize(state.token)
+            .then(() => {
+                if (manywho.offline.cacheObjectData(stateId, tenantId, authenticationToken, this.onProgress))
+                    this.setState({ isProgressVisible: true });
+                else
+                    this.props.onOffline();
+            });
     }
 
     onProgress = (current, total) => {
         this.setState({ progress: Math.min((current / total) * 100, 100) });
 
-        if (current >= total) {
-            manywho.settings.initialize({
-                offline: {
-                    isOnline: false
-                }
-            });
+        if (current >= total)
             this.setState({ progress: 100, isDismissEnabled: true });
-        }
     }
 
     onDismiss = () => {

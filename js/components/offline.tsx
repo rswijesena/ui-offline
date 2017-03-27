@@ -17,10 +17,17 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
 
     onOffline = () => {
         this.setState({ isOnline: false });
+
+        manywho.settings.initialize({
+            offline: {
+                isOnline: false
+            }
+        });
     }
 
     onOnline = () => {
         this.setState({ isOnline: true });
+        manywho.offline.rejoin(this.props.flowKey);
     }
 
     render() {

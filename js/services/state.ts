@@ -4,10 +4,12 @@ declare var manywho: any;
 
 manywho.offline.state = class State {
 
+    token = null;
     values = null;
     currentMapElementId = null;
 
     constructor(state) {
+        this.token = state.token;
         this.values = state.values || {};
         this.currentMapElementId = state.currentMapElementId;
     }
@@ -53,9 +55,11 @@ manywho.offline.state = class State {
             if (!this.values[id.id])
                 this.values[id.id].objectData = manywho.utils.clone(snapshot.typeElements.find(type => type.id === typeElementId));
 
-            const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
-            property.contentValue = value.contentValue;
-            property.objectData = value.objectData;
+            if (this.values[id.id].objectData && this.values[id.id].objectData.length > 0) {
+                const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
+                property.contentValue = value.contentValue;
+                property.objectData = value.objectData;
+            }
         }
         else
             this.values[id.id] = manywho.utils.clone(value);
