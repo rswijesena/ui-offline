@@ -5,9 +5,11 @@ declare var manywho: any;
 manywho.offline.state = class State {
 
     values = null;
+    currentMapElementId = null;
 
-    constructor(values) {
-        this.values = values;
+    constructor(state) {
+        this.values = state.values || {};
+        this.currentMapElementId = state.currentMapElementId;
     }
 
     getValue(id, typeElementId, contentType, command) {
@@ -23,7 +25,7 @@ manywho.offline.state = class State {
                     // TODO: log error;
                 }
 
-                if (id.typeElementPropertyId && value.objectData) {
+                if (id.typeElementPropertyId && value.objectData && value.objectData.length > 0) {
                     const property = value.objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
                     value.contentValue = property.contentValue;
                     value.objectData = property.objectData;

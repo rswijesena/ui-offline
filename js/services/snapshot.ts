@@ -165,4 +165,19 @@ manywho.offline.snapshot = class Snapshot {
             return value.contentType;
     }
 
+    getNavigationElementReferences(id) {
+        if (this.metadata.navigationElements) {
+            return this.metadata.navigationElements
+                .filter((element, index) => id ? element.id === id : index === 0)
+                .map(element => {
+                    return {
+                        developerName: element.developerName,
+                        id: element.id
+                    };
+                });
+        }
+
+        return null;
+    }
+
 };

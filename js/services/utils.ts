@@ -21,3 +21,10 @@ manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
 manywho.utils.clone = function(object) {
     return JSON.parse(JSON.stringify(object));
 };
+
+manywho.utils.guid = function() {
+    const s4 = function() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    };
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
