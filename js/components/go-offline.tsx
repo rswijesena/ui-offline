@@ -2,7 +2,9 @@
 
 declare var manywho: any;
 
-manywho.GoOffline = class GoOffline extends React.Component<any, any> {
+manywho.offline.components = manywho.offline.components || {};
+
+manywho.offline.components.goOffline = class GoOffline extends React.Component<any, any> {
 
     displayName = 'Go-Offline';
 

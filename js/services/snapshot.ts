@@ -166,7 +166,7 @@ manywho.offline.snapshot = class Snapshot {
     }
 
     getNavigationElementReferences(id) {
-        if (this.metadata.navigationElements) {
+        if (this.metadata.navigationElements)
             return this.metadata.navigationElements
                 .filter((element, index) => id ? element.id === id : index === 0)
                 .map(element => {
@@ -175,7 +175,6 @@ manywho.offline.snapshot = class Snapshot {
                         id: element.id
                     };
                 });
-        }
 
         return null;
     }

@@ -38,8 +38,21 @@
 
             & > .panel {
                 align-self: center;
-                text-align: center;
+                display: flex;
+                flex-direction: column;
+                max-height: 80vh;
                 width: 50%;
+
+                & > .panel-body {
+                    display: flex;
+                    flex-direction: column;
+                    flex-grow: 1;
+                }
+            }
+
+            .offline-progress,
+            .offline-error {
+                text-align: center;
             }
         }
     }

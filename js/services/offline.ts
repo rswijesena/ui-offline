@@ -106,7 +106,7 @@ manywho.offline = class Offline {
             .then(manywho.offline.storage.clearRequests);
     }
 
-    static replay(tenantId, stateId, authenticationToken, onDone, onFail, onProgress) {
+    static replay(tenantId, stateId, authenticationToken, onFault: Function, onDone, onFail, onProgress, index) {
         const replayRequest = function(requests, index, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress) {
             const request = requests[index];
             request.stateId = stateId;
@@ -114,15 +114,23 @@ manywho.offline = class Offline {
 
             return manywho.ajax.invoke(request, tenantId, authenticationToken)
                 .then(response => {
-                    index++;
-                    if (index < requests.length) {
-                        onProgress && onProgress(index, requests.length);
-                        replayRequest(requests, index, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress);
+                    if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
+                        onFault && onFault(response, index);
+                        return;
                     }
-                    else
-                        onDone && onDone();
+                    else {
+                        index++;
+                        if (index < requests.length) {
+                            onProgress && onProgress(index, requests.length);
+                            replayRequest(requests, index, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress);
+                        }
+                        else
+                            onDone && onDone();
+                    }
                 })
-                .fail(onFail);
+                .fail((xhr, status, error) => {
+                    onFail && onFail(error, index);
+                });
         };
 
         let state = null;
@@ -132,7 +140,7 @@ manywho.offline = class Offline {
             .then(manywho.offline.storage.getRequests)
             .then(requests => {
                 if (requests && requests.length > 0)
-                    replayRequest(requests, 0, tenantId, stateId, state.token, authenticationToken, onDone, onFail, onProgress);
+                    replayRequest(requests, index || 0, tenantId, stateId, state.token, authenticationToken, onDone, onFail, onProgress);
                 else
                     onDone && onDone();
             });
@@ -240,7 +248,7 @@ manywho.offline = class Offline {
         return manywho.offline.storage.getState()
             .then(response => state = new manywho.offline.state(response))
             .then(() => {
-                if (manywho.utils.isEqual(request.invokeType, 'FORWARD', true) || manywho.utils.isEqual(request.invokeType, 'NAVIGATE', true))
+                if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
                     return manywho.offline.storage.saveRequest(request);
             })
             .then(() => {

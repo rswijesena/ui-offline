@@ -32,8 +32,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
 
     render() {
         return this.state.isOnline ?
-            <manywho.GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} /> :
-            <manywho.GoOnline onOnline={this.onOnline} flowKey={this.props.flowKey} />;
+            <manywho.offline.components.goOffline onOffline={this.onOffline} flowKey={this.props.flowKey} /> :
+            <manywho.offline.components.goOnline onOnline={this.onOnline} flowKey={this.props.flowKey} />;
     }
 };
 
