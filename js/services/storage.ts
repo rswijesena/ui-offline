@@ -45,6 +45,10 @@ manywho.offline.storage = class {
             });
     }
 
+    static saveRequests(requests) {
+        return localforage.setItem('manywho:offline-requests', requests);
+    }
+
     static clearRequests() {
         return localforage.removeItem('manywho:offline-requests');
     }

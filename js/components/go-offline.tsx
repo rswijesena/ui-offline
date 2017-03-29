@@ -18,21 +18,6 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
         };
     }
 
-    onClick = (e) => {
-        const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const authenticationToken = manywho.state.getAuthenticationToken(stateId);
-        const state = manywho.state.getState(this.props.flowKey);
-
-        manywho.offline.initialize(state.token)
-            .then(() => {
-                if (manywho.offline.cacheObjectData(stateId, tenantId, authenticationToken, this.onProgress))
-                    this.setState({ isProgressVisible: true });
-                else
-                    this.props.onOffline();
-            });
-    }
-
     onProgress = (current, total) => {
         this.setState({ progress: Math.min((current / total) * 100, 100) });
 
@@ -44,14 +29,23 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
         this.props.onOffline();
     }
 
+    componentWillMount() {
+        manywho.offline.initialize(this.props.stateToken)
+            .then(() => {
+                if (manywho.offline.cacheObjectData(this.props.stateId, this.props.tenantId, this.props.authenticationToken, this.onProgress))
+                    this.setState({ isProgressVisible: true });
+                else
+                    this.props.onOffline();
+            });
+    }
+
     render() {
         const style = {
             width: `${this.state.progress}%`
         };
 
-        let progress = null;
         if (this.state.isProgressVisible)
-            progress = <div className="offline-status">
+            return <div className="offline-status">
                 <div className="panel panel-default">
                     <div className="panel-body">
                         <h4>{this.state.status}</h4>
@@ -63,11 +57,6 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
                 </div>
             </div>;
 
-        return <div className="offline">
-            <button className="btn btn-primary" onClick={this.onClick} disabled={!manywho.offline.metadata}>
-                <span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline
-            </button>
-            {progress}
-        </div>;
+        return null;
     }
 };

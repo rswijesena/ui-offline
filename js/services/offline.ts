@@ -106,30 +106,38 @@ manywho.offline = class Offline {
             .then(manywho.offline.storage.clearRequests);
     }
 
-    static replay(tenantId, stateId, authenticationToken, onFault: Function, onDone, onFail, onProgress, index) {
-        const replayRequest = function(requests, index, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress) {
-            const request = requests[index];
+    static replay(tenantId, stateId, authenticationToken, onFault: Function, onDone, onFail, onProgress) {
+        const replayRequest = function(requests, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress, index, total) {
+            const request = requests[0];
             request.stateId = stateId;
             request.stateToken = stateToken;
 
             return manywho.ajax.invoke(request, tenantId, authenticationToken)
                 .then(response => {
+
+                    onFault && onFault(request, response);
+                    return;
+
                     if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
-                        onFault && onFault(response, index);
+                        onFault && onFault(request, response);
                         return;
                     }
                     else {
                         index++;
-                        if (index < requests.length) {
-                            onProgress && onProgress(index, requests.length);
-                            replayRequest(requests, index, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress);
+                        requests.shift();
+
+                        if (requests.length > 0) {
+                            onProgress && onProgress(index, total);
+
+                            manywho.offline.storage.saveRequests(requests)
+                                .then(() => replayRequest(requests, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress, index, total));
                         }
                         else
                             onDone && onDone();
                     }
                 })
                 .fail((xhr, status, error) => {
-                    onFail && onFail(error, index);
+                    onFail && onFail(error);
                 });
         };
 
@@ -140,7 +148,7 @@ manywho.offline = class Offline {
             .then(manywho.offline.storage.getRequests)
             .then(requests => {
                 if (requests && requests.length > 0)
-                    replayRequest(requests, index || 0, tenantId, stateId, state.token, authenticationToken, onDone, onFail, onProgress);
+                    replayRequest(requests, tenantId, stateId, state.token, authenticationToken, onDone, onFail, onProgress, 0, requests.length);
                 else
                     onDone && onDone();
             });

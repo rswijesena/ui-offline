@@ -19,6 +19,12 @@ manywho.offline.components.goOnlineFault = class GoOnlineFault extends React.Com
         this.setState({ isCollapsed: !this.state.isCollapsed });
     }
 
+    onDiscardAndJoin = () => {
+        manywho.offline.storage.clearRequests()
+            .then(manywho.offline.storage.clearObjectData)
+            .then(() => this.props.onJoin);
+    }
+
     render() {
         const rootFaults = this.props.response.mapElementInvokeResponses[0].rootFaults || [];
         const toggleIcon = (this.state.isCollapsed) ? 'plus' : 'minus';
@@ -33,7 +39,8 @@ manywho.offline.components.goOnlineFault = class GoOnlineFault extends React.Com
                 <ul>
                     {rootFaults.map(fault => <li className="text-danger">{fault}</li>)}
                 </ul>
-                <button className="btn btn-primary" onClick={this.props.onJoin}>Join and Fix</button>
+                <button className="btn btn-primary" onClick={this.props.onJoin}>Join and fix</button>
+                <button className="btn btn-default" onClick={this.onDiscardAndJoin}>Discard offline recording and rejoin</button>
             </div>
             <h5 onClick={this.onToggleCollapse}><span className={`glyphicon glyphicon-${toggleIcon}`} /> Response</h5>
             <div className={responseClassName}>

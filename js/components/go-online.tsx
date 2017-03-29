@@ -17,31 +17,15 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
     }
 
     replay = (index) => {
-        const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const authenticationToken = manywho.state.getAuthenticationToken(stateId);
-
-        manywho.offline.replay(tenantId, stateId, authenticationToken, this.onFault, this.onDone, this.onFail, this.onProgress, index);
+        manywho.offline.replay(this.props.tenantId, this.props.stateId, this.props.authenticationToken, this.onFault, this.onDone, this.onFail, this.onProgress, index);
     }
 
-    onClick = (e) => {
-        this.setState({ isProgressVisible: true });
-
-        manywho.settings.initialize({
-            offline: {
-                isOnline: true
-            }
-        });
-
-        this.replay(null);
+    onFault = (request, response) => {
+        this.setState({ fault: response });
     }
 
-    onFault = (response, index) => {
-        this.setState({ fault: response, requestIndex: index });
-    }
-
-    onFail = (error, index) => {
-        this.setState({ error, requestIndex: index});
+    onFail = (error) => {
+        this.setState({ error});
     }
 
     onProgress = (current, total) => {
@@ -56,12 +40,24 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
     }
 
     onRetry = () => {
-        this.setState({ error: null, requestIndex: null });
+        this.setState({ error: null });
         this.replay(this.state.requestIndex);
     }
 
     onDismiss = () => {
         this.props.onOnline();
+    }
+
+    componentWillMount() {
+        this.setState({ isProgressVisible: true });
+
+        manywho.settings.initialize({
+            offline: {
+                isOnline: true
+            }
+        });
+
+        this.replay(null);
     }
 
     render() {
@@ -87,21 +83,14 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
                 {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Online</button> : null}
             </div>;
 
-        return <div className="offline">
-            <button className="btn btn-info" onClick={this.onClick}>
-                <span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online
-            </button>
-            {
-                content ?
-                    <div className="offline-status">
-                        <div className="panel panel-default">
-                            <div className="panel-body">
-                                {content}
-                            </div>
-                        </div>
-                    </div> :
-                    null
-            }
-        </div>;
+        return content ?
+            <div className="offline-status">
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        {content}
+                    </div>
+                </div>
+            </div> :
+            null;
     }
 };
