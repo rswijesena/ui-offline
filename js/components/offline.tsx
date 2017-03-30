@@ -13,7 +13,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         this.state = {
             isOnline: true,
             view: null,
-            pendingRequests: []
+            pendingRequests: null
         };
     }
 
@@ -21,7 +21,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         manywho.offline.storage.getRequests()
             .then(response => {
                 if (response)
-                    this.setState({ pendingRequests: response || [] });
+                    this.setState({ pendingRequests: response });
             });
     }
 
@@ -57,6 +57,11 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         this.setState({ view: null });
     }
 
+    onDeleteAllPendingRequests = () => {
+        manywho.offline.storage.clearRequests()
+            .then(() => this.setState({ view: null, pendingRequests: null }));
+    }
+
     componentWillMount() {
         this.getPendingRequests();
     }
@@ -86,7 +91,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
                 break;
 
             case 2:
-                content = <manywho.offline.components.syncPendingRequests requests={this.state.pendingRequests} onClose={this.onCloseSyncPending} />;
+                content = <manywho.offline.components.syncPendingRequests requests={this.state.pendingRequests} onClose={this.onCloseSyncPending} onDeleteAll={this.onDeleteAllPendingRequests} />;
                 break;
         }
 

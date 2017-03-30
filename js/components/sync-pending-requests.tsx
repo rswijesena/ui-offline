@@ -10,11 +10,21 @@ manywho.offline.components.syncPendingRequests = class SyncPendingRequests exten
 
     constructor(props: any) {
         super(props);
-        this.state = {};
+        this.state = {
+            requests: null
+        };
+    }
+
+    componentWillMount() {
+        this.setState({ requests: this.props.requests });
     }
 
     render() {
-        const requests = this.props.requests.map(request => <manywho.offline.components.syncPendingRequest request={request} />);
+        const requests = this.state.requests.map(request => {
+            request.stateId = this.props.stateId;
+            request.stateToken = this.props.stateToken;
+            return <manywho.offline.components.syncPendingRequest request={request} tenantId={this.props.tenantId} authenticationToken={this.props.authenticationToken} onReplay={this.onReplayRequest} />;
+        });
 
         return <div className="offline-status">
             <div className="panel panel-default">
@@ -27,7 +37,7 @@ manywho.offline.components.syncPendingRequests = class SyncPendingRequests exten
                     </div>
                 </div>
                 <div className="panel-footer">
-                    <button className="btn btn-danger pull-left">Delete All</button>
+                    <button className="btn btn-danger pull-left" onClick={this.props.onDeleteAll}>Delete All</button>
                     <button className="btn btn-default pull-right" onClick={this.props.onClose}>Close</button>
                     <button className="btn btn-primary pull-right pending-requests-replay-all">Replay All</button>
                 </div>
