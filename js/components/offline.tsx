@@ -13,16 +13,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         this.state = {
             isOnline: true,
             view: null,
-            pendingRequests: []
+            requests: []
         };
-    }
-
-    getPendingRequests() {
-        manywho.offline.storage.getRequests()
-            .then(response => {
-                if (response)
-                    this.setState({ pendingRequests: response || [] });
-            });
     }
 
     onOfflineClick = (e) => {
@@ -44,9 +36,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 
     onOnline = () => {
-        this.setState({ isOnline: true, view: null });
+        this.setState({ isOnline: true, view: null, requests: null });
         manywho.offline.rejoin(this.props.flowKey);
-        this.getPendingRequests();
     }
 
     onSyncPendingClick = () => {
@@ -58,11 +49,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 
     componentWillMount() {
-        this.getPendingRequests();
-    }
-
-    componentWillUpdate(props, state) {
-        const x = 0;
+        manywho.offline.storage.getRequests()
+            .then(requests => this.setState({ requests }));
     }
 
     render() {
@@ -74,29 +62,32 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
             stateToken: manywho.state.getState(this.props.flowKey).token
         };
 
-        let content = null;
+        let requests = null;
+        if (this.state.requests && this.state.requests.length > 0 && this.state.isOnline)
+            requests = <button className="btn btn-default" onClick={this.onSyncPendingClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/> {`${this.state.requests.length} Pending Requests`}</button>;
+
+        let view = null;
 
         switch (this.state.view) {
             case 0:
-                content = <manywho.offline.components.goOffline {...props} onOffline={this.onOffline} />;
+                view = <manywho.offline.components.goOffline {...props} onOffline={this.onOffline} />;
                 break;
 
             case 1:
-                content = <manywho.offline.components.goOnline {...props} onOnline={this.onOnline} />;
-                break;
-
-            case 2:
-                content = <manywho.offline.components.syncPendingRequests requests={this.state.pendingRequests} onClose={this.onCloseSyncPending} />;
+                view = <manywho.offline.components.goOnline {...props} onOnline={this.onOnline} />;
                 break;
         }
 
         return <div className="offline">
             <div className="offline-options">
-                {this.state.isOnline && <button className="btn btn-primary" onClick={this.onOfflineClick} disabled={!manywho.offline.metadata}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button>}
-                {!this.state.isOnline && <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online</button>}
-                {this.state.pendingRequests && <button className="btn btn-default" onClick={this.onSyncPendingClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/> {`${this.state.pendingRequests.length} Pending Sync`}</button>}
+                {
+                    this.state.isOnline ?
+                        <button className="btn btn-primary" onClick={this.onOfflineClick} disabled={!manywho.offline.metadata}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button> :
+                        <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online</button>
+                }
+                {requests}
             </div>
-            {content}
+            {view}
         </div>;
     }
 };
