@@ -43,11 +43,9 @@ manywho.offline.components.request = class Request extends React.Component<any, 
     }
 
     render() {
-        let progress = null;
+        let replaying = null;
         if (this.state.isReplaying)
-            progress = <div className="progress replay-progress">
-                <div className="progress-bar progress-bar-striped active" />
-            </div>;
+            replaying = <p className="text-info replaying">Replaying...</p>;
 
         let response = null;
         if (this.state.response)
@@ -68,7 +66,7 @@ manywho.offline.components.request = class Request extends React.Component<any, 
                 <button className="btn btn-primary btn-sm" onClick={this.onReplay} disabled={isDisabled}>Replay</button>
                 <button className="btn btn-danger btn-sm" onClick={this.onDelete} disabled={isDisabled}>Delete</button>
             </div>
-            {progress}
+            {replaying}
             {response}
             {request}
         </li>;
