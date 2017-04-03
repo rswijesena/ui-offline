@@ -58,7 +58,6 @@ function getChunkedObjectDataRequests(request) {
 manywho.settings.initialize({
     offline: {
         isEnabled: true,
-        isOnline: true,
         cache: {
             requests: {
                 limit: 250,
@@ -162,12 +161,21 @@ manywho.offline = class Offline {
     }
 
     static getResponse(context, event, urlPart, request) {
-        return manywho.offline.storage.get(request.stateId)
+        let stateId = null;
+        if (request)
+            stateId = request.stateId;
+        else if (manywho.utils.isEqual(event, 'join', true))
+            stateId = urlPart.substr(urlPart.lastIndexOf('/') + 1);
+
+        return manywho.offline.storage.get(stateId)
             .then(response => {
                 const flow = new manywho.offline.flow(response);
 
                 if (manywho.utils.isEqual(event, 'join', true))
-                    return null;
+                    return manywho.offline.getMapElementResponse({
+                        invokeType: 'JOIN',
+                        currentMapElementId: flow.state.currentMapElementId,
+                    }, flow, context);
                 else if (request.mapElementInvokeRequest)
                     return manywho.offline.getMapElementResponse(request, flow, context);
                 else if (request.navigationElementId)
@@ -207,6 +215,10 @@ manywho.offline = class Offline {
                 const navigation = manywho.offline.metadata.navigationElements.find(element => element.id === request.navigationElementId);
                 const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
                 nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === navigationItem.locationMapElementId);
+                break;
+
+            case 'JOIN':
+                nextMapElement = mapElement;
                 break;
         }
 
