@@ -106,54 +106,6 @@ manywho.offline = class Offline {
             .then(manywho.offline.storage.clearRequests);
     }
 
-    static replay(tenantId, stateId, authenticationToken, onFault: Function, onDone, onFail, onProgress) {
-        const replayRequest = function(requests, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress, index, total) {
-            const request = requests[0];
-            request.stateId = stateId;
-            request.stateToken = stateToken;
-
-            return manywho.ajax.invoke(request, tenantId, authenticationToken)
-                .then(response => {
-
-                    onFault && onFault(request, response);
-                    return;
-
-                    if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
-                        onFault && onFault(request, response);
-                        return;
-                    }
-                    else {
-                        index++;
-                        requests.shift();
-
-                        if (requests.length > 0) {
-                            onProgress && onProgress(index, total);
-
-                            manywho.offline.storage.saveRequests(requests)
-                                .then(() => replayRequest(requests, tenantId, stateId, stateToken, authenticationToken, onDone, onFail, onProgress, index, total));
-                        }
-                        else
-                            onDone && onDone();
-                    }
-                })
-                .fail((xhr, status, error) => {
-                    onFail && onFail(error);
-                });
-        };
-
-        let state = null;
-
-        manywho.offline.storage.getState()
-            .then(response => state = new manywho.offline.state(response))
-            .then(manywho.offline.storage.getRequests)
-            .then(requests => {
-                if (requests && requests.length > 0)
-                    replayRequest(requests, tenantId, stateId, state.token, authenticationToken, onDone, onFail, onProgress, 0, requests.length);
-                else
-                    onDone && onDone();
-            });
-    }
-
     static rejoin(flowKey) {
         const tenantId = manywho.utils.extractTenantId(flowKey);
         const flowId = manywho.utils.extractFlowId(flowKey);

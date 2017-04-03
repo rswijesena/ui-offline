@@ -11,86 +11,100 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
     constructor(props: any) {
         super(props);
         this.state = {
-            progress: 0,
-            isDismissVisible: false
+            requests: [],
+            isReplayingAll: false
         };
     }
 
-    replay = (index) => {
-        manywho.offline.replay(this.props.tenantId, this.props.stateId, this.props.authenticationToken, this.onFault, this.onDone, this.onFail, this.onProgress, index);
+    onDeleteRequest = (request) => {
+        const index = this.state.requests.indexOf(request);
+        const requests = manywho.utils.clone(this.state.requests);
+        requests.splice(index, 1);
+        manywho.offline.storage.saveRequests(requests);
+        this.setState({ requests });
     }
 
-    onFault = (request, response) => {
-        this.setState({ fault: response });
+    onReplayDone = (request) => {
+        const index = this.state.requests.indexOf(request);
+
+        if (index === this.state.requests.length - 1 && this.state.isReplayAll) {
+            this.onDeleteRequest(request);
+            this.props.onOnline();
+        }
+        else
+            this.onDeleteRequest(request);
     }
 
-    onFail = (error) => {
-        this.setState({ error});
+    onReplayAll = () => {
+        this.setState({ isReplayAll: true });
     }
 
-    onProgress = (current, total) => {
-        this.setState({ progress: Math.min((current / total) * 100, 100) });
-    }
-
-    onDone = () => {
-        this.setState({ progress: 100 });
-
+    onDeleteAll = () => {
         manywho.offline.storage.clearRequests()
-            .then(() => this.setState({ isDismissVisible: true }));
+            .then(this.props.onOnline);
     }
 
-    onRetry = () => {
-        this.setState({ error: null });
-        this.replay(this.state.requestIndex);
-    }
+    onClose = () => {
+        manywho.settings.initialize({
+            offline: {
+                isOnline: false
+            }
+        });
 
-    onDismiss = () => {
-        this.props.onOnline();
+        this.props.onClose();
     }
 
     componentWillMount() {
-        this.setState({ isProgressVisible: true });
-
         manywho.settings.initialize({
             offline: {
                 isOnline: true
             }
         });
 
-        this.replay(null);
+        manywho.offline.storage.getRequests()
+            .then(response => {
+                if (response) {
+                    const requests = (response || []).map((request, index) => {
+                        request.key = index;
+                        return request;
+                    });
+
+                    this.setState({ requests });
+                }
+            });
     }
 
     render() {
-        const style = {
-            width: `${this.state.progress}%`
-        };
+        const requests = this.state.requests.map((request, index) => {
+            request.stateId = this.props.stateId;
+            request.stateToken = this.props.stateToken;
 
-        let content = null;
+            return <manywho.offline.components.request request={request}
+                tenantId={this.props.tenantId}
+                authenticationToken={this.props.authenticationToken}
+                isDisabled={this.state.isReplayingAll}
+                onDelete={this.onDeleteRequest}
+                onReplayDone={this.onReplayDone}
+                replayNow={index === 0 && this.state.isReplayAll}
+                key={request.key} />;
+        });
 
-        if (this.state.error)
-            content = <div className="offline-error">
-                <div className="alert alert-danger">{this.state.error}</div>
-                <button className="btn btn-primary" onClick={this.onRetry}>Retry</button>
-            </div>;
-        else if (this.state.fault)
-            content = <manywho.offline.components.goOnlineFault response={this.state.fault} onJoin={this.props.onOnline} />;
-        else if (this.state.isProgressVisible)
-            content = <div className="offline-progress">
-                <h4>Syncing Data</h4>
-                <div className="progress">
-                    <div className="progress-bar progress-bar-striped active" style={style} />
-                </div>
-                {this.state.isDismissVisible ? <button className="btn btn-success" onClick={this.onDismiss}>Continue Online</button> : null}
-            </div>;
-
-        return content ?
-            <div className="offline-status">
-                <div className="panel panel-default">
-                    <div className="panel-body">
-                        {content}
+        return <div className="offline-status">
+            <div className="panel panel-default">
+                <div className="panel-body sync-pending-requests">
+                    <h4>Sync Pending Requests</h4>
+                    <div className="pending-requests">
+                        <ul className="list-group">
+                            {requests}
+                        </ul>
                     </div>
                 </div>
-            </div> :
-            null;
+                <div className="panel-footer">
+                    <button className="btn btn-danger pull-left" onClick={this.onDeleteAll}>Delete All</button>
+                    <button className="btn btn-default pull-right" onClick={this.onClose}>Close</button>
+                    <button className="btn btn-primary pull-right pending-requests-replay-all" onClick={this.onReplayAll}>Replay All</button>
+                </div>
+            </div>
+        </div>;
     }
 };
