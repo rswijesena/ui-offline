@@ -45,7 +45,7 @@ manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId
 manywho.connection.offlineRequest = function(resolveContext, event, urlPart, request) {
     const deferred = jQuery.Deferred();
 
-    manywho.offline.getResponse(request, resolveContext)
+    manywho.offline.getResponse(resolveContext, event, urlPart, request)
         .then(response => {
             deferred.resolveWith(resolveContext, [response]);
         });

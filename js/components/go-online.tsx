@@ -7,29 +7,27 @@ manywho.offline.components = manywho.offline.components || {};
 manywho.offline.components.goOnline = class GoOnline extends React.Component<any, any> {
 
     displayName = 'Go-Online';
+    flow = null;
 
     constructor(props: any) {
         super(props);
         this.state = {
-            requests: [],
             isReplayingAll: false
         };
     }
 
     onDeleteRequest = (request) => {
-        const index = this.state.requests.indexOf(request);
-        const requests = manywho.utils.clone(this.state.requests);
-        requests.splice(index, 1);
-        manywho.offline.storage.saveRequests(requests);
-        this.setState({ requests });
+        this.flow.removeRequest(request);
+        manywho.offline.storage.set(this.flow);
+        this.forceUpdate();
     }
 
     onReplayDone = (request) => {
-        const index = this.state.requests.indexOf(request);
+        const index = this.flow.requests.indexOf(request);
 
-        if (index === this.state.requests.length - 1 && this.state.isReplayAll) {
+        if (index === this.flow.requests.length - 1 && this.state.isReplayAll) {
             this.onDeleteRequest(request);
-            this.props.onOnline();
+            this.props.onOnline(this.flow);
         }
         else
             this.onDeleteRequest(request);
@@ -40,7 +38,9 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
     }
 
     onDeleteAll = () => {
-        manywho.offline.storage.clearRequests()
+        this.flow.removeRequests();
+
+        manywho.offline.storage.set(this.flow)
             .then(this.props.onOnline);
     }
 
@@ -51,7 +51,7 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
             }
         });
 
-        this.props.onClose();
+        this.props.onClose(this.flow);
     }
 
     componentWillMount() {
@@ -61,38 +61,36 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
             }
         });
 
-        manywho.offline.storage.getRequests()
-            .then(response => {
-                if (response) {
-                    const requests = (response || []).map((request, index) => {
-                        request.key = index;
-                        return request;
-                    });
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
 
-                    this.setState({ requests });
-                }
+        manywho.offline.storage.get(stateId)
+            .then(flow => {
+                this.flow = new manywho.offline.flow(flow);
+                this.forceUpdate();
             });
     }
 
     render() {
-        const requests = this.state.requests.map((request, index) => {
-            request.stateId = this.props.stateId;
-            request.stateToken = this.props.stateToken;
+        let requests = null;
+        if (this.flow)
+            requests = this.flow.requests.map((request, index) => {
+                request.stateId = this.flow.state.id;
+                request.stateToken = this.flow.state.token;
 
-            return <manywho.offline.components.request request={request}
-                tenantId={this.props.tenantId}
-                authenticationToken={this.props.authenticationToken}
-                isDisabled={this.state.isReplayingAll}
-                onDelete={this.onDeleteRequest}
-                onReplayDone={this.onReplayDone}
-                replayNow={index === 0 && this.state.isReplayAll}
-                key={request.key} />;
-        });
+                return <manywho.offline.components.request request={request}
+                    tenantId={this.flow.tenantId}
+                    authenticationToken={this.flow.authenticationToken}
+                    isDisabled={this.state.isReplayingAll}
+                    onDelete={this.onDeleteRequest}
+                    onReplayDone={this.onReplayDone}
+                    replayNow={index === 0 && this.state.isReplayAll}
+                    key={request.key} />;
+            });
 
         return <div className="offline-status">
             <div className="panel panel-default">
                 <div className="panel-body sync-pending-requests">
-                    <h4>Sync Pending Requests</h4>
+                    <h4>Go Online</h4>
                     <div className="pending-requests">
                         <ul className="list-group">
                             {requests}

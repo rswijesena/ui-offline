@@ -4,14 +4,16 @@ declare var manywho: any;
 
 manywho.offline.state = class State {
 
+    currentMapElementId = null;
+    id = null;
     token = null;
     values = null;
-    currentMapElementId = null;
 
     constructor(state) {
+        this.currentMapElementId = state.currentMapElementId;
+        this.id = state.id;
         this.token = state.token;
         this.values = state.values || {};
-        this.currentMapElementId = state.currentMapElementId;
     }
 
     getValue(id, typeElementId, contentType, command) {
@@ -76,5 +78,4 @@ manywho.offline.state = class State {
             }
         });
     }
-
 };

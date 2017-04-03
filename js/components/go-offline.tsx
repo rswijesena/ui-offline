@@ -20,9 +20,10 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
 
     onProgress = (current, total) => {
         this.setState({ progress: Math.min((current / total) * 100, 100) });
+    }
 
-        if (current >= total)
-            this.setState({ progress: 100, isDismissEnabled: true });
+    onCached = () => {
+        this.setState({ progress: 100, isDismissEnabled: true });
     }
 
     onDismiss = () => {
@@ -30,9 +31,14 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
     }
 
     componentWillMount() {
-        manywho.offline.initialize(this.props.stateToken)
+        const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
+        const authenticationToken = manywho.state.getAuthenticationToken(stateId);
+        const stateToken = manywho.state.getState(this.props.flowKey).token;
+
+        manywho.offline.initialize(tenantId, stateId, stateToken, authenticationToken)
             .then(() => {
-                if (manywho.offline.cacheObjectData(this.props.stateId, this.props.tenantId, this.props.authenticationToken, this.onProgress))
+                if (manywho.offline.cacheObjectData(stateId, this.onProgress, this.onCached))
                     this.setState({ isProgressVisible: true });
                 else
                     this.props.onOffline();
