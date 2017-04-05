@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "del": "^1.1.1",
+    "fs-promise": "^2.0.2",
     "git-guppy": "^2.0.0",
     "gulp": "^3.8.11",
     "gulp-add-src": "^0.2.0",
@@ -18,7 +19,6 @@
     "gulp-less": "^3.3.0",
     "gulp-lesshint": "^3.0.0",
     "gulp-load-plugins": "^1.2.2",
-    "gulp-prompt": "^0.2.0",
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^7.0.0",
     "gulp-sourcemaps": "^1.5.1",
@@ -28,7 +28,6 @@
     "gulp-util": "^3.0.4",
     "guppy-pre-commit": "^0.4.0",
     "localforage": "^1.5.0",
-    "request": "^2.80.0",
     "request-promise": "^4.1.1",
     "run-sequence": "^1.2.1",
     "tslint": "^4.0.2",
