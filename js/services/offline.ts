@@ -140,7 +140,7 @@ manywho.offline = class Offline {
             let request = requests[index];
             request.stateId = flow.state.id;
 
-            return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.authenticationToken, request.listFilter.limit)
+            return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
                 .then(response => {
                     if (response.objectData)
                         flow.cacheObjectData(response.objectData, request.objectDataType.typeElementId);
@@ -161,9 +161,8 @@ manywho.offline = class Offline {
         return true;
     }
 
-    static getResponse(context, event, urlPart, request) {
-        let stateId = null;
-        if (request)
+    static getResponse(context, event, urlPart, request, stateId) {
+        if (request && request.stateId)
             stateId = request.stateId;
         else if (manywho.utils.isEqual(event, 'join', true))
             stateId = urlPart.substr(urlPart.lastIndexOf('/') + 1);
