@@ -47,12 +47,11 @@ module.exports = function(gulp, plugins, argv) {
                 headers: {
                     'authorization': authenticationToken,
                     'ManyWhoTenant': tenantId
-                },
-                json: true
+                }
             })
         })
         .then(function(snapshot) {
-            return fsp.writeFile('js/services/metadata.ts', 'manywho.offline.metadata = JSON.parse(\'' + JSON.stringify(snapshot) + '\');\n');
+            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = ${snapshot};\n`);
         });
     }
 };

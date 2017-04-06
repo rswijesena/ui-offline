@@ -22,7 +22,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 
     onOffline = (state) => {
-        this.setState({ isOnline: false });
+        this.setState({ isOnline: false, view: null });
 
         manywho.settings.initialize({
             offline: {

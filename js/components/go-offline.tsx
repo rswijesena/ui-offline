@@ -37,8 +37,8 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
         manywho.offline.initialize(tenantId, stateId, stateToken, authenticationToken)
-            .then(() => {
-                if (manywho.offline.cacheObjectData(stateId, this.onProgress, this.onCached))
+            .then(flow => {
+                if (manywho.offline.cacheObjectData(flow, this.onProgress, this.onCached))
                     this.setState({ isProgressVisible: true });
                 else
                     this.props.onOffline();

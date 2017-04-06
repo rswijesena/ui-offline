@@ -112,7 +112,8 @@ manywho.offline = class Offline {
         };
 
         return manywho.offline.storage.remove(stateId)
-            .then(() => manywho.offline.storage.set(flow));
+            .then(() => manywho.offline.storage.set(flow))
+            .then(() => new manywho.offline.flow(flow));
     }
 
     static rejoin(flowKey) {
@@ -134,7 +135,7 @@ manywho.offline = class Offline {
         const executeRequest = function(requests, index, flow, currentTypeElementId, onProgress, onDone) {
             if (index >= requests.length)
                 return manywho.offline.storage.set(flow)
-                    .then(response => onDone);
+                    .then(onDone);
 
             let request = requests[index];
             request.stateId = flow.state.id;
