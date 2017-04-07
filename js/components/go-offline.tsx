@@ -58,7 +58,7 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
                         <div className="progress">
                             <div className="progress-bar progress-bar-striped active" style={style} />
                         </div>
-                        <button className="btn btn-success" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>Continue Offline</button>
+                        <button className="btn btn-success continue-offline" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>Continue Offline</button>
                     </div>
                 </div>
             </div>;

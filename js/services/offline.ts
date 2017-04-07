@@ -161,7 +161,7 @@ manywho.offline = class Offline {
         return true;
     }
 
-    static getResponse(context, event, urlPart, request, stateId) {
+    static getResponse(context, event, urlPart, request, tenantId, stateId) {
         if (request && request.stateId)
             stateId = request.stateId;
         else if (manywho.utils.isEqual(event, 'join', true))
@@ -169,13 +169,30 @@ manywho.offline = class Offline {
 
         return manywho.offline.storage.get(stateId)
             .then(response => {
-                const flow = new manywho.offline.flow(response);
+                if (manywho.utils.isEqual(event, 'initialization')) {
+                    const flow = new manywho.offline.flow({
+                        tenantId: tenantId,
+                        state: {
+                            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+                            id: manywho.utils.guid(),
+                            token: manywho.utils.guid()
+                        }
+                    });
 
+                    return manywho.offline.storage.set(flow)
+                        .then(() => flow);
+                }
+                else
+                    return new manywho.offline.flow(response);
+            })
+            .then(flow => {
                 if (manywho.utils.isEqual(event, 'join', true))
                     return manywho.offline.getMapElementResponse({
                         invokeType: 'JOIN',
                         currentMapElementId: flow.state.currentMapElementId,
                     }, flow, context);
+                else if (manywho.utils.isEqual(event, 'initialization', true))
+                    return manywho.offline.getInitializationResponse(request, flow, context);
                 else if (request.mapElementInvokeRequest)
                     return manywho.offline.getMapElementResponse(request, flow, context);
                 else if (request.navigationElementId)
@@ -185,17 +202,24 @@ manywho.offline = class Offline {
             });
     }
 
+    static getInitializationResponse(request, flow, context) {
+        const snapshot = new manywho.offline.snapshot(manywho.offline.metadata);
+
+        return {
+            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+            currentStreamId: null,
+            navigationElementReferences : snapshot.getNavigationElementReferences(),
+            stateId: flow.state.id,
+            stateToken: flow.state.token,
+            statusCode: '200'
+        };
+    }
+
     static getMapElementResponse(request, flow, context) {
         if (!manywho.offline.metadata)
             return;
 
         const deferred = $.Deferred();
-
-        if (!request.invokeType)
-            return deferred.resolveWith(context, [{
-                currentMapElementId: manywho.offline.metadata.mapElements.filter(element => element.elementType === 'START').id,
-                stateId: '00000000-0000-0000-0000-000000000000'
-            }]);
 
         let mapElement = request.currentMapElementId ?
             manywho.offline.metadata.mapElements.find(element => element.id === request.currentMapElementId) :
@@ -228,7 +252,7 @@ manywho.offline = class Offline {
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
             flow.addRequest(request);
 
-        if (request.mapElementInvokeRequest && request.mapElementInvokeRequest.pageRequest)
+        if (request.mapElementInvokeRequest && request.mapElementInvokeRequest.pageRequest && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses)
             flow.state.update(request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses, mapElement, snapshot);
 
         if (nextMapElement.dataActions)

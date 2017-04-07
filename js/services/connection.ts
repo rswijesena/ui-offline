@@ -42,10 +42,10 @@ manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId
         .fail(manywho.settings.event(event + '.fail'));
 };
 
-manywho.connection.offlineRequest = function(resolveContext, event, urlPart, request, stateId) {
+manywho.connection.offlineRequest = function(resolveContext, event, urlPart, request, tenantId, stateId) {
     const deferred = jQuery.Deferred();
 
-    manywho.offline.getResponse(resolveContext, event, urlPart, request, stateId)
+    manywho.offline.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
         .then(response => {
             deferred.resolveWith(resolveContext, [response]);
         });
@@ -61,6 +61,6 @@ manywho.connection.request = function(resolveContext, event, urlPart, methodType
         .then(isOnline => {
             return isOnline ?
                 manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) :
-                manywho.connection.offlineRequest(resolveContext, event, urlPart, request, stateId);
+                manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
         });
 };
