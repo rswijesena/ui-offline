@@ -58,6 +58,7 @@ function getChunkedObjectDataRequests(request) {
 manywho.settings.initialize({
     offline: {
         isEnabled: true,
+        isOnline: true,
         cache: {
             requests: {
                 limit: 250,
@@ -166,6 +167,8 @@ manywho.offline = class Offline {
             stateId = request.stateId;
         else if (manywho.utils.isEqual(event, 'join', true))
             stateId = urlPart.substr(urlPart.lastIndexOf('/') + 1);
+        else if (manywho.utils.isEqual(event, 'initialization', true))
+            stateId = '00000000-0000-0000-0000-000000000000';
 
         return manywho.offline.storage.get(stateId)
             .then(response => {
@@ -174,7 +177,7 @@ manywho.offline = class Offline {
                         tenantId: tenantId,
                         state: {
                             currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
-                            id: manywho.utils.guid(),
+                            id: stateId,
                             token: manywho.utils.guid()
                         }
                     });
@@ -250,9 +253,12 @@ manywho.offline = class Offline {
         let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
-            flow.addRequest(request);
+            flow.addRequest(request, snapshot);
 
-        if (request.mapElementInvokeRequest && request.mapElementInvokeRequest.pageRequest && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses)
+        if (mapElement.elementType === 'input'
+            && request.mapElementInvokeRequest
+            && request.mapElementInvokeRequest.pageRequest
+            && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses)
             flow.state.update(request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses, mapElement, snapshot);
 
         if (nextMapElement.dataActions)

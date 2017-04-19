@@ -18,8 +18,9 @@ manywho.offline.flow = class Flow {
         this.state = new manywho.offline.state(flow.state);
     }
 
-    addRequest(request) {
+    addRequest(request, snapshot) {
         request.key = this.requests.length;
+        request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(element => element.id === request.currentMapElementId).developerName;
         this.requests.push(request);
     }
 

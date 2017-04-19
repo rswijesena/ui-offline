@@ -42,6 +42,14 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
             .then(() => manywho.offline.rejoin(this.props.flowKey));
     }
 
+    onCloseOnline = () => {
+        this.setState({ view: null });
+    }
+
+    componentWillMount() {
+        this.setState({ isOnline: manywho.settings.global('offline.isOnline', this.props.flowKey ) });
+    }
+
     render() {
         let button = <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button>;
         if (!this.state.isOnline)
@@ -55,7 +63,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
                 break;
 
             case 1:
-                view = <manywho.offline.components.goOnline onOnline={this.onOnline} flowKey={this.props.flowKey} />;
+                view = <manywho.offline.components.goOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
                 break;
         }
 

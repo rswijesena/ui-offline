@@ -61,7 +61,10 @@ manywho.offline.components.request = class Request extends React.Component<any, 
 
         return <li className="list-group-item">
             <div className="pending-request-header">
-                <span>{this.props.request.invokeType}</span>
+                <div>
+                    <span>{this.props.request.currentMapElementDeveloperName}</span>
+                    <small>{this.props.request.invokeType}</small>
+                </div>
                 <button className="btn btn-info btn-sm" onClick={this.onToggleDetails} disabled={isDisabled}>{this.state.isCollapsed ? 'Show' : 'Hide'}</button>
                 <button className="btn btn-primary btn-sm" onClick={this.onReplay} disabled={isDisabled}>Replay</button>
                 <button className="btn btn-danger btn-sm" onClick={this.onDelete} disabled={isDisabled}>Delete</button>
