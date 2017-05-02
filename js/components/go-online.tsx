@@ -68,7 +68,7 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
                 this.flow = new manywho.offline.flow(flow);
 
                 if (!this.flow.requests || this.flow.requests.length === 0)
-                    this.onClose();
+                    this.props.onOnline(this.flow);
                 else
                     this.forceUpdate();
             });

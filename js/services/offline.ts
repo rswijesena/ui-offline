@@ -315,7 +315,7 @@ manywho.offline = class Offline {
     }
 
     static getObjectDataResponse(request, flow, context) {
-        return manywho.offline.objectdata.filter(flow.getObjectData(request.typeElementId), request.listFilter);
+        return manywho.offline.objectdata.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
     }
 
     static getNavigationResponse(request, flow, context) {
