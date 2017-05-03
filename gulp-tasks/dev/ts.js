@@ -16,6 +16,6 @@ module.exports = function(gulp, plugins, argv) {
             .pipe(plugins.sourcemaps.init())
             .pipe(tsProject())
             .pipe(plugins.sourcemaps.write())
-            .pipe(gulp.dest(argv.jsDir || 'build/js'));
+            .pipe(gulp.dest((argv.build || 'build') + '/js'));
     }
 };

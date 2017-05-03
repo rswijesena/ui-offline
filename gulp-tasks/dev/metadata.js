@@ -51,7 +51,7 @@ module.exports = function(gulp, plugins, argv) {
             })
         })
         .then(function(snapshot) {
-            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = JSON.parse(\`${snapshot.replace('`', '\`')}\`);\n`);
+            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = ${snapshot.replace('`', '\`')}\n`);
         });
     }
 };

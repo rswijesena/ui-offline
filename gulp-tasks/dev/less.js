@@ -5,6 +5,6 @@ module.exports = function(gulp, plugins, argv) {
             .pipe(plugins.lesshint.reporter())
             .pipe(plugins.concat('ui-offline.less'))
             .pipe(plugins.less())
-            .pipe(gulp.dest(argv.cssDir || 'build/css'));
+            .pipe(gulp.dest((argv.build || 'build') + '/css'));
     }
 };

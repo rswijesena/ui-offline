@@ -1,4 +1,5 @@
 {
+    "exclude": "js/services/metadata.ts",
     "rules": {
         "class-name": true,
         "comment-format": [

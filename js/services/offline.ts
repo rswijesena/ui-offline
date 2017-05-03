@@ -109,7 +109,8 @@ manywho.offline = class Offline {
             state: {
                 id: stateId,
                 token: stateToken
-            }
+            },
+            id: manywho.offline.metadata.id
         };
 
         return manywho.offline.storage.remove(stateId)

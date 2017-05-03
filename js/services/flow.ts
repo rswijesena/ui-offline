@@ -5,6 +5,7 @@ declare var manywho: any;
 manywho.offline.flow = class Flow {
 
     authenticationToken = null;
+    id = null;
     objectData = null;
     requests = null;
     state = null;
@@ -12,6 +13,7 @@ manywho.offline.flow = class Flow {
 
     constructor(flow) {
         this.authenticationToken = flow.authenticationToken;
+        this.id = flow.id;
         this.objectData = flow.objectData || {};
         this.requests = flow.requests || [];
         this.tenantId = flow.tenantId;

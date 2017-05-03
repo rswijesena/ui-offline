@@ -31,7 +31,7 @@
     "request-promise": "^4.1.1",
     "run-sequence": "^1.2.1",
     "tslint": "^4.0.2",
-    "typescript": "^2.0.2",
+    "typescript": "^2.3.2",
     "yargs": "^2.3.0"
   }
 }

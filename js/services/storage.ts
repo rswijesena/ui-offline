@@ -7,8 +7,25 @@ localforage.setDriver(manywho.settings.global('offline.storage.drivers'));
 
 manywho.offline.storage = class {
 
-    static get(id) {
-        return localforage.getItem(`manywho:offline-${id}`);
+    static get(id, flowId, flowVersionId) {
+        return localforage.getItem(`manywho:offline-${id}`)
+            .then(value => {
+                if (value)
+                    return value;
+
+                return localforage.iterate((value, key) => {
+                    if (value.id.id === flowId && value.id.versionId === flowVersionId)
+                        return value;
+                })
+                .then(flow => {
+                    if (flow)
+                        return manywho.offline.storage.remove(flow.state.id)
+                            .then(() => {
+                                flow.state.id = id;
+                                return manywho.offline.storage.set(flow);
+                            });
+                });
+            });
     }
 
     static set(flow) {
