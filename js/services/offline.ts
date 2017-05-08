@@ -58,7 +58,6 @@ function getChunkedObjectDataRequests(request) {
 manywho.settings.initialize({
     offline: {
         isEnabled: true,
-        isOnline: true,
         cache: {
             requests: {
                 limit: 250,
@@ -75,6 +74,7 @@ manywho.offline = class Offline {
 
     static metadata: any = null;
     static requests = null;
+    static isOffline = false;
 
     static initialize(tenantId, stateId, stateToken, authenticationToken) {
         if (!manywho.offline.metadata)
@@ -232,11 +232,20 @@ manywho.offline = class Offline {
 
         switch (request.invokeType.toUpperCase()) {
             case 'FORWARD':
-                let outcome = request.mapElementInvokeRequest.selectedOutcomeId ?
-                    mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId) :
-                    mapElement.outcomes[0];
+                let nextMapElementId = null;
+                let outcome = null;
 
-                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === outcome.nextMapElementId);
+                if (request.mapElementInvokeRequest.selectedOutcomeId)
+                    outcome = mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId);
+                else if (request.selectedMapElementId)
+                    nextMapElementId = request.selectedMapElementId;
+                else
+                    outcome = mapElement.outcomes[0];
+
+                if (outcome)
+                    nextMapElementId = outcome.nextMapElementId;
+
+                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === nextMapElementId);
                 break;
 
             case 'NAVIGATE':

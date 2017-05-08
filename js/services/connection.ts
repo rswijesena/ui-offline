@@ -4,17 +4,18 @@ declare var manywho: any;
 
 const onlineStatus: any = {};
 
-manywho.connection.isOnline = function() {
-    const override = manywho.settings.global('offline.isOnline');
-    if (override !== undefined)
-        return ($.Deferred()).resolve(override);
-
+manywho.connection.hasNetwork = function() {
     return $.ajax({
         url: manywho.settings.global('platform.uri') + '/api/health',
         timeout: 1000
-    })
-    .then(() => true)
-    .fail(() => false);
+    });
+};
+
+manywho.connection.isOnline = function() {
+    if (manywho.offline.isOffline)
+        return ($.Deferred()).resolve(false);
+
+    return manywho.connection.hasNetwork();
 };
 
 manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
@@ -58,9 +59,6 @@ manywho.connection.offlineRequest = function(resolveContext, event, urlPart, req
 
 manywho.connection.request = function(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
     return manywho.connection.isOnline()
-        .then(isOnline => {
-            return isOnline ?
-                manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) :
-                manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
-        });
+        .then(() => manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request))
+        .fail(() => manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId));
 };
