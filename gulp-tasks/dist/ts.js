@@ -6,21 +6,12 @@ module.exports = function(gulp, plugins, argv) {
 
         return gulp.src(['js/services/offline.ts', 'js/services/*.ts'], { base: 'js' })
             .pipe(plugins.sourcemaps.init())
-            .pipe(plugins.typescript(tsProject))
+            .pipe(tsProject())
             .pipe(plugins.uglify({
                 preserveComments: 'license'
             }).on('error', plugins.util.log))
             .pipe(plugins.rev())
-            .pipe(plugins.rename(function(path) {
-                if (argv.jsOrder)
-                    path.basename = argv.jsOrder + '-' + path.basename;
-            }))
-            .pipe(plugins.sourcemaps.write('.', {
-                sourceMappingURL: function(file) {
-                    return argv.sourceMapUrlPrefixJs + file.relative + '.map';
-                },
-                includeContent: true
-            }))
-            .pipe(gulp.dest(argv.jsDir || './dist/js'))       
+            .pipe(plugins.sourcemaps.write('.'))
+            .pipe(gulp.dest(argv.jsDir || './dist/js'));   
     }
 }

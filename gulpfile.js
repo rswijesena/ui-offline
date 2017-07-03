@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
+var del = require('del');
 var argv = require('yargs').argv;
 
 function getTask(task) {
@@ -20,7 +21,22 @@ gulp.task('watch', ['dev-ts', 'dev-less'], function() {
 });
 
 // Dist
-gulp.task('dist-less', getTask('dist/less'));
+gulp.task('dist-less', ['dist-clean'], getTask('dist/less'));
 gulp.task('dist-ts', getTask('dist/ts'));
 
-gulp.task('dist', ['dist-less', 'dist-ts']);    
+gulp.task('dist-bundle', ['dist-ts', 'dist-less'], function() {
+    return gulp.src(['css/*.css', 'js/*.js'], { cwd: './dist' })
+        .pipe(plugins.filelist('bundle.json'))
+        .pipe(plugins.jsonEditor(resources => {
+            return {
+                'offline': resources.map(resource => '/' + resource)
+            }
+        }))
+        .pipe(gulp.dest('./dist'));  
+});
+
+gulp.task('dist-clean', function() {
+    return del('./dist/**/*');
+})
+
+gulp.task('dist', ['dist-bundle']);
