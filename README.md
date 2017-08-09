@@ -44,12 +44,11 @@ gulp watch
 To include the offline components you will need to add the following references to debug.html in the ui-html5 repo:
 
 ```
-<link rel="stylesheet" href="ui-offline/build/css/ui-offline.css" />
-<script src="ui-offline/build/js/ui-offline.js"></script>
+<link rel="stylesheet" href="build/css/ui-offline.css" />
+<script src="build/js/ui-offline.js"></script>
 ```
 
-These reference assume that the ui-offline repo was cloned into a child directory of `ui-html5` called `ui-offline`. The `<script>` reference will also need to appear
-at the bottom after `<script src="ui-bootstrap/build/js/ui-bootstrap.js"></script>`.
+These references assume that the build was run with --build switch pointing to the `ui-html5/build` directory.
 
 ## Contributing
 
