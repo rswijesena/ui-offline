@@ -31,8 +31,10 @@ gulp dist
 
 Before you can run a flow offline you will need to grab a copy of the flow's metadata via the metadata task:
 
+Where `--tenant` is the id of the tenant that contains the flow
+
 ```
-gulp metadata --username="" --password="" --flow=""
+gulp metadata --username="" --password="" --flow="" --tenant=""
 ```
 
 This will create a metadata.ts file which will be included as part of the regular build. After getting the metadata start the normal build process with:

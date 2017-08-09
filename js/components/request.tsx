@@ -6,7 +6,7 @@ manywho.offline.components = manywho.offline.components || {};
 
 manywho.offline.components.request = class Request extends React.Component<any, any> {
 
-    displayName = 'Sync-Pending-Request';
+    displayName = 'Request';
 
     constructor(props: any) {
         super(props);
@@ -19,13 +19,22 @@ manywho.offline.components.request = class Request extends React.Component<any, 
 
     onReplay = () => {
         this.setState({ isReplaying: true, response: null });
+        manywho.offline.isOffline = false;
 
         return manywho.ajax.invoke(this.props.request, this.props.tenantId, this.props.authenticationToken)
             .then(response => {
-                if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults)
+                if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
                     this.setState({ response, isReplaying: false });
+                    manywho.offline.isOffline = true;
+                }
+                else if (response && response.invokeType === 'NOT_ALLOWED') {
+                    manywho.offline.rejoin(this.props.flowKey);
+                }
                 else
                     this.props.onReplayDone(this.props.request);
+            })
+            .fail(response => {
+                manywho.offline.isOffline = true;
             });
     }
 

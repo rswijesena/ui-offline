@@ -126,8 +126,7 @@ manywho.offline = class Offline {
         const stateId = manywho.utils.extractStateId(flowKey);
         const authenticationToken = manywho.state.getAuthenticationToken(stateId);
 
-        return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey))
-            .then(() => manywho.offline.storage.remove(stateId));
+        return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
     }
 
     static cacheObjectData(flow, onProgress, onDone) {

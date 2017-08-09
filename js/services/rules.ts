@@ -34,7 +34,7 @@ manywho.offline.rules = class Rules {
             if (comparison.comparisons)
                 result = manywho.offline.rules.evaluateComparisons(comparison.comparisons, state, snapshot);
 
-            if (result && comparison.comparisonType === 'ANY')
+            if (result && comparison.comparisonType === 'OR')
                 return true;
         }
 
@@ -55,7 +55,7 @@ manywho.offline.rules = class Rules {
 
             result = manywho.offline.rules.compareValues(left, right, contentType, rule.criteriaType);
 
-            if (result && criteriaType === 'ANY')
+            if (result && criteriaType === 'OR')
                 return true;
         }
 

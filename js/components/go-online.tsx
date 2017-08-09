@@ -88,6 +88,7 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
                     onDelete={this.onDeleteRequest}
                     onReplayDone={this.onReplayDone}
                     replayNow={index === 0 && this.state.isReplayAll}
+                    flowKey={this.props.flowKey}
                     key={request.key} />;
             });
 

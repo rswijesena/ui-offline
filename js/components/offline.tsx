@@ -28,12 +28,14 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     onOffline = () => {
         this.setState({ view: null });
         manywho.offline.isOffline = true;
+        this.forceUpdate();
     }
 
     onOnlineClick = (e) => {
         manywho.connection.hasNetwork()
-            .then(() => this.setState({ view: OfflineView.replay }))
-            .fail(() => this.setState({ view: OfflineView.noNetwork }));
+            .then(response => {
+                response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
+            });
     }
 
     onOnline = (flow) => {
@@ -41,7 +43,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         manywho.offline.isOffline = false;
 
         manywho.offline.storage.set(flow)
-            .then(() => manywho.offline.rejoin(this.props.flowKey));
+            .then(() => manywho.offline.rejoin(this.props.flowKey))
+            .then(() => manywho.offline.storage.remove(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -59,16 +62,8 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
 
         manywho.offline.storage.get(stateId, id, versionId)
             .then(flow => {
-                if (flow) {
+                if (flow)
                     this.onOffline();
-
-                    manywho.engine.jump(flow.state.currentMapElementId, this.props.flowKey)
-                        .then(() => {
-                            const query = manywho.utils.parseQueryString(window.location.search.substring(1));
-                            if (query['go-online'])
-                                this.setState({ view: 1 });
-                        });
-                }
             });
     }
 

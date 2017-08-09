@@ -5,10 +5,16 @@ declare var manywho: any;
 const onlineStatus: any = {};
 
 manywho.connection.hasNetwork = function() {
-    return $.ajax({
+    const deferred = jQuery.Deferred();
+
+    $.ajax({
         url: manywho.settings.global('platform.uri') + '/api/health',
         timeout: 1000
-    });
+    })
+    .then(() => deferred.resolve(true))
+    .fail(() => deferred.resolve(false));
+
+    return deferred;
 };
 
 manywho.connection.isOnline = function() {
@@ -59,6 +65,10 @@ manywho.connection.offlineRequest = function(resolveContext, event, urlPart, req
 
 manywho.connection.request = function(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
     return manywho.connection.isOnline()
-        .then(() => manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request))
-        .fail(() => manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId));
+        .then(response => {
+            if (response)
+                return manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
+            else
+                return manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
+        });
 };

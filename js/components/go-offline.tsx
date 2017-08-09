@@ -33,7 +33,7 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
     componentWillMount() {
         const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const authenticationToken = manywho.state.getAuthenticationToken(stateId);
+        const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
         manywho.offline.initialize(tenantId, stateId, stateToken, authenticationToken)

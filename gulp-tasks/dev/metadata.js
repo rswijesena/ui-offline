@@ -21,21 +21,22 @@ module.exports = function(gulp, plugins, argv) {
             json: true
         })
         .then(function(token) {
-            authenticationToken = token;
-            var tokens = decodeURIComponent(token).split('&');
-            
-            for (var i = 0; i < tokens.length; i++) {
-                if (tokens[i].indexOf('ManyWhoTenantId') >= 0) {
-                    tenantId = tokens[i].split('=')[1];
-                    break;
+            return requestPromise({
+                method: "GET",
+                uri: baseUrl + "/api/draw/1/authentication/" + argv.tenant,
+                headers: {
+                    'authorization': token,
                 }
-            }
+            });
+        })
+        .then(function(token) {
+            authenticationToken = token.replace('"', '');
 
             return requestPromise({
                 method: "GET",
                 uri: baseUrl + "/api/run/1/flow?filter=substringof(developername, '" + argv.flow + "')",
                 headers: {
-                    'ManyWhoTenant': tenantId
+                    'ManyWhoTenant': argv.tenant
                 },
                 json: true
             });      
@@ -46,12 +47,12 @@ module.exports = function(gulp, plugins, argv) {
                 uri: baseUrl + "/api/draw/1/flow/snap/" + flows[0].id.id + "/" + flows[0].id.versionId,
                 headers: {
                     'authorization': authenticationToken,
-                    'ManyWhoTenant': tenantId
+                    'ManyWhoTenant': argv.tenant
                 }
             })
         })
         .then(function(snapshot) {
-            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = ${snapshot.replace('`', '\`')}\n`);
+            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = ${JSON.stringify(JSON.parse(snapshot))};\n`);
         });
     }
 };
