@@ -272,10 +272,10 @@ manywho.offline = class Offline {
 
         if (nextMapElement.dataActions)
             nextMapElement.dataActions
-                .sort((a, b) => a.order - b.order)
                 .filter(action => !action.disabled)
+                .sort((a, b) => a.order - b.order)
                 .forEach(action => {
-                    manywho.offline.dataActions.execute(action, flow.state, snapshot);
+                    manywho.offline.dataActions.execute(action, flow, snapshot);
                 });
 
         if (nextMapElement.operations)

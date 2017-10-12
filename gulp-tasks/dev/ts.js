@@ -4,7 +4,7 @@ module.exports = function(gulp, plugins, argv) {
             typescript: require('typescript')
         });
 
-        return gulp.src(['js/services/offline.ts', 'js/services/*.ts', 'js/components/*.tsx'], { base: 'js' })
+        return gulp.src(['js/services/offline.ts', 'js/models/*.ts', 'js/services/*.ts', 'js/components/*.tsx'], { base: 'js' })
             .pipe(plugins.tslint({
                 formatter: 'verbose',
             }))

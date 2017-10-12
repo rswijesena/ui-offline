@@ -54,16 +54,23 @@ manywho.offline.state = class State {
 
     setValue(id, typeElementId, snapshot, value) {
         if (id.typeElementPropertyId) {
-            if (!this.values[id.id])
-                this.values[id.id] = {
-                    objectData: manywho.utils.clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId))
-                };
+            if (!this.values[id.id] || !this.values[id.id].objectData || this.values[id.id].objectData.length === 0) {
+                const typeElement = manywho.utils.clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
 
-            if (this.values[id.id].objectData && this.values[id.id].objectData.length > 0) {
-                const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
-                property.contentValue = value.contentValue;
-                property.objectData = value.objectData;
+                typeElement.properties = typeElement.properties.map(property => {
+                    property.typeElementPropertyId = property.id;
+                    delete property.id;
+                    return property;
+                });
+
+                this.values[id.id] = {
+                    objectData: [typeElement]
+                };
             }
+
+            const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
+            property.contentValue = value.contentValue;
+            property.objectData = value.objectData;
         }
         else
             this.values[id.id] = manywho.utils.clone(value);

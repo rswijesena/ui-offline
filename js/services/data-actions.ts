@@ -4,18 +4,26 @@ declare var manywho: any;
 
 manywho.offline.dataActions = class DataActions {
 
-    static execute(action, state, snapshot) {
-        let objectData = manywho.storage.getObjectData(action.objectDataRequest.objectDataType.typeElementId);
-
+    static execute(action, flow, snapshot) {
         switch (action.crudOperationType.toUpperCase()) {
             case 'LOAD':
+                let objectData = flow.getObjectData(action.objectDataRequest.objectDataType.typeElementId);
                 objectData = manywho.offline.objectData.filter(objectData, action.objectDataRequest.listFilter);
                 const value = snapshot.getValue(action.valueElementToApplyId.id);
-                state.setValue(action.valueElementToApplyId, value.typeElementId, snapshot, { objectData });
+                flow.state.setValue(action.valueElementToApplyId, value.typeElementId, snapshot, { objectData });
+                break;
+
+            case 'SAVE':
+                // No implemention for saving as the state will already be updated. If we can't connect to the mothership then we can't 
+                // Save the data back to the 3rd party data store
+                break;
+
+            case 'DELETE':
+                // No implementation for a delete as its potential very destructive
                 break;
         }
 
-        return state;
+        return flow.state;
     }
 
 };
