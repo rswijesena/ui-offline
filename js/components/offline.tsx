@@ -1,8 +1,9 @@
 /// <reference path="../../typings/index.d.ts" />
 
-declare var manywho: any;
+import {hasNetwork} from '../services/connection';
+import {get} from '../services/storage';
 
-manywho.offline.components = manywho.offline.components || {};
+declare var manywho: any;
 
 enum OfflineView {
     cache = 0,
@@ -10,7 +11,7 @@ enum OfflineView {
     noNetwork = 2
 }
 
-manywho.offline.components.offline = class Offline extends React.Component<any, any> {
+class OfflineBase extends React.Component<any, any> {
 
     displayName = 'Offline';
 
@@ -32,7 +33,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 
     onOnlineClick = (e) => {
-        manywho.connection.hasNetwork()
+        hasNetwork()
             .then(response => {
                 response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
             });
@@ -42,9 +43,9 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         this.setState({ view: null, requests: null });
         manywho.offline.isOffline = false;
 
-        manywho.offline.storage.set(flow)
+        manywho.offline.storage.default.set(flow)
             .then(() => manywho.offline.rejoin(this.props.flowKey))
-            .then(() => manywho.offline.storage.remove(flow.state.id));
+            .then(() => manywho.offline.storage.default.remove(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -60,7 +61,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
-        manywho.offline.storage.get(stateId, id, versionId)
+        get(stateId, id, versionId)
             .then(flow => {
                 if (flow)
                     this.onOffline();
@@ -76,7 +77,7 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
 
         switch (this.state.view) {
             case OfflineView.cache:
-                view = <manywho.offline.components.goOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
+                view = <manywho.offline.components.goOffline.default onOffline={this.onOffline} flowKey={this.props.flowKey} />;
                 break;
 
             case OfflineView.replay:
@@ -99,10 +100,12 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 };
 
+export default OfflineBase;
+
 manywho.settings.initialize({
     components: {
         static: [
-            manywho.offline.components.offline
+            OfflineBase
         ]
     }
 });

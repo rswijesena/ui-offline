@@ -1,8 +1,10 @@
-/// <reference path="../../typings/index.d.ts" />
 
 declare var manywho: any;
 
-manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
+/**
+ * Flattening an array
+ */
+export const flatten = function(items, parent, result, childKey, parentKey) {
     if (items) {
         for (let index = 0; index < items.length; index++) {
             const item = items[index];
@@ -11,18 +13,24 @@ manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
                 item.parentKey = parent.id;
 
             result.push(item);
-            manywho.utils.flatten(item[childKey], item, result, childKey, parentKey);
+            flatten(item[childKey], item, result, childKey, parentKey);
         }
     }
 
     return result;
 };
 
-manywho.utils.clone = function(object) {
+/**
+ * Return a copy of an object
+ */
+export const clone = function(object) {
     return !manywho.utils.isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
 };
 
-manywho.utils.guid = function() {
+/**
+ * Generate an GUID
+ */
+export const guid = function() {
     const s4 = function() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     };

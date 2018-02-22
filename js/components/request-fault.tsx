@@ -2,9 +2,9 @@
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
+// manywho.offline.components = manywho.offline.components || {};
 
-manywho.offline.components.requestFault = class RequestFault extends React.Component<any, any> {
+class RequestFault extends React.Component<any, any> {
 
     displayName = 'Request-Fault';
 
@@ -24,3 +24,5 @@ manywho.offline.components.requestFault = class RequestFault extends React.Compo
         </div>;
     }
 };
+
+export default RequestFault;

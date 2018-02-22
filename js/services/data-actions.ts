@@ -2,7 +2,7 @@
 
 declare var manywho: any;
 
-manywho.offline.dataActions = class DataActions {
+class DataActions {
 
     static execute(action, flow, snapshot) {
         switch (action.crudOperationType.toUpperCase()) {
@@ -27,3 +27,5 @@ manywho.offline.dataActions = class DataActions {
     }
 
 };
+
+export default DataActions;

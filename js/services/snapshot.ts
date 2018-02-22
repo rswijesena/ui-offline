@@ -129,7 +129,7 @@ function getSystemValue(id) {
     return valueElement;
 }
 
-manywho.offline.snapshot = class Snapshot {
+class Snapshot {
 
     metadata = null;
 
@@ -180,3 +180,5 @@ manywho.offline.snapshot = class Snapshot {
     }
 
 };
+
+export default Snapshot;

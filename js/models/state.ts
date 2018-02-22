@@ -2,7 +2,7 @@
 
 declare var manywho: any;
 
-manywho.offline.state = class State {
+class State {
 
     currentMapElementId = null;
     id = null;
@@ -88,3 +88,5 @@ manywho.offline.state = class State {
         });
     }
 };
+
+export default State;

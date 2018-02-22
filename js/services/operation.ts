@@ -10,7 +10,7 @@ function isCommandSupported(command) {
     return false;
 }
 
-manywho.offline.operation = class Operation {
+class Operation {
 
     static commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'];
 
@@ -89,3 +89,5 @@ manywho.offline.operation = class Operation {
     }
 
 };
+
+export default Operation;

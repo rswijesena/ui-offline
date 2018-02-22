@@ -2,7 +2,7 @@
 
 declare var manywho: any;
 
-manywho.offline.step = class Step {
+class Step {
 
     static generate(mapElement) {
         const containerId = '09c5cb4f-3e7e-4f76-98a7-f6287a33043f';
@@ -50,3 +50,5 @@ manywho.offline.step = class Step {
     }
 
 };
+
+export default Step;

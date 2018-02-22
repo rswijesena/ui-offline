@@ -3,7 +3,7 @@
 declare var manywho: any;
 declare var moment: any;
 
-manywho.offline.rules = class Rules {
+class Rules {
 
     static getOutcome(outcomes, state, snapshot) {
         if (!outcomes)
@@ -153,3 +153,5 @@ manywho.offline.rules = class Rules {
         }
     }
 };
+
+export default Rules;

@@ -2,9 +2,9 @@
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
+// manywho.offline.components = manywho.offline.components || {};
 
-manywho.offline.components.goOnline = class GoOnline extends React.Component<any, any> {
+class GoOnline extends React.Component<any, any> {
 
     displayName = 'Go-Online';
     flow = null;
@@ -111,3 +111,5 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
         </div>;
     }
 };
+
+export default GoOnline;

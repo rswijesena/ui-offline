@@ -2,9 +2,9 @@
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
+// manywho.offline.components = manywho.offline.components || {};
 
-manywho.offline.components.noNetwork = class NoNetwork extends React.Component<any, any> {
+class NoNetwork extends React.Component<any, any> {
 
     displayName = 'No-Network';
 
@@ -23,3 +23,5 @@ manywho.offline.components.noNetwork = class NoNetwork extends React.Component<a
         </div>;
     }
 };
+
+export default NoNetwork;

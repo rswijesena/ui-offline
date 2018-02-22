@@ -1,5 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import Flow from '../models/flow';
+import {get, remove, set} from './storage';
+
 declare var manywho: any;
 declare var localforage: LocalForage;
 
@@ -70,7 +73,7 @@ manywho.settings.initialize({
     }
 });
 
-manywho.offline = class Offline {
+class Offline {
 
     static metadata: any = null;
     static requests = null;
@@ -113,9 +116,9 @@ manywho.offline = class Offline {
             id: manywho.offline.metadata.id
         };
 
-        return manywho.offline.storage.remove(stateId)
-            .then(() => manywho.offline.storage.set(flow))
-            .then(() => new manywho.offline.flow(flow));
+        return remove(stateId)
+            .then(() => set(flow))
+            .then(() => new Flow(flow));
     }
 
     static rejoin(flowKey) {
@@ -352,3 +355,5 @@ manywho.offline = class Offline {
         };
     }
 };
+
+export default Offline;
