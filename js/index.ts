@@ -9,7 +9,6 @@ import * as Request from './components/request';
 import * as RequestFault from './components/request-fault';
 import {request} from './services/connection';
 import * as DataActions from './services/data-actions';
-import {metaData} from './services/metadata';
 import * as ObjectData from './services/objectdata';
 import * as Offline from './services/offline';
 import * as Operation from './services/operation';
@@ -35,7 +34,6 @@ if (window && window2.manywho) {
     window2.manywho.offline.components.request = Request;
     window2.manywho.offline.components.requestFault = RequestFault;
     window2.manywho.offline.dataActions = DataActions;
-    window2.manywho.offline.metadata = metaData;
     window2.manywho.offline.objectdata = ObjectData;
     window2.manywho.offline.operation = Operation;
     window2.manywho.offline.page = Page;

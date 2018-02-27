@@ -20,7 +20,7 @@ export const hasNetwork = function() {
 };
 
 export const isOnline = function() {
-    if (manywho.offline.isOffline)
+    if (Offline.isOffline)
         return ($.Deferred()).resolve(false);
 
     return hasNetwork();

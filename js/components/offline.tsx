@@ -7,7 +7,10 @@ import GoOffline from './go-offline';
 import GoOnline from './go-online';
 import NoNetwork from './no-network';
 
+declare var require: any;
 declare var manywho: any;
+
+const metaData = require('../services/metadata.json');
 
 enum OfflineView {
     cache = 0,
@@ -32,7 +35,7 @@ class OfflineBase extends React.Component<any, any> {
 
     onOffline = () => {
         this.setState({ view: null });
-        manywho.offline.isOffline = true;
+        Offline.isOffline = true;
         this.forceUpdate();
     }
 
@@ -45,7 +48,7 @@ class OfflineBase extends React.Component<any, any> {
 
     onOnline = (flow) => {
         this.setState({ view: null, requests: null });
-        manywho.offline.isOffline = false;
+        Offline.isOffline = false;
 
         set(flow)
             .then(() => Offline.rejoin(this.props.flowKey))
@@ -73,7 +76,7 @@ class OfflineBase extends React.Component<any, any> {
     }
 
     render() {
-        let button = manywho.offline.isOffline ?
+        let button = Offline.isOffline ?
             <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online</button> :
             <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button>;
 
@@ -92,7 +95,7 @@ class OfflineBase extends React.Component<any, any> {
                 view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (manywho.offline.metadata && manywho.settings.global('offline.isEnabled', this.props.flowKey))
+        if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey))
             return <div className="offline">
                 <div className="offline-options">
                     {button}

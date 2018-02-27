@@ -9,6 +9,9 @@ import {get, remove, set} from './storage';
 
 declare var manywho: any;
 declare var localforage: LocalForage;
+declare var require: any;
+
+const metaData = require('./metadata.json');
 
 function getObjectDataRequest(request) {
     const objectDataRequest: any = {
@@ -31,7 +34,7 @@ function getObjectDataRequest(request) {
 
     objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
 
-    const typeElement = manywho.offline.metadata.typeElements.find(element => element.id === request.typeElementId);
+    const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
 
     objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
     objectDataRequest.objectDataType = {
@@ -84,20 +87,20 @@ class Offline {
     static isOffline = false;
 
     static initialize(tenantId, stateId, stateToken, authenticationToken) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
         let objectDataRequests = {};
 
-        if (manywho.offline.metadata.pageElements)
-            manywho.offline.metadata.pageElements.forEach(page => {
+        if (metaData.pageElements)
+            metaData.pageElements.forEach(page => {
                 (page.pageComponents || [])
                     .filter(component => component.objectDataRequest)
                     .forEach(component => objectDataRequests[component.objectDataRequest.typeElementId] = component.objectDataRequest);
             });
 
-        if (manywho.offline.metadata.mapElements)
-            manywho.offline.metadata.mapElements.forEach(element => {
+        if (metaData.mapElements)
+            metaData.mapElements.forEach(element => {
                 (element.dataActions || [])
                     .filter(action => manywho.utils.isEqual(action.crudOperationType, 'load', true) && action.objectDataRequest)
                     .forEach(action => objectDataRequests[action.objectDataRequest.typeElementId] = action.objectDataRequest);
@@ -117,7 +120,7 @@ class Offline {
                 id: stateId,
                 token: stateToken
             },
-            id: manywho.offline.metadata.id
+            id: metaData.id
         };
 
         return remove(stateId)
@@ -183,7 +186,7 @@ class Offline {
                     const flow = new Flow({
                         tenantId: tenantId,
                         state: {
-                            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+                            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
                             id: stateId,
                             token: manywho.utils.guid()
                         }
@@ -213,10 +216,10 @@ class Offline {
     }
 
     static getInitializationResponse(request, flow, context) {
-        const snapshot = new manywho.offline.snapshot(manywho.offline.metadata);
+        const snapshot = new manywho.offline.snapshot(metaData);
 
         return {
-            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
             currentStreamId: null,
             navigationElementReferences : snapshot.getNavigationElementReferences(),
             stateId: flow.state.id,
@@ -226,14 +229,14 @@ class Offline {
     }
 
     static getMapElementResponse(request, flow, context) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
         const deferred = $.Deferred();
 
         let mapElement = request.currentMapElementId ?
-            manywho.offline.metadata.mapElements.find(element => element.id === request.currentMapElementId) :
-            manywho.offline.metadata.mapElements.find(element => element.elementType === 'START');
+            metaData.mapElements.find(element => element.id === request.currentMapElementId) :
+            metaData.mapElements.find(element => element.elementType === 'START');
         let nextMapElement = null;
 
         switch (request.invokeType.toUpperCase()) {
@@ -251,13 +254,13 @@ class Offline {
                 if (outcome)
                     nextMapElementId = outcome.nextMapElementId;
 
-                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === nextMapElementId);
+                nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
                 break;
 
             case 'NAVIGATE':
-                const navigation = manywho.offline.metadata.navigationElements.find(element => element.id === request.navigationElementId);
+                const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
                 const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
-                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === navigationItem.locationMapElementId);
+                nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
                 break;
 
             case 'JOIN':
@@ -265,7 +268,7 @@ class Offline {
                 break;
         }
 
-        let snapshot = new manywho.offline.snapshot.default(manywho.offline.metadata);
+        let snapshot = new manywho.offline.snapshot.default(metaData);
         let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
@@ -337,10 +340,10 @@ class Offline {
     }
 
     static getNavigationResponse(request, flow, context) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
-        const navigation = manywho.offline.metadata.navigationElements[0];
+        const navigation = metaData.navigationElements[0];
         return {
             developerName: navigation.developerName,
             isEnabled: true,
