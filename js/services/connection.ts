@@ -1,5 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 
+import Offline from '../services/offline';
+
 declare var manywho: any;
 
 const onlineStatus: any = {};
@@ -21,7 +23,7 @@ export const isOnline = function() {
     if (manywho.offline.isOffline)
         return ($.Deferred()).resolve(false);
 
-    return manywho.connection.hasNetwork();
+    return hasNetwork();
 };
 
 export const onlineRequest = function(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
@@ -52,7 +54,7 @@ export const onlineRequest = function(event, urlPart, methodType, tenantId, stat
 export const offlineRequest = function(resolveContext, event, urlPart, request, tenantId, stateId) {
     const deferred = jQuery.Deferred();
 
-    manywho.offline.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
+    Offline.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
         .then(response => {
             deferred.resolveWith(resolveContext, [response]);
         });
@@ -64,11 +66,11 @@ export const offlineRequest = function(resolveContext, event, urlPart, request, 
 };
 
 export const request = function(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
-    return manywho.connection.isOnline()
+    return isOnline()
         .then(response => {
             if (response)
-                return manywho.connection.onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
+                return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
             else
-                return manywho.connection.offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
+                return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
         });
 };

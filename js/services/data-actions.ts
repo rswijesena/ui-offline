@@ -14,7 +14,7 @@ class DataActions {
                 break;
 
             case 'SAVE':
-                // No implemention for saving as the state will already be updated. If we can't connect to the mothership then we can't 
+                // No implemention for saving as the state will already be updated. If we can't connect to the mothership then we can't
                 // Save the data back to the 3rd party data store
                 break;
 

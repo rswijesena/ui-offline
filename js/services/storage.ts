@@ -5,7 +5,7 @@ declare var localforage: LocalForage;
 
 export const setStorageDriver = () => {
     localforage.setDriver(manywho.settings.global('offline.storage.drivers'));
-}
+};
 
 export const get = (id, flowId, flowVersionId) => {
     return localforage.getItem(`manywho:offline-${id}`)
@@ -26,12 +26,12 @@ export const get = (id, flowId, flowVersionId) => {
                         });
             });
         });
-}
+};
 
 export const set = (flow) => {
     return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
-}
+};
 
 export const remove = (id) => {
     return localforage.removeItem(`manywho:offline-${id}`);
-}
+};

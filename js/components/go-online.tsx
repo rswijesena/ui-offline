@@ -1,8 +1,10 @@
 /// <reference path="../../typings/index.d.ts" />
 
-declare var manywho: any;
+import Flow from '../models/flow';
+import {get, set} from '../services/storage';
+import Request from './request';
 
-// manywho.offline.components = manywho.offline.components || {};
+declare var manywho: any;
 
 class GoOnline extends React.Component<any, any> {
 
@@ -18,7 +20,7 @@ class GoOnline extends React.Component<any, any> {
 
     onDeleteRequest = (request) => {
         this.flow.removeRequest(request);
-        manywho.offline.storage.set(this.flow);
+        set(this.flow);
         this.forceUpdate();
     }
 
@@ -63,9 +65,9 @@ class GoOnline extends React.Component<any, any> {
 
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
 
-        manywho.offline.storage.get(stateId)
+        get(stateId, null, null)
             .then(flow => {
-                this.flow = new manywho.offline.flow(flow);
+                this.flow = new Flow(flow);
 
                 if (!this.flow.requests || this.flow.requests.length === 0)
                     this.props.onOnline(this.flow);
@@ -81,7 +83,7 @@ class GoOnline extends React.Component<any, any> {
                 request.stateId = this.flow.state.id;
                 request.stateToken = this.flow.state.token;
 
-                return <manywho.offline.components.request request={request}
+                return <Request request={request}
                     tenantId={this.flow.tenantId}
                     authenticationToken={this.flow.authenticationToken}
                     isDisabled={this.state.isReplayingAll}

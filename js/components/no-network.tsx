@@ -2,8 +2,6 @@
 
 declare var manywho: any;
 
-// manywho.offline.components = manywho.offline.components || {};
-
 class NoNetwork extends React.Component<any, any> {
 
     displayName = 'No-Network';

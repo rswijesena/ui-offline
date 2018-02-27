@@ -1,7 +1,11 @@
 /// <reference path="../../typings/index.d.ts" />
 
 import {hasNetwork} from '../services/connection';
-import {get} from '../services/storage';
+import Offline from '../services/offline';
+import {get, remove, set} from '../services/storage';
+import GoOffline from './go-offline';
+import GoOnline from './go-online';
+import NoNetwork from './no-network';
 
 declare var manywho: any;
 
@@ -43,9 +47,9 @@ class OfflineBase extends React.Component<any, any> {
         this.setState({ view: null, requests: null });
         manywho.offline.isOffline = false;
 
-        manywho.offline.storage.default.set(flow)
-            .then(() => manywho.offline.rejoin(this.props.flowKey))
-            .then(() => manywho.offline.storage.default.remove(flow.state.id));
+        set(flow)
+            .then(() => Offline.rejoin(this.props.flowKey))
+            .then(() => remove(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -77,15 +81,15 @@ class OfflineBase extends React.Component<any, any> {
 
         switch (this.state.view) {
             case OfflineView.cache:
-                view = <manywho.offline.components.goOffline.default onOffline={this.onOffline} flowKey={this.props.flowKey} />;
+                view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
                 break;
 
             case OfflineView.replay:
-                view = <manywho.offline.components.goOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
+                view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
                 break;
 
             case OfflineView.noNetwork:
-                view = <manywho.offline.components.noNetwork onClose={this.onCloseNoNetwork} />;
+                view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
         if (manywho.offline.metadata && manywho.settings.global('offline.isEnabled', this.props.flowKey))

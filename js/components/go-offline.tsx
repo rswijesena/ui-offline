@@ -4,8 +4,6 @@ import Offline from '../services/offline';
 
 declare var manywho: any;
 
-// manywho.offline.components = manywho.offline.components || {};
-
 class GoOffline extends React.Component<any, any> {
 
     displayName = 'Go-Offline';
