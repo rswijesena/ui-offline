@@ -1,9 +1,7 @@
-/// <reference path="../../typings/index.d.ts" />
-
 declare var manywho: any;
 declare var moment: any;
 
-manywho.offline.rules = class Rules {
+class Rules {
 
     static getOutcome(outcomes, state, snapshot) {
         if (!outcomes)
@@ -15,7 +13,7 @@ manywho.offline.rules = class Rules {
             let result = false;
 
             if (outcome.comparison)
-                result = manywho.offline.rules.evaluateComparisons([outcome.comparison], state, snapshot);
+                result = Rules.evaluateComparisons([outcome.comparison], state, snapshot);
             else
                 result = true;
 
@@ -29,10 +27,10 @@ manywho.offline.rules = class Rules {
 
         for (let comparison of comparisons) {
             if (comparison.rules)
-                result = manywho.offline.rules.evaluateRules(comparison.rules, comparison.comparisonType, state, snapshot);
+                result = Rules.evaluateRules(comparison.rules, comparison.comparisonType, state, snapshot);
 
             if (comparison.comparisons)
-                result = manywho.offline.rules.evaluateComparisons(comparison.comparisons, state, snapshot);
+                result = Rules.evaluateComparisons(comparison.comparisons, state, snapshot);
 
             if (result && comparison.comparisonType === 'OR')
                 return true;
@@ -53,7 +51,7 @@ manywho.offline.rules = class Rules {
             let right = snapshot.getValue(rule.rightValueElementToReferenceId);
             right = state.getValue(rule.rightValueElementToReferenceId, right.typeElementId, right.contentType) || right;
 
-            result = manywho.offline.rules.compareValues(left, right, contentType, rule.criteriaType);
+            result = Rules.compareValues(left, right, contentType, rule.criteriaType);
 
             if (result && criteriaType === 'OR')
                 return true;
@@ -65,15 +63,15 @@ manywho.offline.rules = class Rules {
     static compareValues(left, right, contentType, criteriaType) {
         switch (contentType) {
             case manywho.component.contentTypes.object:
-                return manywho.offline.rules.compareObjects(left, right, criteriaType);
+                return Rules.compareObjects(left, right, criteriaType);
             case manywho.component.contentTypes.list:
-                return manywho.offline.rules.compareLists(left, right, criteriaType);
+                return Rules.compareLists(left, right, criteriaType);
             default:
                 let rightContentValue = criteriaType === 'IS_EMPTY' ?
-                    manywho.offline.rules.getContentValue(right, manywho.component.contentTypes.boolean) :
-                    manywho.offline.rules.getContentValue(right, contentType);
+                    Rules.getContentValue(right, manywho.component.contentTypes.boolean) :
+                    Rules.getContentValue(right, contentType);
 
-                return manywho.offline.rules.compareContentValues(manywho.offline.rules.getContentValue(left, contentType), rightContentValue, criteriaType);
+                return Rules.compareContentValues(Rules.getContentValue(left, contentType), rightContentValue, criteriaType, contentType);
         }
     }
 
@@ -153,3 +151,5 @@ manywho.offline.rules = class Rules {
         }
     }
 };
+
+export default Rules;

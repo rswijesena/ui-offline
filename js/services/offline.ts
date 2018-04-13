@@ -1,7 +1,15 @@
 import Flow from '../models/flow';
 import {metaData} from '../services/metadata';
+import DataActions from './data-actions';
+import ObjectData from './objectdata';
+import Operation from './operation';
+import Page from './page';
+import Rules from './rules';
 import Snapshot from './snapshot';
+import Step from './step';
 import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
+
+import {clone, flatten, guid} from '../services/utils';
 
 declare var manywho: any;
 declare var localforage: LocalForage;
@@ -49,7 +57,7 @@ function getChunkedObjectDataRequests(request) {
     const pages = [];
 
     for (let i = 0; i < iterations; i++) {
-        const page = manywho.utils.clone(request);
+        const page = clone(request);
         page.listFilter.limit = pageSize;
         page.listFilter.offset = i * pageSize;
         pages.push(page);
@@ -137,7 +145,7 @@ class OfflineCore {
 
         const executeRequest = function(requests, index, flow, currentTypeElementId, onProgress, onDone) {
             if (index >= requests.length)
-                return manywho.offline.storage.set(flow)
+                return setOfflineData(flow)
                     .then(onDone);
 
             let request = requests[index];
@@ -180,11 +188,11 @@ class OfflineCore {
                         state: {
                             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
                             id: stateId,
-                            token: manywho.utils.guid()
+                            token: guid()
                         }
                     });
 
-                    return manywho.offline.storage.set(flow)
+                    return setOfflineData(flow)
                         .then(() => flow);
                 }
                 else
@@ -208,7 +216,7 @@ class OfflineCore {
     }
 
     static getInitializationResponse(request, flow, context) {
-        const snapshot = new manywho.offline.snapshot(metaData);
+        const snapshot: any = new Snapshot(metaData);
 
         return {
             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
@@ -277,20 +285,20 @@ class OfflineCore {
                 .filter(action => !action.disabled)
                 .sort((a, b) => a.order - b.order)
                 .forEach(action => {
-                    manywho.offline.dataActions.execute(action, flow, snapshot);
+                    DataActions.execute(action, flow, snapshot);
                 });
 
         if (nextMapElement.operations)
             nextMapElement.operations
                 .sort((a, b) => a.order - b.order)
                 .forEach(operation => {
-                    manywho.offline.operation.execute(operation, flow.state, snapshot);
+                    Operation.execute(operation, flow.state, snapshot);
                 });
 
         if (nextMapElement.elementType === 'step')
-            pageResponse = manywho.offline.step.generate(nextMapElement);
+            pageResponse = Step.generate(nextMapElement);
         else if (nextMapElement.elementType === 'input')
-            pageResponse = manywho.offline.page.generate(request, nextMapElement, flow.state, snapshot);
+            pageResponse = Page.generate(request, nextMapElement, flow.state, snapshot);
         else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0)
             pageResponse = {
                 developerName: 'done',
@@ -298,20 +306,20 @@ class OfflineCore {
             };
 
         if (nextMapElement.outcomes && !pageResponse)
-            return manywho.offline.storage.set(flow)
+            return setOfflineData(flow)
                 .then(() => {
-                    return manywho.offline.getResponse(context, null, null, {
+                    return OfflineCore.getResponse(context, null, null, {
                         currentMapElementId: nextMapElement.id,
                         mapElementInvokeRequest: {
-                            selectedOutcomeId: manywho.offline.rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id
+                            selectedOutcomeId: Rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id
                         },
                         invokeType: 'FORWARD',
                         stateId: request.stateId
-                    });
+                    }, request.tenantId, request.stateId);
                 });
         else {
             flow.state.currentMapElementId = nextMapElement.id;
-            manywho.offline.storage.set(flow);
+            setOfflineData(flow);
 
             return {
                 currentMapElementId: nextMapElement.id,
@@ -326,7 +334,7 @@ class OfflineCore {
     }
 
     static getObjectDataResponse(request, flow, context) {
-        return manywho.offline.objectdata.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
+        return ObjectData.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
     }
 
     static getNavigationResponse(request, flow, context) {
@@ -340,7 +348,7 @@ class OfflineCore {
             isVisible: true,
             label: navigation.label,
             navigationItemResponses: navigation.navigationItems,
-            navigationItemDataResponses: manywho.utils.flatten(navigation.navigationItems, null, [], 'navigationItems', null).map(item => {
+            navigationItemDataResponses: flatten(navigation.navigationItems, null, [], 'navigationItems', null).map(item => {
                 return {
                     navigationItemId: item.id,
                     navigationItemDeveloperName: item.developerName,

@@ -1,16 +1,16 @@
-/// <reference path="../../typings/index.d.ts" />
+import {clone, guid} from '../services/utils';
 
 declare var manywho: any;
 
 function isCommandSupported(command) {
-    if (manywho.utils.isNullOrWhitespace(command) || manywho.offline.operation.commands.indexOf(command) !== -1)
+    if (manywho.utils.isNullOrWhitespace(command) || Operation.commands.indexOf(command) !== -1)
         return true;
 
     manywho.log.info('The Operation command is not supported and this operation will be ignored: ' + command);
     return false;
 }
 
-manywho.offline.operation = class Operation {
+class Operation {
 
     static commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'];
 
@@ -42,12 +42,12 @@ manywho.offline.operation = class Operation {
             switch (operation.valueElementToApplyId.command) {
                 case 'NEW':
                     valueToReference.objectData = [{
-                        externalId: manywho.utils.guid(),
-                        internalId: manywho.utils.guid(),
+                        externalId: guid(),
+                        internalId: guid(),
                         developerName: type.developerName,
                         order: 0,
                         isSelected: false,
-                        properties: manywho.utils.clone(type.properties).map(property => {
+                        properties: clone(type.properties).map(property => {
                             property.contentValue = null;
                             property.objectData = null;
                             property.typeElementPropertyId = property.id;
@@ -59,7 +59,7 @@ manywho.offline.operation = class Operation {
                 case 'ADD':
                     valueToReference.objectData = valueToReference.objectData || [];
 
-                    let objectData = manywho.utils.clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map(objectData => {
+                    let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map(objectData => {
                         if (valueToReference.objectData.length > 0) {
                             const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
                             if (existingItem) {
@@ -70,14 +70,14 @@ manywho.offline.operation = class Operation {
                         return objectData;
                     });
 
-                    objectData = objectData.concat(manywho.utils.clone(valueToReference.objectData));
+                    objectData = objectData.concat(clone(valueToReference.objectData));
                     valueToReference.objectData = objectData;
                     break;
 
                 case 'REMOVE':
                     valueToReference.objectData = valueToReference.objectData || [];
 
-                    valueToReference.objectData = manywho.utils.clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
+                    valueToReference.objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
                         .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
                     break;
             }
@@ -89,3 +89,5 @@ manywho.offline.operation = class Operation {
     }
 
 };
+
+export default Operation;

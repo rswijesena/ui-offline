@@ -1,8 +1,6 @@
-/// <reference path="../../typings/index.d.ts" />
+import {clone} from '../services/utils';
 
-declare var manywho;
-
-manywho.offline.objectdata = class {
+class ObjectData {
 
     static filter(objectData, filter) {
         if (!filter || !objectData)
@@ -11,7 +9,7 @@ manywho.offline.objectdata = class {
                 objectData
             };
 
-        let filteredObjectData = manywho.utils.clone(objectData);
+        let filteredObjectData = clone(objectData);
 
         if (filter.search)
             filteredObjectData = filteredObjectData.filter(item => {
@@ -30,3 +28,5 @@ manywho.offline.objectdata = class {
     }
 
 };
+
+export default ObjectData;

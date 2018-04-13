@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 declare var manywho: any;
 
 function getPageContainers(container) {
@@ -27,7 +25,7 @@ function flattenContainers(containers, parent, result, propertyName) {
     return result;
 }
 
-manywho.offline.page = class Page {
+class Page {
 
     static generate(request, mapElement, state, snapshot) {
         const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
@@ -118,3 +116,5 @@ manywho.offline.page = class Page {
     }
 
 };
+
+export default Page;
