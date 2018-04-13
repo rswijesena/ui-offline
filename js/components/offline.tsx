@@ -1,4 +1,5 @@
 import React from 'react';
+import {hasNetwork} from '../services/connection';
 import {metaData} from '../services/metadata';
 import OfflineCore from '../services/offline';
 import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
@@ -34,7 +35,7 @@ class Offline extends React.Component<any, any> {
     }
 
     onOnlineClick = (e) => {
-        manywho.connection.hasNetwork()
+        hasNetwork()
             .then(response => {
                 response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
             });

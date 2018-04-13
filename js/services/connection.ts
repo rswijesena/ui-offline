@@ -1,10 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
-
 declare var manywho: any;
 
 const onlineStatus: any = {};
 
-manywho.connection.hasNetwork = function() {
+export const hasNetwork = () => {
     const deferred = jQuery.Deferred();
 
     $.ajax({
@@ -17,14 +15,14 @@ manywho.connection.hasNetwork = function() {
     return deferred;
 };
 
-manywho.connection.isOnline = function() {
+export const isOnline = () => {
     if (manywho.offline.isOffline)
         return ($.Deferred()).resolve(false);
 
     return manywho.connection.hasNetwork();
 };
 
-manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
+export const onlineRequest = (event, urlPart, methodType, tenantId, stateId, authenticationToken, request) => {
     let json = null;
 
     if (request != null)
@@ -49,7 +47,7 @@ manywho.connection.onlineRequest = function(event, urlPart, methodType, tenantId
         .fail(manywho.settings.event(event + '.fail'));
 };
 
-manywho.connection.offlineRequest = function(resolveContext, event, urlPart, request, tenantId, stateId) {
+export const offlineRequest = (resolveContext, event, urlPart, request, tenantId, stateId) => {
     const deferred = jQuery.Deferred();
 
     manywho.offline.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
@@ -63,7 +61,7 @@ manywho.connection.offlineRequest = function(resolveContext, event, urlPart, req
         .fail(manywho.settings.event(event + '.fail'));
 };
 
-manywho.connection.request = function(resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) {
+export const request = (resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) => {
     return manywho.connection.isOnline()
         .then(response => {
             if (response)
