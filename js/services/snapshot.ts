@@ -1,4 +1,4 @@
-/// <reference path='../../typings/index.d.ts' />
+import {clone} from '../services/utils';
 
 declare var manywho: any;
 
@@ -129,7 +129,7 @@ function getSystemValue(id) {
     return valueElement;
 }
 
-manywho.offline.snapshot = class Snapshot {
+class Snapshot {
 
     metadata = null;
 
@@ -144,10 +144,10 @@ manywho.offline.snapshot = class Snapshot {
             value = this.metadata.valueElements.find(element => element.id === id.id);
 
         if (id.typeElementPropertyId && value.defaultObjectData) {
-            return manywho.utils.clone(value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId));
+            return clone(value.defaultObjectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId));
         }
         else
-            return manywho.utils.clone(value);
+            return clone(value);
     }
 
     getContentTypeForValue(id) {
@@ -180,3 +180,5 @@ manywho.offline.snapshot = class Snapshot {
     }
 
 };
+
+export default Snapshot;

@@ -1,5 +1,6 @@
 import Flow from '../models/flow';
 import {metaData} from '../services/metadata';
+import Snapshot from './snapshot';
 import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
 
 declare var manywho: any;
@@ -26,7 +27,7 @@ function getObjectDataRequest(request) {
 
     objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
 
-    const typeElement = manywho.offline.metadata.typeElements.find(element => element.id === request.typeElementId);
+    const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
 
     objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
     objectDataRequest.objectDataType = {
@@ -171,13 +172,13 @@ class OfflineCore {
         else if (manywho.utils.isEqual(event, 'initialization', true))
             stateId = '00000000-0000-0000-0000-000000000000';
 
-        return manywho.offline.storage.get(stateId)
+        return getOfflineData(stateId)
             .then(response => {
                 if (manywho.utils.isEqual(event, 'initialization')) {
-                    const flow = new manywho.offline.flow({
+                    const flow = new Flow({
                         tenantId: tenantId,
                         state: {
-                            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+                            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
                             id: stateId,
                             token: manywho.utils.guid()
                         }
@@ -187,30 +188,30 @@ class OfflineCore {
                         .then(() => flow);
                 }
                 else
-                    return new manywho.offline.flow(response);
+                    return new Flow(response);
             })
             .then(flow => {
                 if (manywho.utils.isEqual(event, 'join', true))
-                    return manywho.offline.getMapElementResponse({
+                    return this.getMapElementResponse({
                         invokeType: 'JOIN',
                         currentMapElementId: flow.state.currentMapElementId,
                     }, flow, context);
                 else if (manywho.utils.isEqual(event, 'initialization', true))
-                    return manywho.offline.getInitializationResponse(request, flow, context);
+                    return this.getInitializationResponse(request, flow, context);
                 else if (request.mapElementInvokeRequest)
-                    return manywho.offline.getMapElementResponse(request, flow, context);
+                    return this.getMapElementResponse(request, flow, context);
                 else if (request.navigationElementId)
-                    return manywho.offline.getNavigationResponse(request, flow, context);
+                    return this.getNavigationResponse(request, flow, context);
                 else
-                    return manywho.offline.getObjectDataResponse(request, flow, context);
+                    return this.getObjectDataResponse(request, flow, context);
             });
     }
 
     static getInitializationResponse(request, flow, context) {
-        const snapshot = new manywho.offline.snapshot(manywho.offline.metadata);
+        const snapshot = new manywho.offline.snapshot(metaData);
 
         return {
-            currentMapElementId: manywho.offline.metadata.mapElements.find(element => element.elementType === 'START').id,
+            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
             currentStreamId: null,
             navigationElementReferences : snapshot.getNavigationElementReferences(),
             stateId: flow.state.id,
@@ -220,14 +221,14 @@ class OfflineCore {
     }
 
     static getMapElementResponse(request, flow, context) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
         const deferred = $.Deferred();
 
-        let mapElement = request.currentMapElementId ?
-            manywho.offline.metadata.mapElements.find(element => element.id === request.currentMapElementId) :
-            manywho.offline.metadata.mapElements.find(element => element.elementType === 'START');
+        let mapElement: any = request.currentMapElementId ?
+            metaData.mapElements.find(element => element.id === request.currentMapElementId) :
+            metaData.mapElements.find(element => element.elementType === 'START');
         let nextMapElement = null;
 
         switch (request.invokeType.toUpperCase()) {
@@ -245,13 +246,13 @@ class OfflineCore {
                 if (outcome)
                     nextMapElementId = outcome.nextMapElementId;
 
-                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === nextMapElementId);
+                nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
                 break;
 
             case 'NAVIGATE':
-                const navigation = manywho.offline.metadata.navigationElements.find(element => element.id === request.navigationElementId);
+                const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
                 const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
-                nextMapElement = manywho.offline.metadata.mapElements.find(element => element.id === navigationItem.locationMapElementId);
+                nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
                 break;
 
             case 'JOIN':
@@ -259,7 +260,7 @@ class OfflineCore {
                 break;
         }
 
-        let snapshot = new manywho.offline.snapshot(manywho.offline.metadata);
+        let snapshot: any = new Snapshot(metaData);
         let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
@@ -329,10 +330,10 @@ class OfflineCore {
     }
 
     static getNavigationResponse(request, flow, context) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
-        const navigation = manywho.offline.metadata.navigationElements[0];
+        const navigation = metaData.navigationElements[0];
         return {
             developerName: navigation.developerName,
             isEnabled: true,
