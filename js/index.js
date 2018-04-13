@@ -4,6 +4,8 @@ import 'script-loader!./lib/polyfills.js';
 import {request} from './services/connection';
 import Offline from './components/offline';
 
+import "../css/offline.less";
+
 const window2 = window;
 
 if (window && window2.manywho) {

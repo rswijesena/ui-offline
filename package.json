@@ -11,6 +11,7 @@
     "start": "webpack --config webpack.config.js"
   },
   "devDependencies": {
+    "css-loader": "^0.28.11",
     "del": "^1.1.1",
     "fs-promise": "^2.0.2",
     "git-guppy": "^2.0.0",
@@ -32,10 +33,13 @@
     "gulp-uglify": "^1.1.0",
     "gulp-util": "^3.0.4",
     "guppy-pre-commit": "^0.4.0",
+    "less": "^3.0.1",
+    "less-loader": "^4.1.0",
     "localforage": "^1.5.6",
     "request-promise": "^4.1.1",
     "run-sequence": "^1.2.1",
     "script-loader": "^0.7.0",
+    "style-loader": "^0.20.3",
     "ts-loader": "^3.1.1",
     "tslint": "^4.0.2",
     "typescript": "^2.3.2",
