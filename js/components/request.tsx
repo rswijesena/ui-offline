@@ -1,7 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import RequestFault from './request-fault';
 
-declare var manywho: any;
+import OfflineCore from '../services/offline';
+
+declare const manywho: any;
 
 class Request extends React.Component<any, any> {
 
@@ -16,22 +18,22 @@ class Request extends React.Component<any, any> {
 
     onReplay = () => {
         this.setState({ isReplaying: true, response: null });
-        manywho.offline.isOffline = false;
+        OfflineCore.isOffline = false;
 
         return manywho.ajax.invoke(this.props.request, this.props.tenantId, this.props.authenticationToken)
             .then(response => {
                 if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
                     this.setState({ response, isReplaying: false });
-                    manywho.offline.isOffline = true;
+                    OfflineCore.isOffline = true;
                 }
                 else if (response && response.invokeType === 'NOT_ALLOWED') {
-                    manywho.offline.rejoin(this.props.flowKey);
+                    OfflineCore.rejoin(this.props.flowKey);
                 }
                 else
                     this.props.onReplayDone(this.props.request);
             })
             .fail(response => {
-                manywho.offline.isOffline = true;
+                OfflineCore.isOffline = true;
             });
     }
 

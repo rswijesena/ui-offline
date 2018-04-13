@@ -1,5 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
-
 declare const manywho: any;
 
 export const flatten = (items, parent, result, childKey, parentKey) => {

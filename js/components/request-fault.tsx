@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 
-declare var manywho: any;
+declare const manywho: any;
 
 class RequestFault extends React.Component<any, any> {
 

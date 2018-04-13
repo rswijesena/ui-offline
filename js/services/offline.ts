@@ -11,8 +11,8 @@ import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
 
 import {clone, flatten, guid} from '../services/utils';
 
-declare var manywho: any;
-declare var localforage: LocalForage;
+declare const manywho: any;
+declare const localforage: LocalForage;
 
 function getObjectDataRequest(request) {
     const objectDataRequest: any = {
@@ -74,9 +74,6 @@ manywho.settings.initialize({
                 limit: 250,
                 pageSize: 10
             }
-        },
-        storage: {
-            drivers: ['asyncStorage', 'webSQLStorage']
         }
     }
 });

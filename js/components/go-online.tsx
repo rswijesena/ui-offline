@@ -1,11 +1,11 @@
-import React from 'react';
+import * as React from 'react';
 import Request from './request';
 
 import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
 
 import Flow from '../models/flow';
 
-declare var manywho: any;
+declare const manywho: any;
 
 class GoOnline extends React.Component<any, any> {
 
@@ -20,7 +20,7 @@ class GoOnline extends React.Component<any, any> {
 
     onDeleteRequest = (request) => {
         this.flow.removeRequest(request);
-        manywho.offline.storage.set(this.flow);
+        setOfflineData(this.flow);
         this.forceUpdate();
     }
 
@@ -42,7 +42,7 @@ class GoOnline extends React.Component<any, any> {
     onDeleteAll = () => {
         this.flow.removeRequests();
 
-        manywho.offline.storage.set(this.flow)
+        setOfflineData(this.flow)
             .then(this.props.onOnline);
     }
 

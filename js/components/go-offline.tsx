@@ -1,8 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import OfflineCore from '../services/offline';
 import {clone, flatten, guid} from '../services/utils';
 
-declare var manywho: any;
+declare const manywho: any;
 
 class GoOffline extends React.Component<any, any> {
 

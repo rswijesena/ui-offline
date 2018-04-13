@@ -1,6 +1,8 @@
 import OfflineCore from './offline';
 
-declare var manywho: any;
+declare const manywho: any;
+declare const jQuery: any;
+declare const $: any;
 
 const onlineStatus: any = {};
 

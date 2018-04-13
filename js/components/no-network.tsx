@@ -1,12 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+import * as React from 'react';
 
-declare var manywho: any;
+declare const manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
-
-manywho.offline.components.noNetwork = class NoNetwork extends React.Component<any, any> {
-
-    displayName = 'No-Network';
+class NoNetwork extends React.Component<any, any> {
 
     constructor(props: any) {
         super(props);
@@ -23,3 +19,5 @@ manywho.offline.components.noNetwork = class NoNetwork extends React.Component<a
         </div>;
     }
 };
+
+export default NoNetwork;

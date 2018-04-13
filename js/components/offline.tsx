@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {hasNetwork} from '../services/connection';
 import {metaData} from '../services/metadata';
 import OfflineCore from '../services/offline';
@@ -7,8 +7,9 @@ import {clone, flatten, guid} from '../services/utils';
 
 import GoOffline from './go-offline';
 import GoOnline from './go-online';
+import NoNetwork from './no-network';
 
-declare var manywho: any;
+declare const manywho: any;
 
 enum OfflineView {
     cache = 0,
@@ -88,7 +89,7 @@ class Offline extends React.Component<any, any> {
                 break;
 
             case OfflineView.noNetwork:
-                view = <manywho.offline.components.noNetwork onClose={this.onCloseNoNetwork} />;
+                view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
         if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey))
