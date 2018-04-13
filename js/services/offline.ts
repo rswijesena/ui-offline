@@ -70,7 +70,7 @@ manywho.settings.initialize({
     }
 });
 
-manywho.offline = class Offline {
+class OfflineCore {
 
     static metadata: any = null;
     static requests = null;
@@ -352,3 +352,5 @@ manywho.offline = class Offline {
         };
     }
 };
+
+export default OfflineCore;

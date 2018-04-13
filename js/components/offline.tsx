@@ -1,4 +1,6 @@
 import React from 'react';
+import {metaData} from '../services/metadata';
+import OfflineCore from '../services/offline';
 import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
 import {clone, flatten, guid} from '../services/utils';
 
@@ -68,7 +70,7 @@ class Offline extends React.Component<any, any> {
     }
 
     render() {
-        let button = manywho.offline.isOffline ?
+        let button = OfflineCore.isOffline ?
             <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online</button> :
             <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button>;
 
@@ -87,7 +89,7 @@ class Offline extends React.Component<any, any> {
                 view = <manywho.offline.components.noNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (manywho.offline.metadata && manywho.settings.global('offline.isEnabled', this.props.flowKey))
+        if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey))
             return <div className="offline">
                 <div className="offline-options">
                     {button}
