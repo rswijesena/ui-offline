@@ -7,6 +7,7 @@ module.exports = function(gulp, plugins, argv) {
         return gulp.src(['js/services/offline.ts', 'js/models/*.ts', 'js/services/*.ts', 'js/components/*.tsx'], { base: 'js' })
             .pipe(plugins.tslint({
                 formatter: 'verbose',
+                configuration: "tslint.json"
             }))
             .pipe(plugins.tslint.report({
                 summarizeFailureOutput: true,

@@ -1,8 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 
-declare var manywho: any;
+declare const manywho: any;
 
-manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
+export const flatten = (items, parent, result, childKey, parentKey) => {
     if (items) {
         for (let index = 0; index < items.length; index++) {
             const item = items[index];
@@ -18,11 +18,11 @@ manywho.utils.flatten = function(items, parent, result, childKey, parentKey) {
     return result;
 };
 
-manywho.utils.clone = function(object) {
+export const clone = (object) => {
     return !manywho.utils.isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
 };
 
-manywho.utils.guid = function() {
+export const guid = () => {
     const s4 = function() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     };

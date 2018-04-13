@@ -1,8 +1,7 @@
-/// <reference path="../../typings/index.d.ts" />
+import React from 'react';
+import {clone, flatten, guid} from '../services/utils';
 
 declare var manywho: any;
-
-manywho.offline.components = manywho.offline.components || {};
 
 enum OfflineView {
     cache = 0,
@@ -10,7 +9,7 @@ enum OfflineView {
     noNetwork = 2
 }
 
-manywho.offline.components.offline = class Offline extends React.Component<any, any> {
+class Offline extends React.Component<any, any> {
 
     displayName = 'Offline';
 
@@ -99,10 +98,12 @@ manywho.offline.components.offline = class Offline extends React.Component<any, 
     }
 };
 
+export default Offline;
+
 manywho.settings.initialize({
     components: {
         static: [
-            manywho.offline.components.offline
+            Offline
         ]
     }
 });

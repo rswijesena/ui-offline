@@ -1,5 +1,9 @@
 {
-    "exclude": "js/services/metadata.ts",
+    "linterOptions": {
+        "exclude": [
+            "js/services/metadata.ts"
+        ]
+    },
     "rules": {
         "class-name": true,
         "comment-format": [
