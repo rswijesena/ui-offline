@@ -4,6 +4,8 @@ import OfflineCore from '../services/offline';
 import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
 import {clone, flatten, guid} from '../services/utils';
 
+import GoOffline from './go-offline';
+
 declare var manywho: any;
 
 enum OfflineView {
@@ -13,8 +15,6 @@ enum OfflineView {
 }
 
 class Offline extends React.Component<any, any> {
-
-    displayName = 'Offline';
 
     constructor(props: any) {
         super(props);
@@ -78,7 +78,7 @@ class Offline extends React.Component<any, any> {
 
         switch (this.state.view) {
             case OfflineView.cache:
-                view = <manywho.offline.components.goOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
+                view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
                 break;
 
             case OfflineView.replay:

@@ -1,12 +1,10 @@
-/// <reference path="../../typings/index.d.ts" />
+import React from 'react';
+import OfflineCore from '../services/offline';
+import {clone, flatten, guid} from '../services/utils';
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
-
-manywho.offline.components.goOffline = class GoOffline extends React.Component<any, any> {
-
-    displayName = 'Go-Offline';
+class GoOffline extends React.Component<any, any> {
 
     constructor(props: any) {
         super(props);
@@ -36,7 +34,7 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
         const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
-        manywho.offline.initialize(tenantId, stateId, stateToken, authenticationToken)
+        OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
             .then(flow => {
                 if (manywho.offline.cacheObjectData(flow, this.onProgress, this.onCached))
                     this.setState({ isProgressVisible: true });
@@ -66,3 +64,5 @@ manywho.offline.components.goOffline = class GoOffline extends React.Component<a
         return null;
     }
 };
+
+export default GoOffline;
