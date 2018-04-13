@@ -1,8 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+import {clone} from '../services/utils';
 
 declare var manywho: any;
 
-manywho.offline.state = class State {
+class State {
 
     currentMapElementId = null;
     id = null;
@@ -21,9 +21,9 @@ manywho.offline.state = class State {
             let value = null;
 
             if (manywho.utils.isNullOrEmpty(typeElementId))
-                value = manywho.utils.clone(this.values[id.id]);
+                value = clone(this.values[id.id]);
             else {
-                value = manywho.utils.clone(this.values[id.id]);
+                value = clone(this.values[id.id]);
 
                 if (manywho.utils.isEqual(contentType, manywho.component.contentTypes.object, true) && value.objectData && value.objectData.length > 1) {
                     // TODO: log error;
@@ -55,7 +55,7 @@ manywho.offline.state = class State {
     setValue(id, typeElementId, snapshot, value) {
         if (id.typeElementPropertyId) {
             if (!this.values[id.id] || !this.values[id.id].objectData || this.values[id.id].objectData.length === 0) {
-                const typeElement = manywho.utils.clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
+                const typeElement = clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
 
                 typeElement.properties = typeElement.properties.map(property => {
                     property.typeElementPropertyId = property.id;
@@ -73,7 +73,7 @@ manywho.offline.state = class State {
             property.objectData = value.objectData;
         }
         else
-            this.values[id.id] = manywho.utils.clone(value);
+            this.values[id.id] = clone(value);
     }
 
     update(inputs, mapElement, snapshot) {
@@ -88,3 +88,5 @@ manywho.offline.state = class State {
         });
     }
 };
+
+export default State;

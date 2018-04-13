@@ -36,7 +36,7 @@ class GoOffline extends React.Component<any, any> {
 
         OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
             .then(flow => {
-                if (manywho.offline.cacheObjectData(flow, this.onProgress, this.onCached))
+                if (OfflineCore.cacheObjectData(flow, this.onProgress, this.onCached))
                     this.setState({ isProgressVisible: true });
                 else
                     this.props.onOffline();

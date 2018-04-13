@@ -1,4 +1,6 @@
-/// <reference path="../../typings/index.d.ts" />
+import Flow from '../models/flow';
+import {metaData} from '../services/metadata';
+import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
 
 declare var manywho: any;
 declare var localforage: LocalForage;
@@ -72,36 +74,35 @@ manywho.settings.initialize({
 
 class OfflineCore {
 
-    static metadata: any = null;
     static requests = null;
     static isOffline = false;
 
     static initialize(tenantId, stateId, stateToken, authenticationToken) {
-        if (!manywho.offline.metadata)
+        if (!metaData)
             return;
 
         let objectDataRequests = {};
 
-        if (manywho.offline.metadata.pageElements)
-            manywho.offline.metadata.pageElements.forEach(page => {
+        if (metaData.pageElements)
+            metaData.pageElements.forEach(page => {
                 (page.pageComponents || [])
                     .filter(component => component.objectDataRequest)
                     .forEach(component => objectDataRequests[component.objectDataRequest.typeElementId] = component.objectDataRequest);
             });
 
-        if (manywho.offline.metadata.mapElements)
-            manywho.offline.metadata.mapElements.forEach(element => {
+        if (metaData.mapElements)
+            metaData.mapElements.forEach(element => {
                 (element.dataActions || [])
                     .filter(action => manywho.utils.isEqual(action.crudOperationType, 'load', true) && action.objectDataRequest)
                     .forEach(action => objectDataRequests[action.objectDataRequest.typeElementId] = action.objectDataRequest);
             });
 
-        manywho.offline.requests = Object.keys(objectDataRequests)
+        const requests = Object.keys(objectDataRequests)
             .map(key => objectDataRequests[key])
             .map(getObjectDataRequest)
             .map(getChunkedObjectDataRequests);
 
-        manywho.offline.requests = manywho.offline.requests.concat.apply([], manywho.offline.requests);
+        this.requests = requests.concat.apply([], this.requests);
 
         const flow = {
             authenticationToken,
@@ -110,12 +111,12 @@ class OfflineCore {
                 id: stateId,
                 token: stateToken
             },
-            id: manywho.offline.metadata.id
+            id: metaData.id
         };
 
-        return manywho.offline.storage.remove(stateId)
-            .then(() => manywho.offline.storage.set(flow))
-            .then(() => new manywho.offline.flow(flow));
+        return removeOfflineData(stateId)
+            .then(() => setOfflineData(flow))
+            .then(() => new Flow(flow));
     }
 
     static rejoin(flowKey) {
@@ -130,7 +131,7 @@ class OfflineCore {
     }
 
     static cacheObjectData(flow, onProgress, onDone) {
-        if (!manywho.offline.requests || manywho.offline.requests.length === 0)
+        if (!this.requests || this.requests.length === 0)
             return false;
 
         const executeRequest = function(requests, index, flow, currentTypeElementId, onProgress, onDone) {
@@ -157,7 +158,7 @@ class OfflineCore {
                 });
         };
 
-        executeRequest(manywho.offline.requests, 0, flow, null, onProgress, onDone);
+        executeRequest(this.requests, 0, flow, null, onProgress, onDone);
 
         return true;
     }

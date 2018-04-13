@@ -1,8 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+import State from './state';
 
 declare var manywho: any;
 
-manywho.offline.flow = class Flow {
+class Flow {
 
     authenticationToken = null;
     id = null;
@@ -17,7 +17,7 @@ manywho.offline.flow = class Flow {
         this.objectData = flow.objectData || {};
         this.requests = flow.requests || [];
         this.tenantId = flow.tenantId;
-        this.state = new manywho.offline.state(flow.state);
+        this.state = new State(flow.state);
     }
 
     addRequest(request, snapshot) {
@@ -47,3 +47,5 @@ manywho.offline.flow = class Flow {
     }
 
 };
+
+export default Flow;

@@ -29,7 +29,7 @@ class Offline extends React.Component<any, any> {
 
     onOffline = () => {
         this.setState({ view: null });
-        manywho.offline.isOffline = true;
+        OfflineCore.isOffline = true;
         this.forceUpdate();
     }
 
