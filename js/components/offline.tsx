@@ -1,4 +1,5 @@
 import React from 'react';
+import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
 import {clone, flatten, guid} from '../services/utils';
 
 declare var manywho: any;
@@ -41,9 +42,9 @@ class Offline extends React.Component<any, any> {
         this.setState({ view: null, requests: null });
         manywho.offline.isOffline = false;
 
-        manywho.offline.storage.set(flow)
+        setOfflineData(flow)
             .then(() => manywho.offline.rejoin(this.props.flowKey))
-            .then(() => manywho.offline.storage.remove(flow.state.id));
+            .then(() => removeOfflineData(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -59,7 +60,7 @@ class Offline extends React.Component<any, any> {
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
-        manywho.offline.storage.get(stateId, id, versionId)
+        getOfflineData(stateId, id, versionId)
             .then(flow => {
                 if (flow)
                     this.onOffline();
