@@ -1,12 +1,9 @@
-/// <reference path="../../typings/index.d.ts" />
+import React from 'react';
+import RequestFault from './request-fault';
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
-
-manywho.offline.components.request = class Request extends React.Component<any, any> {
-
-    displayName = 'Request';
+class Request extends React.Component<any, any> {
 
     constructor(props: any) {
         super(props);
@@ -58,7 +55,7 @@ manywho.offline.components.request = class Request extends React.Component<any, 
 
         let response = null;
         if (this.state.response)
-            response = <manywho.offline.components.requestFault response={this.state.response} />;
+            response = <RequestFault response={this.state.response} />;
 
         let request = null;
         if (!this.state.isCollapsed && !this.state.isReplaying && !this.state.response)
@@ -84,3 +81,5 @@ manywho.offline.components.request = class Request extends React.Component<any, 
         </li>;
     }
 };
+
+export default Request;

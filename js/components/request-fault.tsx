@@ -1,12 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+import React from 'react';
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
-
-manywho.offline.components.requestFault = class RequestFault extends React.Component<any, any> {
-
-    displayName = 'Request-Fault';
+class RequestFault extends React.Component<any, any> {
 
     constructor(props: any) {
         super(props);
@@ -24,3 +20,5 @@ manywho.offline.components.requestFault = class RequestFault extends React.Compo
         </div>;
     }
 };
+
+export default RequestFault;

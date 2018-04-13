@@ -1,12 +1,14 @@
-/// <reference path="../../typings/index.d.ts" />
+import React from 'react';
+import Request from './request';
+
+import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
+
+import Flow from '../models/flow';
 
 declare var manywho: any;
 
-manywho.offline.components = manywho.offline.components || {};
+class GoOnline extends React.Component<any, any> {
 
-manywho.offline.components.goOnline = class GoOnline extends React.Component<any, any> {
-
-    displayName = 'Go-Online';
     flow = null;
 
     constructor(props: any) {
@@ -62,10 +64,12 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
         });
 
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
+        const id = manywho.utils.extractFlowId(this.props.flowKey);
+        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
-        manywho.offline.storage.get(stateId)
+        getOfflineData(stateId, id, versionId)
             .then(flow => {
-                this.flow = new manywho.offline.flow(flow);
+                this.flow = new Flow(flow);
 
                 if (!this.flow.requests || this.flow.requests.length === 0)
                     this.props.onOnline(this.flow);
@@ -81,7 +85,7 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
                 request.stateId = this.flow.state.id;
                 request.stateToken = this.flow.state.token;
 
-                return <manywho.offline.components.request request={request}
+                return <Request request={request}
                     tenantId={this.flow.tenantId}
                     authenticationToken={this.flow.authenticationToken}
                     isDisabled={this.state.isReplayingAll}
@@ -111,3 +115,5 @@ manywho.offline.components.goOnline = class GoOnline extends React.Component<any
         </div>;
     }
 };
+
+export default GoOnline;

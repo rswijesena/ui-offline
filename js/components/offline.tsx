@@ -6,6 +6,7 @@ import {getOfflineData, removeOfflineData, setOfflineData} from '../services/sto
 import {clone, flatten, guid} from '../services/utils';
 
 import GoOffline from './go-offline';
+import GoOnline from './go-online';
 
 declare var manywho: any;
 
@@ -43,10 +44,10 @@ class Offline extends React.Component<any, any> {
 
     onOnline = (flow) => {
         this.setState({ view: null, requests: null });
-        manywho.offline.isOffline = false;
+        OfflineCore.isOffline = false;
 
         setOfflineData(flow)
-            .then(() => manywho.offline.rejoin(this.props.flowKey))
+            .then(() => OfflineCore.rejoin(this.props.flowKey))
             .then(() => removeOfflineData(flow.state.id));
     }
 
@@ -83,7 +84,7 @@ class Offline extends React.Component<any, any> {
                 break;
 
             case OfflineView.replay:
-                view = <manywho.offline.components.goOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
+                view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
                 break;
 
             case OfflineView.noNetwork:
