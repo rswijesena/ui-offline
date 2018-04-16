@@ -8,9 +8,11 @@
     "url": "https://github.com/manywho/ui-offline.git"
   },
   "scripts": {
-    "start": "webpack --config webpack.config.js"
+    "start": "webpack --config webpack.development.config.js --env.build=../ui-html5/build",
+    "dist": "webpack --config webpack.production.config.js"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^0.28.11",
     "del": "^1.1.1",
     "fs-promise": "^2.0.2",
@@ -43,7 +45,9 @@
     "ts-loader": "^3.1.1",
     "tslint": "^4.0.2",
     "typescript": "^2.3.2",
+    "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^3.11.0",
+    "webpack-bundle-analyzer": "^2.11.1",
     "yargs": "^2.3.0"
   },
   "dependencies": {
