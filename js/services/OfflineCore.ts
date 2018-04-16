@@ -12,7 +12,8 @@ import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
 import {clone, flatten, guid} from '../services/utils';
 
 declare const manywho: any;
-declare const localforage: LocalForage;
+declare const localforage: any;
+declare const $: any;
 
 function getObjectDataRequest(request) {
     const objectDataRequest: any = {

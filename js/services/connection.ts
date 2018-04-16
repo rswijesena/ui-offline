@@ -1,4 +1,4 @@
-import OfflineCore from './offline';
+import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
 declare const jQuery: any;

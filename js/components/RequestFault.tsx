@@ -19,6 +19,6 @@ class RequestFault extends React.Component<any, any> {
             </ul>
         </div>;
     }
-};
+}
 
 export default RequestFault;

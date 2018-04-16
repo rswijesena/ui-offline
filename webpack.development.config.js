@@ -13,6 +13,15 @@ const config = {
                 exclude: /node_modules/
             },
             {
+                test: /\.tsx?$/,
+                enforce: 'pre',
+                loader: 'tslint-loader',
+                options: {
+                    emitErrors: true,
+                    failOnHint: true
+                },
+            },
+            {
                 test: /\.less$/,
                 use: [
                     {loader: 'style-loader'}, 

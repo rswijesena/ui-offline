@@ -18,6 +18,6 @@ class NoNetwork extends React.Component<any, any> {
             </div>
         </div>;
     }
-};
+}
 
 export default NoNetwork;

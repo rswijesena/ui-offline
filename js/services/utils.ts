@@ -2,11 +2,12 @@ declare const manywho: any;
 
 export const flatten = (items, parent, result, childKey, parentKey) => {
     if (items) {
-        for (let index = 0; index < items.length; index++) {
+        for (let index = 0; index < items.length; index += 1) {
             const item = items[index];
 
-            if (parent && parentKey)
+            if (parent && parentKey) {
                 item.parentKey = parent.id;
+            }
 
             result.push(item);
             manywho.utils.flatten(item[childKey], item, result, childKey, parentKey);
@@ -21,7 +22,7 @@ export const clone = (object) => {
 };
 
 export const guid = () => {
-    const s4 = function() {
+    const s4 = () => {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     };
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();

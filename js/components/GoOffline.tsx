@@ -1,6 +1,6 @@
 import * as React from 'react';
-import OfflineCore from '../services/offline';
-import {clone, flatten, guid} from '../services/utils';
+import OfflineCore from '../services/OfflineCore';
+import { clone, flatten, guid } from '../services/utils';
 
 declare const manywho: any;
 
@@ -12,7 +12,7 @@ class GoOffline extends React.Component<any, any> {
             status: 'Caching Data',
             progress: 0,
             isProgressVisible: false,
-            isDismissEnabled: false
+            isDismissEnabled: false,
         };
     }
 
@@ -35,20 +35,21 @@ class GoOffline extends React.Component<any, any> {
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
         OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
-            .then(flow => {
-                if (OfflineCore.cacheObjectData(flow, this.onProgress, this.onCached))
+            .then((flow) => {
+                if (OfflineCore.cacheObjectData(flow, this.onProgress, this.onCached)) {
                     this.setState({ isProgressVisible: true });
-                else
+                } else {
                     this.props.onOffline();
+                }
             });
     }
 
     render() {
         const style = {
-            width: `${this.state.progress}%`
+            width: `${this.state.progress}%`,
         };
 
-        if (this.state.isProgressVisible)
+        if (this.state.isProgressVisible) {
             return <div className="offline-status">
                 <div className="panel panel-default">
                     <div className="panel-body">
@@ -56,13 +57,16 @@ class GoOffline extends React.Component<any, any> {
                         <div className="progress">
                             <div className="progress-bar progress-bar-striped active" style={style} />
                         </div>
-                        <button className="btn btn-success continue-offline" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>Continue Offline</button>
+                        <button className="btn btn-success continue-offline" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>
+                            Continue Offline
+                        </button>
                     </div>
                 </div>
             </div>;
+        }
 
         return null;
     }
-};
+}
 
 export default GoOffline;

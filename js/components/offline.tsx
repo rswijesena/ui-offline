@@ -1,20 +1,20 @@
 import * as React from 'react';
-import {hasNetwork} from '../services/connection';
-import {metaData} from '../services/metadata';
-import OfflineCore from '../services/offline';
-import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
-import {clone, flatten, guid} from '../services/utils';
+import { hasNetwork } from '../services/connection';
+import { metaData } from '../services/metadata';
+import OfflineCore from '../services/OfflineCore';
+import { getOfflineData, removeOfflineData, setOfflineData } from '../services/storage';
+import { clone, flatten, guid } from '../services/utils';
 
-import GoOffline from './go-offline';
-import GoOnline from './go-online';
-import NoNetwork from './no-network';
+import GoOffline from './GoOffline';
+import GoOnline from './GoOnline';
+import NoNetwork from './NoNetwork';
 
 declare const manywho: any;
 
 enum OfflineView {
     cache = 0,
     replay = 1,
-    noNetwork = 2
+    noNetwork = 2,
 }
 
 class Offline extends React.Component<any, any> {
@@ -22,7 +22,7 @@ class Offline extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
-            view: null
+            view: null,
         };
     }
 
@@ -38,7 +38,7 @@ class Offline extends React.Component<any, any> {
 
     onOnlineClick = (e) => {
         hasNetwork()
-            .then(response => {
+            .then((response) => {
                 response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
             });
     }
@@ -66,50 +66,56 @@ class Offline extends React.Component<any, any> {
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
         getOfflineData(stateId, id, versionId)
-            .then(flow => {
-                if (flow)
+            .then((flow) => {
+                if (flow) {
                     this.onOffline();
+                }
             });
     }
 
     render() {
-        let button = OfflineCore.isOffline ?
-            <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>Go Online</button> :
-            <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>Go Offline</button>;
+        const button = OfflineCore.isOffline ?
+            <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>
+                Go Online
+            </button> :
+            <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>
+                Go Offline
+            </button>;
 
         let view = null;
 
         switch (this.state.view) {
-            case OfflineView.cache:
-                view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
-                break;
+        case OfflineView.cache:
+            view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
+            break;
 
-            case OfflineView.replay:
-                view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
-                break;
+        case OfflineView.replay:
+            view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
+            break;
 
-            case OfflineView.noNetwork:
-                view = <NoNetwork onClose={this.onCloseNoNetwork} />;
+        case OfflineView.noNetwork:
+            view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey))
+        if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey)) {
             return <div className="offline">
                 <div className="offline-options">
                     {button}
                 </div>
                 {view}
             </div>;
+        }
 
         return null;
     }
-};
+}
 
 export default Offline;
 
 manywho.settings.initialize({
     components: {
         static: [
-            Offline
-        ]
-    }
+            Offline,
+        ],
+    },
 });
