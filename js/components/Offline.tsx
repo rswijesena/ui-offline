@@ -97,7 +97,7 @@ class Offline extends React.Component<any, any> {
             view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (metaData && manywho.settings.global('offline.isEnabled', this.props.flowKey)) {
+        if (metaData) {
             return <div className="offline">
                 <div className="offline-options">
                     {button}

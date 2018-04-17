@@ -69,7 +69,6 @@ function getChunkedObjectDataRequests(request) {
 
 manywho.settings.initialize({
     offline: {
-        isEnabled: true,
         cache: {
             requests: {
                 limit: 250,
