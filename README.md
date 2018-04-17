@@ -6,51 +6,33 @@ Services and components used by the [ManyWho](https://manywho.com) UI framework 
 
 ### Building
 
-To build the ui-offline you will need to have [nodejs](http://nodejs.org/), [gulp](http://gulpjs.com/) and [typings](https://github.com/typings/typings) installed.
+To build the ui-offline you will need to have [nodejs](http://nodejs.org/) installed.
 
 Then install dependencies:
 
 ```
 npm install
-typings install
 ```
 
 Then run the dev build:
 
 ```
-gulp watch
+npm start
 ```
 
 Or dist build:
 
 ```
-gulp dist
+npm run dist
 ```
 
 ### Running
 
-Before you can run a flow offline you will need to grab a copy of the flow's metadata via the metadata task:
-
-Where `--tenant` is the id of the tenant that contains the flow
-
-```
-gulp metadata --username="" --password="" --flow="" --tenant=""
-```
-
-This will create a metadata.ts file which will be included as part of the regular build. After getting the metadata start the normal build process with:
-
-```
-gulp watch
-```
-
 To include the offline components you will need to add the following references to debug.html in the ui-html5 repo:
 
 ```
-<link rel="stylesheet" href="build/css/ui-offline.css" />
 <script src="build/js/ui-offline.js"></script>
 ```
-
-These references assume that the build was run with --build switch pointing to the `ui-html5/build` directory.
 
 ## Contributing
 
