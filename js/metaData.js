@@ -1,0 +1,58 @@
+const requestPromise = require('request-promise');
+const fsp = require('fs-promise');
+
+module.exports = (argv) => {
+    return () => {
+        var baseUrl = argv.baseUrl || 'https://flow.manywho.com';
+        var authenticationToken = null;
+        var tenantId = null;
+        
+        return requestPromise({
+            method: "POST",
+            uri: baseUrl + "/api/draw/1/authentication",
+            body: {
+                "loginUrl": baseUrl + "/plugins/manywho/api/draw/1/authentication",
+                "username": argv.username,
+                "password": argv.password
+            },
+            headers: {
+                'ManyWhoTenant': 'da497693-4d02-45db-bc08-8ea16d2ccbdf'
+            },
+            json: true
+        })
+        .then((token) => {
+            return requestPromise({
+                method: "GET",
+                uri: baseUrl + "/api/draw/1/authentication/" + argv.tenant,
+                headers: {
+                    'authorization': token,
+                }
+            });
+        })
+        .then((token) => {
+            authenticationToken = token.replace('"', '');
+
+            return requestPromise({
+                method: "GET",
+                uri: baseUrl + "/api/run/1/flow?filter=substringof(developername, '" + argv.flow + "')",
+                headers: {
+                    'ManyWhoTenant': argv.tenant
+                },
+                json: true
+            });      
+        })
+        .then((flows) => {
+            return requestPromise({
+                method: "GET",
+                uri: baseUrl + "/api/draw/1/flow/snap/" + flows[0].id.id + "/" + flows[0].id.versionId,
+                headers: {
+                    'authorization': authenticationToken,
+                    'ManyWhoTenant': argv.tenant
+                }
+            })
+        })
+        .then((snapshot) => {
+            return fsp.writeFile('js/services/metadata.ts', `manywho.offline.metadata = ${JSON.stringify(JSON.parse(snapshot))};\n`);
+        });
+    }
+};
