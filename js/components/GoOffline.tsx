@@ -1,6 +1,6 @@
 import * as React from 'react';
 import OfflineCore from '../services/OfflineCore';
-import { clone, flatten, guid } from '../services/utils';
+import { clone, flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
 

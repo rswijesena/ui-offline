@@ -13,8 +13,8 @@ class Step {
                     {
                         containerType: 'VERTICAL_FLOW',
                         developerName: 'Step',
-                        id: containerId
-                    }
+                        id: containerId,
+                    },
                 ],
                 pageComponentResponses: [
                     {
@@ -22,29 +22,29 @@ class Step {
                         developerName: 'Step Content',
                         id: componentId,
                         pageContainerId: containerId,
-                        pageContainerDeveloperName: 'Step'
-                    }
+                        pageContainerDeveloperName: 'Step',
+                    },
                 ],
                 pageContainerDataResponses: [
                     {
                         pageContainerId: containerId,
                         isEnabled: true,
                         isVisible: true,
-                        isEditable: true
-                    }
+                        isEditable: true,
+                    },
                 ],
                 pageComponentDataResponses: [
                     {
                         pageComponentId: componentId,
                         isVisible: true,
                         isEnabled: true,
-                        content: mapElement.userContent
-                    }
-                ]
-            }
+                        content: mapElement.userContent,
+                    },
+                ],
+            },
         };
     }
 
-};
+}
 
 export default Step;

@@ -1,9 +1,8 @@
-import State from './state';
+import State from './State';
 
 declare var manywho: any;
 
 class Flow {
-
     authenticationToken = null;
     id = null;
     objectData = null;
@@ -22,7 +21,9 @@ class Flow {
 
     addRequest(request, snapshot) {
         request.key = this.requests.length;
-        request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(element => element.id === request.currentMapElementId).developerName;
+        request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
+            element => element.id === request.currentMapElementId,
+        ).developerName;
         this.requests.push(request);
     }
 
@@ -40,12 +41,12 @@ class Flow {
     }
 
     cacheObjectData(objectData, typeElementId) {
-        if (this.objectData[typeElementId])
+        if (this.objectData[typeElementId]) {
             this.objectData[typeElementId] = this.objectData[typeElementId].concat(objectData);
-        else
+        } else {
             this.objectData[typeElementId] = objectData;
+        }
     }
-
-};
+}
 
 export default Flow;

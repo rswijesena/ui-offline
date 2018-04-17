@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { hasNetwork } from '../services/connection';
+import { hasNetwork } from '../services/Connection';
 import { metaData } from '../services/metadata';
 import OfflineCore from '../services/OfflineCore';
-import { getOfflineData, removeOfflineData, setOfflineData } from '../services/storage';
-import { clone, flatten, guid } from '../services/utils';
+import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
+import { clone, flatten, guid } from '../services/Utils';
 
 import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';

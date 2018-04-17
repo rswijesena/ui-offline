@@ -87,6 +87,6 @@ class Request extends React.Component<any, any> {
             {request}
         </li>;
     }
-};
+}
 
 export default Request;

@@ -1,4 +1,4 @@
-import {clone} from '../services/utils';
+import { clone } from '../services/Utils';
 
 declare var manywho: any;
 
@@ -20,12 +20,13 @@ class State {
         if (this.values[id.id]) {
             let value = null;
 
-            if (manywho.utils.isNullOrEmpty(typeElementId))
+            if (manywho.utils.isNullOrEmpty(typeElementId)) {
                 value = clone(this.values[id.id]);
-            else {
+            } else {
                 value = clone(this.values[id.id]);
 
-                if (manywho.utils.isEqual(contentType, manywho.component.contentTypes.object, true) && value.objectData && value.objectData.length > 1) {
+                if (manywho.utils.isEqual(
+                    contentType, manywho.component.contentTypes.object, true) && value.objectData && value.objectData.length > 1) {
                     // TODO: log error;
                 }
 
@@ -39,9 +40,8 @@ class State {
                 if (manywho.utils.isEqual(command, 'GET_FIRST', true) && value.objectData) {
                     value.objectData = [value.objectData[0]];
                     value.index = 0;
-                }
-                else if (manywho.utils.isEqual(command, 'GET_NEXT', true) && value.objectData) {
-                    value.index++;
+                } else if (manywho.utils.isEqual(command, 'GET_NEXT', true) && value.objectData) {
+                    value.index + 1;
                     value.objectData = value.index < value.objectData.length ? [value.objectData[value.index]] : [];
                 }
             }
@@ -57,27 +57,27 @@ class State {
             if (!this.values[id.id] || !this.values[id.id].objectData || this.values[id.id].objectData.length === 0) {
                 const typeElement = clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
 
-                typeElement.properties = typeElement.properties.map(property => {
+                typeElement.properties = typeElement.properties.map((property) => {
                     property.typeElementPropertyId = property.id;
                     delete property.id;
                     return property;
                 });
 
                 this.values[id.id] = {
-                    objectData: [typeElement]
+                    objectData: [typeElement],
                 };
             }
 
             const property = this.values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
             property.contentValue = value.contentValue;
             property.objectData = value.objectData;
-        }
-        else
+        } else {
             this.values[id.id] = clone(value);
+        }
     }
 
     update(inputs, mapElement, snapshot) {
-        inputs.forEach(input => {
+        inputs.forEach((input) => {
             const page = snapshot.metadata.pageElements.find(pageElement => pageElement.id === mapElement.pageElementId);
             const component = page.pageComponents.find(pageComponent => pageComponent.id === input.pageComponentId);
 
@@ -87,6 +87,6 @@ class State {
             }
         });
     }
-};
+}
 
 export default State;

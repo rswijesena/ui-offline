@@ -1,9 +1,9 @@
 import * as React from 'react';
-import Request from './request';
+import Request from './Request';
 
-import {getOfflineData, removeOfflineData, setOfflineData} from '../services/storage';
+import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 
-import Flow from '../models/flow';
+import Flow from '../models/Flow';
 
 declare const manywho: any;
 
@@ -14,7 +14,7 @@ class GoOnline extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
-            isReplayingAll: false
+            isReplayingAll: false,
         };
     }
 
@@ -30,9 +30,9 @@ class GoOnline extends React.Component<any, any> {
         if (index === this.flow.requests.length - 1 && this.state.isReplayAll) {
             this.onDeleteRequest(request);
             this.props.onOnline(this.flow);
-        }
-        else
+        } else {
             this.onDeleteRequest(request);
+        }
     }
 
     onReplayAll = () => {
@@ -49,8 +49,8 @@ class GoOnline extends React.Component<any, any> {
     onClose = () => {
         manywho.settings.initialize({
             offline: {
-                isOnline: false
-            }
+                isOnline: false,
+            },
         });
 
         this.props.onClose(this.flow);
@@ -59,8 +59,8 @@ class GoOnline extends React.Component<any, any> {
     componentWillMount() {
         manywho.settings.initialize({
             offline: {
-                isOnline: true
-            }
+                isOnline: true,
+            },
         });
 
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
@@ -68,19 +68,20 @@ class GoOnline extends React.Component<any, any> {
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
         getOfflineData(stateId, id, versionId)
-            .then(flow => {
+            .then((flow) => {
                 this.flow = new Flow(flow);
 
-                if (!this.flow.requests || this.flow.requests.length === 0)
+                if (!this.flow.requests || this.flow.requests.length === 0) {
                     this.props.onOnline(this.flow);
-                else
+                } else {
                     this.forceUpdate();
+                }
             });
     }
 
     render() {
         let requests = null;
-        if (this.flow)
+        if (this.flow) {
             requests = this.flow.requests.map((request, index) => {
                 request.stateId = this.flow.state.id;
                 request.stateToken = this.flow.state.token;
@@ -95,6 +96,7 @@ class GoOnline extends React.Component<any, any> {
                     flowKey={this.props.flowKey}
                     key={request.key} />;
             });
+        }
 
         return <div className="offline-status">
             <div className="panel panel-default">
@@ -114,6 +116,6 @@ class GoOnline extends React.Component<any, any> {
             </div>
         </div>;
     }
-};
+}
 
 export default GoOnline;

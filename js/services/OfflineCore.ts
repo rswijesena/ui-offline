@@ -1,15 +1,15 @@
-import Flow from '../models/flow';
-import {metaData} from '../services/metadata';
-import DataActions from './data-actions';
-import ObjectData from './objectdata';
-import Operation from './operation';
-import Page from './page';
-import Rules from './rules';
-import Snapshot from './snapshot';
-import Step from './step';
-import {getOfflineData, removeOfflineData, setOfflineData} from './storage';
+import Flow from '../models/Flow';
+import { metaData } from '../services/metadata';
+import DataActions from './DataActions';
+import ObjectData from './ObjectData';
+import Operation from './Operation';
+import Page from './Page';
+import Rules from './Rules';
+import Snapshot from './Snapshot';
+import Step from './Step';
+import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
 
-import {clone, flatten, guid} from '../services/utils';
+import { clone, flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
 declare const localforage: any;
@@ -21,17 +21,17 @@ function getObjectDataRequest(request) {
         configurationValues: null,
         command: null,
         culture: {
-            'id': null,
-            'developerName': null,
-            'developerSummary': null,
-            'brand': null,
-            'language': 'EN',
-            'country': 'USA',
-            'variant': null
+            id: null,
+            developerName: null,
+            developerSummary: null,
+            brand: null,
+            language: 'EN',
+            country: 'USA',
+            variant: null,
         },
         stateId: '00000000-0000-0000-0000-000000000000',
         token: null,
-        listFilter: request.listFilter || {}
+        listFilter: request.listFilter || {},
     };
 
     objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
@@ -42,11 +42,11 @@ function getObjectDataRequest(request) {
     objectDataRequest.objectDataType = {
         typeElementId: typeElement.id,
         developerName: typeElement.developerName,
-        properties: typeElement.properties.map(property => {
+        properties: typeElement.properties.map((property) => {
             return {
-                developerName: property.developerName
+                developerName: property.developerName,
             };
-        })
+        }),
     };
 
     return objectDataRequest;
@@ -57,7 +57,7 @@ function getChunkedObjectDataRequests(request) {
     const iterations = Math.ceil(request.listFilter.limit / pageSize);
     const pages = [];
 
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < iterations; i += 1) {
         const page = clone(request);
         page.listFilter.limit = pageSize;
         page.listFilter.offset = i * pageSize;
@@ -73,10 +73,10 @@ manywho.settings.initialize({
         cache: {
             requests: {
                 limit: 250,
-                pageSize: 10
-            }
-        }
-    }
+                pageSize: 10,
+            },
+        },
+    },
 });
 
 class OfflineCore {
@@ -85,24 +85,27 @@ class OfflineCore {
     static isOffline = false;
 
     static initialize(tenantId, stateId, stateToken, authenticationToken) {
-        if (!metaData)
+        if (!metaData) {
             return;
+        }
 
-        let objectDataRequests = {};
+        const objectDataRequests = {};
 
-        if (metaData.pageElements)
-            metaData.pageElements.forEach(page => {
+        if (metaData.pageElements) {
+            metaData.pageElements.forEach((page) => {
                 (page.pageComponents || [])
                     .filter(component => component.objectDataRequest)
                     .forEach(component => objectDataRequests[component.objectDataRequest.typeElementId] = component.objectDataRequest);
             });
+        }
 
-        if (metaData.mapElements)
-            metaData.mapElements.forEach(element => {
+        if (metaData.mapElements) {
+            metaData.mapElements.forEach((element) => {
                 (element.dataActions || [])
                     .filter(action => manywho.utils.isEqual(action.crudOperationType, 'load', true) && action.objectDataRequest)
                     .forEach(action => objectDataRequests[action.objectDataRequest.typeElementId] = action.objectDataRequest);
             });
+        }
 
         const requests = Object.keys(objectDataRequests)
             .map(key => objectDataRequests[key])
@@ -116,9 +119,9 @@ class OfflineCore {
             tenantId,
             state: {
                 id: stateId,
-                token: stateToken
+                token: stateToken,
             },
-            id: metaData.id
+            id: metaData.id,
         };
 
         return removeOfflineData(stateId)
@@ -138,78 +141,90 @@ class OfflineCore {
     }
 
     static cacheObjectData(flow, onProgress, onDone) {
-        if (!this.requests || this.requests.length === 0)
+        if (!this.requests || this.requests.length === 0) {
             return false;
+        }
 
-        const executeRequest = function(requests, index, flow, currentTypeElementId, onProgress, onDone) {
-            if (index >= requests.length)
+        const executeRequest = function (req, reqIndex, flow, currentTypeElementId, onProgress, onDone) {
+            let requests = req;
+            const index = reqIndex;
+
+            if (index >= requests.length) {
                 return setOfflineData(flow)
                     .then(onDone);
+            }
 
-            let request = requests[index];
+            const request = requests[index];
             request.stateId = flow.state.id;
 
             return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
-                .then(response => {
-                    if (response.objectData)
+                .then((response) => {
+                    if (response.objectData) {
                         flow.cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    else
+                    } else {
                         requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
+                    }
 
                     return response;
                 })
-                .then(response => {
-                    index++;
+                .then((response) => {
+                    index + 1;
                     onProgress(index, requests.length);
                     executeRequest(requests, index, flow, currentTypeElementId, onProgress, onDone);
                 });
         };
-
         executeRequest(this.requests, 0, flow, null, onProgress, onDone);
-
         return true;
     }
 
     static getResponse(context, event, urlPart, request, tenantId, stateId) {
-        if (request && request.stateId)
-            stateId = request.stateId;
-        else if (manywho.utils.isEqual(event, 'join', true))
-            stateId = urlPart.substr(urlPart.lastIndexOf('/') + 1);
-        else if (manywho.utils.isEqual(event, 'initialization', true))
-            stateId = '00000000-0000-0000-0000-000000000000';
+        let flowStateId = stateId;
+        if (request && request.stateId) {
+            flowStateId = request.stateId;
+        } else if (manywho.utils.isEqual(event, 'join', true)) {
+            flowStateId = urlPart.substr(urlPart.lastIndexOf('/') + 1);
+        } else if (manywho.utils.isEqual(event, 'initialization', true)) {
+            flowStateId = '00000000-0000-0000-0000-000000000000';
+        }
 
-        return getOfflineData(stateId)
-            .then(response => {
+        return getOfflineData(flowStateId)
+            .then((response) => {
                 if (manywho.utils.isEqual(event, 'initialization')) {
                     const flow = new Flow({
-                        tenantId: tenantId,
+                        tenantId,
                         state: {
                             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
                             id: stateId,
-                            token: guid()
-                        }
+                            token: guid(),
+                        },
                     });
 
                     return setOfflineData(flow)
                         .then(() => flow);
                 }
-                else
-                    return new Flow(response);
+                return new Flow(response);
             })
-            .then(flow => {
-                if (manywho.utils.isEqual(event, 'join', true))
-                    return this.getMapElementResponse({
-                        invokeType: 'JOIN',
-                        currentMapElementId: flow.state.currentMapElementId,
-                    }, flow, context);
-                else if (manywho.utils.isEqual(event, 'initialization', true))
+            .then((flow) => {
+                if (manywho.utils.isEqual(event, 'join', true)) {
+                    return this.getMapElementResponse(
+                        {
+                            invokeType: 'JOIN',
+                            currentMapElementId: flow.state.currentMapElementId,
+                        }, 
+                        flow,
+                        context,
+                    );
+                }
+                if (manywho.utils.isEqual(event, 'initialization', true)) {
                     return this.getInitializationResponse(request, flow, context);
-                else if (request.mapElementInvokeRequest)
+                }
+                if (request.mapElementInvokeRequest) {
                     return this.getMapElementResponse(request, flow, context);
-                else if (request.navigationElementId)
+                }
+                if (request.navigationElementId) {
                     return this.getNavigationResponse(request, flow, context);
-                else
-                    return this.getObjectDataResponse(request, flow, context);
+                }
+                return this.getObjectDataResponse(request, flow, context);
             });
     }
 
@@ -222,113 +237,126 @@ class OfflineCore {
             navigationElementReferences : snapshot.getNavigationElementReferences(),
             stateId: flow.state.id,
             stateToken: flow.state.token,
-            statusCode: '200'
+            statusCode: '200',
         };
     }
 
     static getMapElementResponse(request, flow, context) {
-        if (!metaData)
+        if (!metaData) {
             return;
+        }
 
         const deferred = $.Deferred();
 
-        let mapElement: any = request.currentMapElementId ?
+        const mapElement: any = request.currentMapElementId ?
             metaData.mapElements.find(element => element.id === request.currentMapElementId) :
             metaData.mapElements.find(element => element.elementType === 'START');
         let nextMapElement = null;
 
         switch (request.invokeType.toUpperCase()) {
-            case 'FORWARD':
-                let nextMapElementId = null;
-                let outcome = null;
+        case 'FORWARD':
+            let nextMapElementId = null;
+            let outcome = null;
 
-                if (request.mapElementInvokeRequest.selectedOutcomeId)
-                    outcome = mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId);
-                else if (request.selectedMapElementId)
-                    nextMapElementId = request.selectedMapElementId;
-                else
-                    outcome = mapElement.outcomes[0];
+            if (request.mapElementInvokeRequest.selectedOutcomeId) {
+                outcome = mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId);
+            } else if (request.selectedMapElementId) {
+                nextMapElementId = request.selectedMapElementId;
+            } else {
+                outcome = mapElement.outcomes[0];
+            }
 
-                if (outcome)
-                    nextMapElementId = outcome.nextMapElementId;
+            if (outcome) {
+                nextMapElementId = outcome.nextMapElementId;
+            }
 
-                nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
-                break;
+            nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
+            break;
 
-            case 'NAVIGATE':
-                const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
-                const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
-                nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
-                break;
+        case 'NAVIGATE':
+            const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
+            const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
+            nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
+            break;
 
-            case 'JOIN':
-                nextMapElement = mapElement;
-                break;
+        case 'JOIN':
+            nextMapElement = mapElement;
+            break;
         }
 
-        let snapshot: any = new Snapshot(metaData);
+        const snapshot: any = new Snapshot(metaData);
         let pageResponse = null;
 
-        if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true))
+        if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
             flow.addRequest(request, snapshot);
+        }
 
         if (mapElement.elementType === 'input'
             && request.mapElementInvokeRequest
             && request.mapElementInvokeRequest.pageRequest
-            && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses)
+            && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses) {
             flow.state.update(request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses, mapElement, snapshot);
+        }
 
-        if (nextMapElement.dataActions)
+        if (nextMapElement.dataActions) {
             nextMapElement.dataActions
                 .filter(action => !action.disabled)
                 .sort((a, b) => a.order - b.order)
-                .forEach(action => {
+                .forEach((action) => {
                     DataActions.execute(action, flow, snapshot);
                 });
+        }
 
-        if (nextMapElement.operations)
+        if (nextMapElement.operations) {
             nextMapElement.operations
                 .sort((a, b) => a.order - b.order)
-                .forEach(operation => {
+                .forEach((operation) => {
                     Operation.execute(operation, flow.state, snapshot);
                 });
+        }
 
-        if (nextMapElement.elementType === 'step')
+        if (nextMapElement.elementType === 'step') {
             pageResponse = Step.generate(nextMapElement);
-        else if (nextMapElement.elementType === 'input')
+        } else if (nextMapElement.elementType === 'input') {
             pageResponse = Page.generate(request, nextMapElement, flow.state, snapshot);
-        else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0)
+        } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
             pageResponse = {
                 developerName: 'done',
                 mapElementId: nextMapElement.id,
             };
+        }
 
-        if (nextMapElement.outcomes && !pageResponse)
+        if (nextMapElement.outcomes && !pageResponse) { 
             return setOfflineData(flow)
                 .then(() => {
-                    return OfflineCore.getResponse(context, null, null, {
-                        currentMapElementId: nextMapElement.id,
-                        mapElementInvokeRequest: {
-                            selectedOutcomeId: Rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id
-                        },
-                        invokeType: 'FORWARD',
-                        stateId: request.stateId
-                    }, request.tenantId, request.stateId);
+                    return OfflineCore.getResponse(
+                        context,null, null,
+                        {
+                            currentMapElementId: nextMapElement.id,
+                            mapElementInvokeRequest: {
+                                selectedOutcomeId: Rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id,
+                            },
+                            invokeType: 'FORWARD',
+                            stateId: request.stateId,
+                        }, 
+                        request.tenantId, 
+                        request.stateId,
+                    );
                 });
-        else {
-            flow.state.currentMapElementId = nextMapElement.id;
-            setOfflineData(flow);
-
-            return {
-                currentMapElementId: nextMapElement.id,
-                invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
-                mapElementInvokeResponses: [pageResponse],
-                navigationElementReferences: snapshot.getNavigationElementReferences(),
-                stateId: request.stateId,
-                stateToken: request.stateToken,
-                statusCode: '200'
-            };
         }
+
+        flow.state.currentMapElementId = nextMapElement.id;
+        setOfflineData(flow);
+
+        return {
+            currentMapElementId: nextMapElement.id,
+            invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
+            mapElementInvokeResponses: [pageResponse],
+            navigationElementReferences: snapshot.getNavigationElementReferences(),
+            stateId: request.stateId,
+            stateToken: request.stateToken,
+            statusCode: '200',
+        };
     }
 
     static getObjectDataResponse(request, flow, context) {
@@ -336,8 +364,9 @@ class OfflineCore {
     }
 
     static getNavigationResponse(request, flow, context) {
-        if (!metaData)
+        if (!metaData) {
             return;
+        }
 
         const navigation = metaData.navigationElements[0];
         return {
@@ -346,7 +375,7 @@ class OfflineCore {
             isVisible: true,
             label: navigation.label,
             navigationItemResponses: navigation.navigationItems,
-            navigationItemDataResponses: flatten(navigation.navigationItems, null, [], 'navigationItems', null).map(item => {
+            navigationItemDataResponses: flatten(navigation.navigationItems, null, [], 'navigationItems', null).map((item) => {
                 return {
                     navigationItemId: item.id,
                     navigationItemDeveloperName: item.developerName,
@@ -354,11 +383,11 @@ class OfflineCore {
                     isCurrent: item.locationMapElementId === flow.currentMapElementId,
                     isEnabled: true,
                     isVisible: true,
-                    locationMapElementId: item.locationMapElementId
+                    locationMapElementId: item.locationMapElementId,
                 };
-            })
+            }),
         };
     }
-};
+}
 
 export default OfflineCore;

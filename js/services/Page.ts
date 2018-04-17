@@ -6,7 +6,7 @@ const getPageContainers = (container) => {
         delete container.pageContainers;
     }
     return container;
-}
+};
 
 const flattenContainers = (containers, parent, result, propertyName) => {
     if (containers != null) {

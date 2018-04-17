@@ -1,4 +1,4 @@
-import { clone, guid } from '../services/utils';
+import { clone, guid } from '../services/Utils';
 
 declare var manywho: any;
 
