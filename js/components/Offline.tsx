@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
-import { metaData } from '../services/metadata';
 import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { clone, flatten, guid } from '../services/Utils';
@@ -10,6 +9,7 @@ import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
 
 declare const manywho: any;
+declare const metaData: any;
 
 enum OfflineView {
     cache = 0,

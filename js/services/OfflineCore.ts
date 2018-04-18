@@ -1,5 +1,4 @@
 import Flow from '../models/Flow';
-import { metaData } from '../services/metadata';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import Operation from './Operation';
@@ -12,6 +11,7 @@ import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
 import { clone, flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
+declare const metaData: any;
 declare const localforage: any;
 declare const $: any;
 
