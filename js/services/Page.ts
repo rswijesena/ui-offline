@@ -1,39 +1,39 @@
 declare var manywho: any;
 
-const getPageContainers = (container) => {
-    if (container.pageContainers) {
-        container.pageContainerResponses = container.pageContainers.map(getPageContainers);
-        delete container.pageContainers;
-    }
-    return container;
-};
+const Page = {
 
-const flattenContainers = (containers, parent, result, propertyName) => {
-    if (containers != null) {
-        for (let index = 0; index < containers.length; index += 1) {
-            const item = containers[index];
-
-            if (parent) {
-                item.parent = parent.id;
-                parent.childCount = containers.length;
-            }
-
-            result.push(item);
-            flattenContainers(item[propertyName], item, result, propertyName);
+    getPageContainers(container) {
+        if (container.pageContainers) {
+            container.pageContainerResponses = container.pageContainers.map(this.getPageContainers);
+            delete container.pageContainers;
         }
-    }
+        return container;
+    },
 
-    return result;
-};
+    flattenContainers(containers, parent, result, propertyName) {
+        if (containers != null) {
+            for (let index = 0; index < containers.length; index += 1) {
+                const item = containers[index];
+    
+                if (parent) {
+                    item.parent = parent.id;
+                    parent.childCount = containers.length;
+                }
+    
+                result.push(item);
+                this.flattenContainers(item[propertyName], item, result, propertyName);
+            }
+        }
+    
+        return result;
+    },
 
-class Page {
-
-    static generate(request, mapElement, state, snapshot) {
+    generate(request, mapElement, state, snapshot) {
         const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
         let pageContainerDataResponses = [];
         if (pageElement.pageContainers) {
-            pageContainerDataResponses = flattenContainers(pageElement.pageContainers, null, [], 'pageContainers').map((container) => {
+            pageContainerDataResponses = this.flattenContainers(pageElement.pageContainers, null, [], 'pageContainers').map((container) => {
                 return {
                     isEditable: true,
                     isEnabled: true,
@@ -128,12 +128,12 @@ class Page {
             pageResponse: {
                 pageContainerDataResponses,
                 pageComponentDataResponses,
-                pageContainerResponses: pageElement.pageContainers.map(getPageContainers),
+                pageContainerResponses: pageElement.pageContainers.map(this.getPageContainers),
                 pageComponentResponses: pageElement.pageComponents,
             },
         };
-    }
+    },
 
-}
+};
 
 export default Page;

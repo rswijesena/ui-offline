@@ -1,8 +1,8 @@
 import ObjectData from './ObjectData';
 
-class DataActions {
+const DataActions = {
 
-    static execute(action, flow, snapshot) {
+    execute: (action, flow, snapshot) => {
         switch (action.crudOperationType.toUpperCase()) {
         case 'LOAD':
             let objectData = flow.getObjectData(action.objectDataRequest.objectDataType.typeElementId);
@@ -22,8 +22,7 @@ class DataActions {
         }
 
         return flow.state;
-    }
-
-}
+    },
+};
 
 export default DataActions;

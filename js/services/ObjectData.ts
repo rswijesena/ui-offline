@@ -1,8 +1,8 @@
 import { clone } from '../services/Utils';
 
-class ObjectData {
+const ObjectData = {
 
-    static filter(objectData, filter) {
+    filter: (objectData, filter) => {
         if (!filter || !objectData) {
             return {
                 objectData,
@@ -27,7 +27,7 @@ class ObjectData {
             hasMoreResults: ((page * filter.limit) + filter.limit + 1) <= filteredObjectData.length,
             objectData: filteredObjectData.slice(page * filter.limit, (page * filter.limit) + filter.limit),
         };
-    }
-}
+    },
+};
 
 export default ObjectData;

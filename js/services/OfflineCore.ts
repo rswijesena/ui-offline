@@ -15,75 +15,12 @@ declare const metaData: any;
 declare const localforage: any;
 declare const $: any;
 
-function getObjectDataRequest(request) {
-    const objectDataRequest: any = {
-        authorization: null,
-        configurationValues: null,
-        command: null,
-        culture: {
-            id: null,
-            developerName: null,
-            developerSummary: null,
-            brand: null,
-            language: 'EN',
-            country: 'USA',
-            variant: null,
-        },
-        stateId: '00000000-0000-0000-0000-000000000000',
-        token: null,
-        listFilter: request.listFilter || {},
-    };
+const OfflineCore = {
 
-    objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
+    requests: null,
+    isOffline: false,
 
-    const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
-
-    objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
-    objectDataRequest.objectDataType = {
-        typeElementId: typeElement.id,
-        developerName: typeElement.developerName,
-        properties: typeElement.properties.map((property) => {
-            return {
-                developerName: property.developerName,
-            };
-        }),
-    };
-
-    return objectDataRequest;
-}
-
-function getChunkedObjectDataRequests(request) {
-    const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
-    const iterations = Math.ceil(request.listFilter.limit / pageSize);
-    const pages = [];
-
-    for (let i = 0; i < iterations; i += 1) {
-        const page = clone(request);
-        page.listFilter.limit = pageSize;
-        page.listFilter.offset = i * pageSize;
-        pages.push(page);
-    }
-
-    return pages;
-}
-
-manywho.settings.initialize({
-    offline: {
-        cache: {
-            requests: {
-                limit: 250,
-                pageSize: 10,
-            },
-        },
-    },
-});
-
-class OfflineCore {
-
-    static requests = null;
-    static isOffline = false;
-
-    static initialize(tenantId, stateId, stateToken, authenticationToken) {
+    initialize(tenantId, stateId, stateToken, authenticationToken) {
         if (!metaData) {
             return;
         }
@@ -108,8 +45,8 @@ class OfflineCore {
 
         const requests = Object.keys(objectDataRequests)
             .map(key => objectDataRequests[key])
-            .map(getObjectDataRequest)
-            .map(getChunkedObjectDataRequests);
+            .map(this.getObjectDataRequest)
+            .map(this.getChunkedObjectDataRequests);
 
         this.requests = requests.concat.apply([], this.requests);
 
@@ -126,9 +63,61 @@ class OfflineCore {
         return removeOfflineData(stateId)
             .then(() => setOfflineData(flow))
             .then(() => new Flow(flow));
-    }
+    },
 
-    static rejoin(flowKey) {
+    getObjectDataRequest(request) {
+        const objectDataRequest: any = {
+            authorization: null,
+            configurationValues: null,
+            command: null,
+            culture: {
+                id: null,
+                developerName: null,
+                developerSummary: null,
+                brand: null,
+                language: 'EN',
+                country: 'USA',
+                variant: null,
+            },
+            stateId: '00000000-0000-0000-0000-000000000000',
+            token: null,
+            listFilter: request.listFilter || {},
+        };
+    
+        objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
+    
+        const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
+    
+        objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
+        objectDataRequest.objectDataType = {
+            typeElementId: typeElement.id,
+            developerName: typeElement.developerName,
+            properties: typeElement.properties.map((property) => {
+                return {
+                    developerName: property.developerName,
+                };
+            }),
+        };
+    
+        return objectDataRequest;
+    },
+
+    getChunkedObjectDataRequests(request) {
+        const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
+        const iterations = Math.ceil(request.listFilter.limit / pageSize);
+        const pages = [];
+    
+        for (let i = 0; i < iterations; i += 1) {
+            const page = clone(request);
+            page.listFilter.limit = pageSize;
+            page.listFilter.offset = i * pageSize;
+            pages.push(page);
+        }
+    
+        return pages;
+    },
+
+    rejoin(flowKey) {
         const tenantId = manywho.utils.extractTenantId(flowKey);
         const flowId = manywho.utils.extractFlowId(flowKey);
         const flowVersionId = manywho.utils.extractFlowVersionId(flowKey);
@@ -137,9 +126,9 @@ class OfflineCore {
         const authenticationToken = manywho.state.getAuthenticationToken(stateId);
 
         return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
-    }
+    },
 
-    static cacheObjectData(flow, onProgress, onDone) {
+    cacheObjectData(flow, onProgress, onDone) {
         if (!this.requests || this.requests.length === 0) {
             return false;
         }
@@ -174,9 +163,9 @@ class OfflineCore {
         };
         executeRequest(this.requests, 0, flow, null, onProgress, onDone);
         return true;
-    }
+    },
 
-    static getResponse(context, event, urlPart, request, tenantId, stateId) {
+    getResponse(context, event, urlPart, request, tenantId, stateId) {
         let flowStateId = stateId;
         if (request && request.stateId) {
             flowStateId = request.stateId;
@@ -225,10 +214,10 @@ class OfflineCore {
                 }
                 return this.getObjectDataResponse(request, flow, context);
             });
-    }
+    },
 
-    static getInitializationResponse(request, flow, context) {
-        const snapshot: any = new Snapshot(metaData);
+    getInitializationResponse(request, flow, context) {
+        const snapshot: any = Snapshot(metaData);
 
         return {
             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
@@ -238,9 +227,9 @@ class OfflineCore {
             stateToken: flow.state.token,
             statusCode: '200',
         };
-    }
+    },
 
-    static getMapElementResponse(request, flow, context) {
+    getMapElementResponse(request, flow, context) {
         if (!metaData) {
             return;
         }
@@ -283,7 +272,7 @@ class OfflineCore {
             break;
         }
 
-        const snapshot: any = new Snapshot(metaData);
+        const snapshot: any = Snapshot(metaData);
         let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
@@ -356,13 +345,13 @@ class OfflineCore {
             stateToken: request.stateToken,
             statusCode: '200',
         };
-    }
+    },
 
-    static getObjectDataResponse(request, flow, context) {
+    getObjectDataResponse(request, flow, context) {
         return ObjectData.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
-    }
+    },
 
-    static getNavigationResponse(request, flow, context) {
+    getNavigationResponse(request, flow, context) {
         if (!metaData) {
             return;
         }
@@ -386,7 +375,18 @@ class OfflineCore {
                 };
             }),
         };
-    }
-}
+    },
+};
 
 export default OfflineCore;
+
+manywho.settings.initialize({
+    offline: {
+        cache: {
+            requests: {
+                limit: 250,
+                pageSize: 10,
+            },
+        },
+    },
+});

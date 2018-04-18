@@ -1,9 +1,9 @@
 declare var manywho: any;
 declare var moment: any;
 
-class Rules {
+const Rules = {
 
-    static getOutcome(outcomes, state, snapshot) {
+    getOutcome(outcomes, state, snapshot) {
         if (!outcomes) {
             return null;
         }
@@ -23,9 +23,9 @@ class Rules {
                 return outcome;
             }
         }
-    }
+    },
 
-    static evaluateComparisons(comparisons, state, snapshot): boolean {
+    evaluateComparisons(comparisons, state, snapshot): boolean {
         let result = false;
 
         for (const comparison of comparisons) {
@@ -41,9 +41,9 @@ class Rules {
         }
 
         return result;
-    }
+    },
 
-    static evaluateRules(rules, criteriaType, state, snapshot): boolean {
+    evaluateRules(rules, criteriaType, state, snapshot): boolean {
         let result = false;
 
         for (const rule of rules) {
@@ -63,9 +63,9 @@ class Rules {
         }
 
         return result;
-    }
+    },
 
-    static compareValues(left, right, contentType, criteriaType) {
+    compareValues(left, right, contentType, criteriaType) {
         switch (contentType) {
         case manywho.component.contentTypes.object:
             return Rules.compareObjects(left, right, criteriaType);
@@ -78,9 +78,9 @@ class Rules {
 
             return Rules.compareContentValues(Rules.getContentValue(left, contentType), rightContentValue, criteriaType, contentType);
         }
-    }
+    },
 
-    static getContentValue(value, contentType) {
+    getContentValue(value, contentType) {
         const contentValue = value.defaultContentValue || value.contentValue;
 
         switch (contentType) {
@@ -96,9 +96,9 @@ class Rules {
         case manywho.component.contentTypes.boolean:
             return contentValue ? Boolean(contentValue) : contentValue;
         }
-    }
+    },
 
-    static compareContentValues(left, right, criteriaType, contentType) {
+    compareContentValues(left, right, criteriaType, contentType) {
         switch (criteriaType.toUpperCase()) {
         case 'EQUAL':
             return left === right;
@@ -140,21 +140,21 @@ class Rules {
                 return (left === null && right) || (left !== null && !right);
             }
         }
-    }
+    },
 
-    static compareObjects(left, right, criteriaType) {
+    compareObjects(left, right, criteriaType) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':
             return true;
         }
-    }
+    },
 
-    static compareLists(left, right, criteriaType) {
+    compareLists(left, right, criteriaType) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':
             return true;
         }
-    }
-}
+    },
+};
 
 export default Rules;

@@ -2,24 +2,23 @@ import { clone, guid } from '../services/Utils';
 
 declare var manywho: any;
 
-function isCommandSupported(command) {
-    if (manywho.utils.isNullOrWhitespace(command) || Operation.commands.indexOf(command) !== -1) {
-        return true;
-    }
+const Operation = {
 
-    manywho.log.info('The Operation command is not supported and this operation will be ignored: ' + command);
-    return false;
-}
+    commands: ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'],
 
-class Operation {
+    isCommandSupported: (command) => {
+        if (manywho.utils.isNullOrWhitespace(command) || this.commands.indexOf(command) !== -1) {
+            return true;
+        }  
+        manywho.log.info('The Operation command is not supported and this operation will be ignored: ' + command);
+        return false;
+    },
 
-    static commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'];
-
-    static execute(operation, state, snapshot) {
+    execute: (operation, state, snapshot) => {
         let valueToReference: any = { objectData: null, contentValue: null };
 
         if (operation.valueElementToReferenceId) {
-            if (!isCommandSupported(operation.valueElementToReferenceId.command)) {
+            if (!this.isCommandSupported(operation.valueElementToReferenceId.command)) {
                 return state;
             }
 
@@ -36,7 +35,7 @@ class Operation {
         }
 
         if (operation.valueElementToApplyId) {
-            if (!isCommandSupported(operation.valueElementToApplyId.command)) {
+            if (!this.isCommandSupported(operation.valueElementToApplyId.command)) {
                 return state;
             }
 
@@ -101,8 +100,8 @@ class Operation {
         }
 
         return state;
-    }
+    },
 
-}
+};
 
 export default Operation;
