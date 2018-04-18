@@ -1,3 +1,7 @@
+/**
+ * The controller
+ */
+
 import Flow from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
@@ -20,6 +24,13 @@ const OfflineCore = {
     requests: null,
     isOffline: false,
 
+    /**
+     * Start an offline flow
+     * @param tenantId
+     * @param stateId
+     * @param stateToken
+     * @param authenticationToken
+     */
     initialize(tenantId, stateId, stateToken, authenticationToken) {
         if (!metaData) {
             return;
@@ -65,6 +76,11 @@ const OfflineCore = {
             .then(() => new Flow(flow));
     },
 
+    /**
+     * Returns an object data request object during initilisation,
+     * based on the generated metadata properties 
+     * @param request
+     */
     getObjectDataRequest(request) {
         const objectDataRequest: any = {
             authorization: null,
@@ -102,6 +118,9 @@ const OfflineCore = {
         return objectDataRequest;
     },
 
+    /**
+     * @param request
+     */
     getChunkedObjectDataRequests(request) {
         const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
         const iterations = Math.ceil(request.listFilter.limit / pageSize);
@@ -117,6 +136,10 @@ const OfflineCore = {
         return pages;
     },
 
+    /**
+     * Invoking the flow once the user has come back online 
+     * @param flowKey
+     */
     rejoin(flowKey) {
         const tenantId = manywho.utils.extractTenantId(flowKey);
         const flowId = manywho.utils.extractFlowId(flowKey);
@@ -128,6 +151,11 @@ const OfflineCore = {
         return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
     },
 
+    /**
+     * @param flow
+     * @param onProgress
+     * @param onDone
+     */
     cacheObjectData(flow, onProgress, onDone) {
         if (!this.requests || this.requests.length === 0) {
             return false;
@@ -165,6 +193,14 @@ const OfflineCore = {
         return true;
     },
 
+    /**
+     * @param context
+     * @param event
+     * @param urlPart
+     * @param request
+     * @param tenantId
+     * @param stateId
+     */
     getResponse(context, event, urlPart, request, tenantId, stateId) {
         let flowStateId = stateId;
         if (request && request.stateId) {
@@ -216,6 +252,11 @@ const OfflineCore = {
             });
     },
 
+    /**
+     * @param request
+     * @param flow
+     * @param context
+     */
     getInitializationResponse(request, flow, context) {
         const snapshot: any = Snapshot(metaData);
 
@@ -229,6 +270,11 @@ const OfflineCore = {
         };
     },
 
+    /**
+     * @param request
+     * @param flow
+     * @param context
+     */
     getMapElementResponse(request, flow, context) {
         if (!metaData) {
             return;
@@ -347,10 +393,20 @@ const OfflineCore = {
         };
     },
 
+    /**
+     * @param request
+     * @param flow
+     * @param context
+     */
     getObjectDataResponse(request, flow, context) {
         return ObjectData.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
     },
 
+    /**
+     * @param request
+     * @param flow
+     * @param context
+     */
     getNavigationResponse(request, flow, context) {
         if (!metaData) {
             return;
