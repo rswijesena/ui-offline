@@ -10,7 +10,7 @@ export const flatten = (items, parent, result, childKey, parentKey) => {
             }
 
             result.push(item);
-            manywho.utils.flatten(item[childKey], item, result, childKey, parentKey);
+            flatten(item[childKey], item, result, childKey, parentKey);
         }
     }
 

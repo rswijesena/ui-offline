@@ -1,4 +1,4 @@
-# ManyWho UI Offline
+# Boomi Flow UI Offline
 
 Services and components used by the [ManyWho](https://manywho.com) UI framework to support running flows offline.
 
@@ -26,7 +26,7 @@ Or dist build:
 npm run dist
 ```
 
-### Running
+### Running locally
 
 Before you can run a flow offline you will need to grab a copy of the flow's metadata:
 
@@ -36,11 +36,12 @@ Where `--tenant` is the id of the tenant that contains the flow and flow `--flow
 npm run offline -- --username=example@example.com --password=example --flow=abc123 --tenant=abc123
 ```
 
-This will create a metadata.ts file which will be included as part of the regular build.
+This will create a metadata.js file in `../ui-html5/build/js`.
 
 To include the offline components you will need to add the following references to debug.html in the ui-html5 repo:
 
 ```
+<script src="build/js/metadata.js"></script>
 <script src="build/js/ui-offline.js"></script>
 ```
 

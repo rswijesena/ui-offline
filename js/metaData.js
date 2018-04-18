@@ -72,7 +72,7 @@ const argv = require('yargs').argv;
         })
     })
     .then((snapshot) => {
-        return fsp.writeFile('js/services/metadata.ts', `/* tslint:disable */ export const metaData = ${JSON.stringify(JSON.parse(snapshot))};\n`);
+        return fsp.writeFile('../ui-html5/build/js/metadata.js', `var metaData = ${JSON.stringify(JSON.parse(snapshot))};\n`);
     })
     .catch((response) => {
        console.error(response.message);
