@@ -1,4 +1,5 @@
 import { clone } from '../services/Utils';
+import { IState } from '../interfaces/IModels';
 
 declare var manywho: any;
 
@@ -9,7 +10,7 @@ class State {
     token = null;
     values = null;
 
-    constructor(state) {
+    constructor(state: IState) {
         this.currentMapElementId = state.currentMapElementId;
         this.id = state.id;
         this.token = state.token;

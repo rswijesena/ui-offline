@@ -1,4 +1,5 @@
 import State from './State';
+import { IFlow } from '../interfaces/IModels';
 
 declare var manywho: any;
 
@@ -10,7 +11,7 @@ class Flow {
     state = null;
     tenantId = null;
 
-    constructor(flow) {
+    constructor(flow: IFlow) {
         this.authenticationToken = flow.authenticationToken;
         this.id = flow.id;
         this.objectData = flow.objectData || {};

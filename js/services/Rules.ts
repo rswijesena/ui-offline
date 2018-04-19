@@ -3,7 +3,7 @@ declare var moment: any;
 
 const Rules = {
 
-    getOutcome(outcomes, state, snapshot) {
+    getOutcome(outcomes: any[], state: any, snapshot: any) {
         if (!outcomes) {
             return null;
         }

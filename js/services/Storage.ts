@@ -3,7 +3,7 @@ declare const localforage: any;
 
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
-export const getOfflineData = (id, flowId = null, flowVersionId = null) => {
+export const getOfflineData = (id: string, flowId: string = null, flowVersionId: string = null) => {
     return localforage.getItem(`manywho:offline-${id}`)
         .then((value) => {
             if (value) {
@@ -27,10 +27,10 @@ export const getOfflineData = (id, flowId = null, flowVersionId = null) => {
         });
 };
 
-export const setOfflineData = (flow) => {
+export const setOfflineData = (flow: any) => {
     return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
 };
 
-export const removeOfflineData = (id) => {
+export const removeOfflineData = (id: string) => {
     return localforage.removeItem(`manywho:offline-${id}`);
 };

@@ -11,7 +11,7 @@ import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
 import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
-
+import { IFlow } from '../interfaces/IModels';
 import { clone, flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
@@ -31,7 +31,7 @@ const OfflineCore = {
      * @param stateToken
      * @param authenticationToken
      */
-    initialize(tenantId, stateId, stateToken, authenticationToken) {
+    initialize(tenantId: string, stateId: string, stateToken: string, authenticationToken: string) {
         if (!metaData) {
             return;
         }
@@ -81,7 +81,7 @@ const OfflineCore = {
      * based on the generated metadata properties 
      * @param request
      */
-    getObjectDataRequest(request) {
+    getObjectDataRequest(request: any) {
         const objectDataRequest: any = {
             authorization: null,
             configurationValues: null,
@@ -121,7 +121,7 @@ const OfflineCore = {
     /**
      * @param request
      */
-    getChunkedObjectDataRequests(request) {
+    getChunkedObjectDataRequests(request: any) {
         const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
         const iterations = Math.ceil(request.listFilter.limit / pageSize);
         const pages = [];
@@ -140,7 +140,7 @@ const OfflineCore = {
      * Invoking the flow once the user has come back online 
      * @param flowKey
      */
-    rejoin(flowKey) {
+    rejoin(flowKey: string) {
         const tenantId = manywho.utils.extractTenantId(flowKey);
         const flowId = manywho.utils.extractFlowId(flowKey);
         const flowVersionId = manywho.utils.extractFlowVersionId(flowKey);
@@ -156,12 +156,19 @@ const OfflineCore = {
      * @param onProgress
      * @param onDone
      */
-    cacheObjectData(flow, onProgress, onDone) {
+    cacheObjectData(flow: IFlow, onProgress, onDone) {
         if (!this.requests || this.requests.length === 0) {
             return false;
         }
 
-        const executeRequest = function (req, reqIndex, flow, currentTypeElementId, onProgress, onDone) {
+        const executeRequest = function (
+            req: any,
+            reqIndex: number,
+            flow: IFlow,
+            currentTypeElementId: null,
+            onProgress: Function,
+            onDone: Function) {
+
             let requests = req;
             const index = reqIndex;
 
@@ -201,7 +208,7 @@ const OfflineCore = {
      * @param tenantId
      * @param stateId
      */
-    getResponse(context, event, urlPart, request, tenantId, stateId) {
+    getResponse(context: any, event: any, urlPart: string, request: any, tenantId: string, stateId: string) {
         let flowStateId = stateId;
         if (request && request.stateId) {
             flowStateId = request.stateId;
@@ -257,7 +264,7 @@ const OfflineCore = {
      * @param flow
      * @param context
      */
-    getInitializationResponse(request, flow, context) {
+    getInitializationResponse(request: any, flow: IFlow, context: any) {
         const snapshot: any = Snapshot(metaData);
 
         return {
@@ -275,7 +282,7 @@ const OfflineCore = {
      * @param flow
      * @param context
      */
-    getMapElementResponse(request, flow, context) {
+    getMapElementResponse(request: any, flow: IFlow, context: any) {
         if (!metaData) {
             return;
         }
@@ -398,7 +405,7 @@ const OfflineCore = {
      * @param flow
      * @param context
      */
-    getObjectDataResponse(request, flow, context) {
+    getObjectDataResponse(request: any, flow: IFlow, context: any) {
         return ObjectData.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
     },
 
@@ -407,7 +414,7 @@ const OfflineCore = {
      * @param flow
      * @param context
      */
-    getNavigationResponse(request, flow, context) {
+    getNavigationResponse(request: any, flow: IFlow, context: any) {
         if (!metaData) {
             return;
         }
@@ -424,7 +431,7 @@ const OfflineCore = {
                     navigationItemId: item.id,
                     navigationItemDeveloperName: item.developerName,
                     isActive: false,
-                    isCurrent: item.locationMapElementId === flow.currentMapElementId,
+                    isCurrent: item.locationMapElementId === flow.state.currentMapElementId,
                     isEnabled: true,
                     isVisible: true,
                     locationMapElementId: item.locationMapElementId,

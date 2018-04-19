@@ -2,9 +2,9 @@ import { clone } from '../services/Utils';
 
 declare var manywho: any;
 
-const Snapshot = (meta) => {
+const Snapshot = (meta: any) => {
 
-    const createValue = (id, developerName, contentType) => {
+    const createValue = (id: string, developerName: string, contentType: string) => {
         return {
             contentType,
             developerName,
@@ -24,7 +24,7 @@ const Snapshot = (meta) => {
         };
     };
 
-    const getSystemValue = (id) => {
+    const getSystemValue = (id: string) => {
         let valueElement = null;
     
         if (manywho.utils.isEqual('03DC41DD-1C6B-4B33-BF61-CBD1D0778FFF', id, true)) {
@@ -127,7 +127,7 @@ const Snapshot = (meta) => {
         return valueElement;
     };
 
-    const getValue = (id) => {
+    const getValue = (id: any) => {
         let value = getSystemValue(id.id);
 
         if (!value && meta.valueElements) {
@@ -140,7 +140,7 @@ const Snapshot = (meta) => {
         return clone(value);
     };
 
-    const getContentTypeForValue = (id) => {
+    const getContentTypeForValue = (id: any) => {
         let value = getSystemValue(id.id);
 
         if (!value && meta.valueElements) {
@@ -155,7 +155,7 @@ const Snapshot = (meta) => {
         return value.contentType;
     };
 
-    const getNavigationElementReferences = (id) => {
+    const getNavigationElementReferences = (id: string) => {
         if (meta.navigationElements) {
             return meta.navigationElements
                 .filter((element, index) => id ? element.id === id : index === 0)
