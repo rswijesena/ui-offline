@@ -3,10 +3,20 @@ import { IState } from '../interfaces/IModels';
 
 declare var manywho: any;
 
+/**
+ * Support for performing flow operations whilst offline
+ */
 const Operation = {
 
     commands: ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'],
 
+    /**
+     * Determine if an operation command is supported
+     * currently subtract and concatenate are not supported
+     * 
+     * Todo: add support for unsupported commands
+     * @param command
+     */
     isCommandSupported: (command: string) => {
         if (manywho.utils.isNullOrWhitespace(command) || this.commands.indexOf(command) !== -1) {
             return true;
@@ -15,6 +25,12 @@ const Operation = {
         return false;
     },
 
+    /**
+     * Perform the operation
+     * @param operation
+     * @param state
+     * @param snapshot
+     */
     execute: (operation: any, state: IState, snapshot: any) => {
         let valueToReference: any = { objectData: null, contentValue: null };
 

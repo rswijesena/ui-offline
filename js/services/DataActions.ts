@@ -1,8 +1,17 @@
 import ObjectData from './ObjectData';
 import { IFlow } from '../interfaces/IModels';
 
+/**
+ * Support for executing data actions offline
+ */
 const DataActions = {
 
+    /**
+     * Performing the data action by altering flow state
+     * @param action
+     * @param flow
+     * @param snapshot
+     */
     execute: (action: any, flow: IFlow, snapshot: any) => {
         switch (action.crudOperationType.toUpperCase()) {
         case 'LOAD':

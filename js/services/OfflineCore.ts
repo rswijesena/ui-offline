@@ -32,7 +32,9 @@ const OfflineCore = {
     isOffline: false,
 
     /**
-     * Start an offline flow
+     * Called when the flow is toggled to offline mode.
+     * Metadata elements are iterated over to generate an array of request objects (objectDataRequests).
+     * We finish by instantiating a flow object.
      * @param tenantId
      * @param stateId
      * @param stateToken
@@ -208,6 +210,8 @@ const OfflineCore = {
     },
 
     /**
+     * Determine how to handle api request to engine
+     * based on the type of event is defined
      * @param context
      * @param event
      * @param urlPart
@@ -285,6 +289,8 @@ const OfflineCore = {
     },
 
     /**
+     * Handling map element requests by imitating the expected response
+     * the UI would get when online.
      * @param request
      * @param flow
      * @param context

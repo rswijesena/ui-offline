@@ -30,14 +30,15 @@ export const hasNetwork = () => {
 };
 
 /**
- * Checking if device is online
+ * Checking boolean flag to determine
+ * whether a request should make it to the engine. 
  */
 export const isOnline = () => {
     if (OfflineCore.isOffline) {
         return ($.Deferred()).resolve(false);
     }
 
-    return hasNetwork();
+    return hasNetwork(); // Ping engine
 };
 
 /**
@@ -86,6 +87,8 @@ export const onlineRequest = (
 };
 
 /**
+ * Passing the request back to the offline engine
+ * to generate the appropriate response.
  * @param resolveContext
  * @param event
  * @param urlPart
@@ -108,7 +111,9 @@ export const offlineRequest = (resolveContext: any, event: EventTypes, urlPart: 
 };
 
 /**
- * Overides the default request function inside ui-core
+ * Intercepts api requests to the engine
+ * as the user interacts with the flow so that we can determine
+ * if the requests should be cached or not.
  * @param resolveContext
  * @param event
  * @param urlPart
@@ -129,8 +134,12 @@ export const request = (
     return isOnline()
         .then((response) => {
             if (response) {
+
+                // Device is connected to the internet
                 return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
             } 
+
+            // Device is not connected to the internet
             return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
         });
 };

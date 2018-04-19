@@ -1,7 +1,15 @@
 import { clone } from '../services/Utils';
 
+/**
+ * Support for filtering through cached object data
+ */
 const ObjectData = {
 
+    /**
+     * Execute filtering on object data
+     * @param objectData
+     * @param filter
+     */
     filter: (objectData: any, filter: any) => {
         if (!filter || !objectData) {
             return {

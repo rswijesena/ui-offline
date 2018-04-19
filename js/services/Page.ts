@@ -2,8 +2,15 @@ import { IState } from '../interfaces/IModels';
 
 declare var manywho: any;
 
+/**
+ * Support for interpreting flow page configurations whilst offline
+ */
 const Page = {
 
+    /**
+     * Extract page container objects into new array
+     * @param container
+     */
     getPageContainers(container: any) {
         if (container.pageContainers) {
             container.pageContainerResponses = container.pageContainers.map(this.getPageContainers);
@@ -12,6 +19,13 @@ const Page = {
         return container;
     },
 
+    /**
+     * Create a new flattened array of page containers
+     * @param containers
+     * @param parent
+     * @param result
+     * @param propertyName
+     */
     flattenContainers(containers: any[], parent: any, result: any[], propertyName: string) {
         if (containers != null) {
             for (let index = 0; index < containers.length; index += 1) {
