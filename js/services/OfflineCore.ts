@@ -19,6 +19,13 @@ declare const metaData: any;
 declare const localforage: any;
 declare const $: any;
 
+enum EventTypes {
+    invoke = 'invoke',
+    join = 'join',
+    navigation = 'navigation',
+    initialization = 'initialization',
+}
+
 const OfflineCore = {
 
     requests: null,
@@ -208,7 +215,7 @@ const OfflineCore = {
      * @param tenantId
      * @param stateId
      */
-    getResponse(context: any, event: any, urlPart: string, request: any, tenantId: string, stateId: string) {
+    getResponse(context: any, event: EventTypes, urlPart: string, request: any, tenantId: string, stateId: string) {
         let flowStateId = stateId;
         if (request && request.stateId) {
             flowStateId = request.stateId;

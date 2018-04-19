@@ -15,6 +15,8 @@ export interface IState {
     id: boolean;
     token: string;
     values: any;
+    getValue?: Function;
+    setValue?: Function;
 }
 
 

@@ -2,7 +2,7 @@ import { clone } from '../services/Utils';
 
 const ObjectData = {
 
-    filter: (objectData, filter) => {
+    filter: (objectData: any, filter: any) => {
         if (!filter || !objectData) {
             return {
                 objectData,

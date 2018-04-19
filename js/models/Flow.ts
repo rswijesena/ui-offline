@@ -20,7 +20,7 @@ class Flow {
         this.state = new State(flow.state);
     }
 
-    addRequest(request, snapshot) {
+    addRequest(request: any, snapshot: any) {
         request.key = this.requests.length;
         request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
             element => element.id === request.currentMapElementId,
@@ -28,7 +28,7 @@ class Flow {
         this.requests.push(request);
     }
 
-    removeRequest(request) {
+    removeRequest(request: any) {
         const index = this.requests.indexOf(request);
         this.requests.splice(index, 1);
     }
@@ -37,11 +37,11 @@ class Flow {
         this.requests = [];
     }
 
-    getObjectData(typeElementId) {
+    getObjectData(typeElementId: string) {
         return this.objectData[typeElementId];
     }
 
-    cacheObjectData(objectData, typeElementId) {
+    cacheObjectData(objectData: any, typeElementId: string) {
         if (this.objectData[typeElementId]) {
             this.objectData[typeElementId] = this.objectData[typeElementId].concat(objectData);
         } else {

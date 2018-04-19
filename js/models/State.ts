@@ -17,7 +17,7 @@ class State {
         this.values = state.values || {};
     }
 
-    getValue(id, typeElementId, contentType, command) {
+    getValue(id: any, typeElementId: string, contentType: any, command: string) {
         if (this.values[id.id]) {
             let value = null;
 
@@ -53,7 +53,7 @@ class State {
         return null;
     }
 
-    setValue(id, typeElementId, snapshot, value) {
+    setValue(id: any, typeElementId: string, snapshot: any, value: any) {
         if (id.typeElementPropertyId) {
             if (!this.values[id.id] || !this.values[id.id].objectData || this.values[id.id].objectData.length === 0) {
                 const typeElement = clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
@@ -77,7 +77,7 @@ class State {
         }
     }
 
-    update(inputs, mapElement, snapshot) {
+    update(inputs: any[], mapElement: any, snapshot: any) {
         inputs.forEach((input) => {
             const page = snapshot.metadata.pageElements.find(pageElement => pageElement.id === mapElement.pageElementId);
             const component = page.pageComponents.find(pageComponent => pageComponent.id === input.pageComponentId);

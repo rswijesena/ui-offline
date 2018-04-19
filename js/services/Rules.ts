@@ -1,9 +1,11 @@
+import { IState } from '../interfaces/IModels';
+
 declare var manywho: any;
 declare var moment: any;
 
 const Rules = {
 
-    getOutcome(outcomes: any[], state: any, snapshot: any) {
+    getOutcome(outcomes: any[], state: IState, snapshot: any) {
         if (!outcomes) {
             return null;
         }
@@ -25,7 +27,7 @@ const Rules = {
         }
     },
 
-    evaluateComparisons(comparisons, state, snapshot): boolean {
+    evaluateComparisons(comparisons: any[], state: IState, snapshot: any[]): boolean {
         let result = false;
 
         for (const comparison of comparisons) {
@@ -43,7 +45,7 @@ const Rules = {
         return result;
     },
 
-    evaluateRules(rules, criteriaType, state, snapshot): boolean {
+    evaluateRules(rules: any[], criteriaType: any, state: IState, snapshot): boolean {
         let result = false;
 
         for (const rule of rules) {
@@ -65,12 +67,12 @@ const Rules = {
         return result;
     },
 
-    compareValues(left, right, contentType, criteriaType) {
+    compareValues(left: any, right: any, contentType: any, criteriaType: string) {
         switch (contentType) {
         case manywho.component.contentTypes.object:
-            return Rules.compareObjects(left, right, criteriaType);
+            return Rules.compareObjects(criteriaType);
         case manywho.component.contentTypes.list:
-            return Rules.compareLists(left, right, criteriaType);
+            return Rules.compareLists(criteriaType);
         default:
             const rightContentValue = criteriaType === 'IS_EMPTY' ?
                 Rules.getContentValue(right, manywho.component.contentTypes.boolean) :
@@ -80,7 +82,7 @@ const Rules = {
         }
     },
 
-    getContentValue(value, contentType) {
+    getContentValue(value: any, contentType: any) {
         const contentValue = value.defaultContentValue || value.contentValue;
 
         switch (contentType) {
@@ -98,7 +100,7 @@ const Rules = {
         }
     },
 
-    compareContentValues(left, right, criteriaType, contentType) {
+    compareContentValues(left: any, right: any, criteriaType: string, contentType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'EQUAL':
             return left === right;
@@ -142,14 +144,14 @@ const Rules = {
         }
     },
 
-    compareObjects(left, right, criteriaType) {
+    compareObjects(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':
             return true;
         }
     },
 
-    compareLists(left, right, criteriaType) {
+    compareLists(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':
             return true;

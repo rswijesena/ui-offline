@@ -1,8 +1,10 @@
+import { IState } from '../interfaces/IModels';
+
 declare var manywho: any;
 
 const Page = {
 
-    getPageContainers(container) {
+    getPageContainers(container: any) {
         if (container.pageContainers) {
             container.pageContainerResponses = container.pageContainers.map(this.getPageContainers);
             delete container.pageContainers;
@@ -10,7 +12,7 @@ const Page = {
         return container;
     },
 
-    flattenContainers(containers, parent, result, propertyName) {
+    flattenContainers(containers: any[], parent: any, result: any[], propertyName: string) {
         if (containers != null) {
             for (let index = 0; index < containers.length; index += 1) {
                 const item = containers[index];
@@ -28,7 +30,7 @@ const Page = {
         return result;
     },
 
-    generate(request, mapElement, state, snapshot) {
+    generate(request: any, mapElement: any, state: IState, snapshot: any) {
         const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
         let pageContainerDataResponses = [];

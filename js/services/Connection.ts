@@ -6,6 +6,13 @@ declare const $: any;
 
 const onlineStatus: any = {};
 
+enum EventTypes {
+    invoke = 'invoke',
+    join = 'join',
+    navigation = 'navigation',
+    initialization = 'initialization',
+}
+
 /**
  * Check network availability by pinging the platform
  */
@@ -44,7 +51,15 @@ export const isOnline = () => {
  * @param authenticationToken
  * @param request
  */
-export const onlineRequest = (event, urlPart, methodType, tenantId, stateId, authenticationToken, request) => {
+export const onlineRequest = (
+    event: EventTypes,
+    urlPart: string,
+    methodType: string,
+    tenantId: string,
+    stateId: string,
+    authenticationToken: string,
+    request: any) => {
+
     let json = null;
 
     if (request != null) {
@@ -78,7 +93,7 @@ export const onlineRequest = (event, urlPart, methodType, tenantId, stateId, aut
  * @param tenantId
  * @param stateId
  */
-export const offlineRequest = (resolveContext, event, urlPart, request, tenantId, stateId) => {
+export const offlineRequest = (resolveContext: any, event: EventTypes, urlPart: string, request: string, tenantId: string, stateId: string) => {
     const deferred = jQuery.Deferred();
 
     OfflineCore.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
@@ -103,7 +118,14 @@ export const offlineRequest = (resolveContext, event, urlPart, request, tenantId
  * @param authenticationToken
  * @param request
  */
-export const request = (resolveContext, event, urlPart, methodType, tenantId, stateId, authenticationToken, request) => {
+export const request = (
+    resolveContext: any,
+    event: EventTypes,
+    urlPart: string,
+    methodType: string,
+    tenantId: string,
+    stateId: string,
+    authenticationToken: string, request: any) => {
     return isOnline()
         .then((response) => {
             if (response) {

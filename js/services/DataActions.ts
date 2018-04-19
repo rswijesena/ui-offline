@@ -1,8 +1,9 @@
 import ObjectData from './ObjectData';
+import { IFlow } from '../interfaces/IModels';
 
 const DataActions = {
 
-    execute: (action, flow, snapshot) => {
+    execute: (action: any, flow: IFlow, snapshot: any) => {
         switch (action.crudOperationType.toUpperCase()) {
         case 'LOAD':
             let objectData = flow.getObjectData(action.objectDataRequest.objectDataType.typeElementId);

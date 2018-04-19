@@ -1,4 +1,5 @@
 import { clone, guid } from '../services/Utils';
+import { IState } from '../interfaces/IModels';
 
 declare var manywho: any;
 
@@ -6,7 +7,7 @@ const Operation = {
 
     commands: ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEXT', 'ADD', 'REMOVE'],
 
-    isCommandSupported: (command) => {
+    isCommandSupported: (command: string) => {
         if (manywho.utils.isNullOrWhitespace(command) || this.commands.indexOf(command) !== -1) {
             return true;
         }  
@@ -14,7 +15,7 @@ const Operation = {
         return false;
     },
 
-    execute: (operation, state, snapshot) => {
+    execute: (operation: any, state: IState, snapshot: any) => {
         let valueToReference: any = { objectData: null, contentValue: null };
 
         if (operation.valueElementToReferenceId) {
