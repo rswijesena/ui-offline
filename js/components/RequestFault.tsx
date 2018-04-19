@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { IRequestFaultProps } from '../interfaces/IRequestFault';
 
 declare const manywho: any;
 
-class RequestFault extends React.Component<any, any> {
+class RequestFault extends React.Component<IRequestFaultProps, any> {
 
     constructor(props: any) {
         super(props);
@@ -13,7 +14,7 @@ class RequestFault extends React.Component<any, any> {
 
         return <div className="request-fault">
             <h4>Faults</h4>
-            <button className="btn btn-sm btn-primary" onClick={this.props.onJoin}>Join and fix</button>
+            <button className="btn btn-sm btn-primary">Join and fix</button>
             <ul>
                 {rootFaults.map(fault => <li className="text-danger">{fault}</li>)}
             </ul>

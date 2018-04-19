@@ -2,19 +2,20 @@ import * as React from 'react';
 import Request from './Request';
 
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
+import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
 
 import Flow from '../models/Flow';
 
 declare const manywho: any;
 
-class GoOnline extends React.Component<any, any> {
+class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     flow = null;
 
     constructor(props: any) {
         super(props);
         this.state = {
-            isReplayingAll: false,
+            isReplayAll: false,
         };
     }
 
@@ -89,7 +90,7 @@ class GoOnline extends React.Component<any, any> {
                 return <Request request={request}
                     tenantId={this.flow.tenantId}
                     authenticationToken={this.flow.authenticationToken}
-                    isDisabled={this.state.isReplayingAll}
+                    isDisabled={false}
                     onDelete={this.onDeleteRequest}
                     onReplayDone={this.onReplayDone}
                     replayNow={index === 0 && this.state.isReplayAll}

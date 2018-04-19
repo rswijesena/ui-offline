@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { INoNetworkProps } from '../interfaces/INoNetwork';
 
 declare const manywho: any;
 
-class NoNetwork extends React.Component<any, any> {
+class NoNetwork extends React.Component<INoNetworkProps, any> {
 
     constructor(props: any) {
         super(props);

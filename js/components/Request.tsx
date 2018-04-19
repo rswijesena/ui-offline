@@ -1,11 +1,11 @@
 import * as React from 'react';
 import RequestFault from './RequestFault';
-
+import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
 
 declare const manywho: any;
 
-class Request extends React.Component<any, any> {
+class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
 
     constructor(props: any) {
         super(props);

@@ -3,6 +3,7 @@ import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { clone, flatten, guid } from '../services/Utils';
+import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 
 import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';
@@ -17,7 +18,7 @@ enum OfflineView {
     noNetwork = 2,
 }
 
-class Offline extends React.Component<any, any> {
+class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
     constructor(props: any) {
         super(props);
@@ -44,7 +45,7 @@ class Offline extends React.Component<any, any> {
     }
 
     onOnline = (flow) => {
-        this.setState({ view: null, requests: null });
+        this.setState({ view: null });
         OfflineCore.isOffline = false;
 
         setOfflineData(flow)
@@ -56,7 +57,7 @@ class Offline extends React.Component<any, any> {
         this.setState({ view: null });
     }
 
-    onCloseNoNetwork = () => {
+    onCloseNoNetwork: () => void = () => {
         this.setState({ view: null });
     }
 
