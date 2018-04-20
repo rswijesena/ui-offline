@@ -2,7 +2,7 @@
  * The controller
  */
 
-import Flow from '../models/Flow';
+import { addRequest, FlowInit, getObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import Operation from './Operation';
@@ -82,7 +82,7 @@ const OfflineCore = {
 
         return removeOfflineData(stateId)
             .then(() => setOfflineData(flow))
-            .then(() => new Flow(flow));
+            .then(() => FlowInit(flow));
     },
 
     /**
@@ -232,7 +232,7 @@ const OfflineCore = {
         return getOfflineData(flowStateId)
             .then((response) => {
                 if (manywho.utils.isEqual(event, 'initialization')) {
-                    const flow = new Flow({
+                    const flow = FlowInit({
                         tenantId,
                         state: {
                             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
@@ -244,7 +244,7 @@ const OfflineCore = {
                     return setOfflineData(flow)
                         .then(() => flow);
                 }
-                return new Flow(response);
+                return FlowInit(response);
             })
             .then((flow) => {
                 if (manywho.utils.isEqual(event, 'join', true)) {
@@ -342,7 +342,7 @@ const OfflineCore = {
         let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
-            flow.addRequest(request, snapshot);
+            addRequest(request, snapshot);
         }
 
         if (mapElement.elementType === 'input'
@@ -419,7 +419,7 @@ const OfflineCore = {
      * @param context
      */
     getObjectDataResponse(request: any, flow: IFlow, context: any) {
-        return ObjectData.filter(flow.getObjectData(request.objectDataType.typeElementId), request.listFilter);
+        return ObjectData.filter(getObjectData(request.objectDataType.typeElementId), request.listFilter);
     },
 
     /**

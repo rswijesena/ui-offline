@@ -4,7 +4,7 @@ import Request from './Request';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
 
-import Flow from '../models/Flow';
+import { FlowInit, removeRequest, removeRequests } from '../models/Flow';
 
 declare const manywho: any;
 
@@ -20,7 +20,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 
     onDeleteRequest = (request) => {
-        this.flow.removeRequest(request);
+        removeRequest(request);
         setOfflineData(this.flow);
         this.forceUpdate();
     }
@@ -41,7 +41,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 
     onDeleteAll = () => {
-        this.flow.removeRequests();
+        removeRequests();
 
         setOfflineData(this.flow)
             .then(this.props.onOnline);
@@ -70,7 +70,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
-                this.flow = new Flow(flow);
+                this.flow = FlowInit(flow);
 
                 if (!this.flow.requests || this.flow.requests.length === 0) {
                     this.props.onOnline(this.flow);

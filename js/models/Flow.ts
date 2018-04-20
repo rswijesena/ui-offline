@@ -1,53 +1,62 @@
-import State from './State';
+import { StateInit } from './State';
 import { IFlow } from '../interfaces/IModels';
 
 declare var manywho: any;
 
-class Flow {
-    authenticationToken = null;
-    id = null;
-    objectData = null;
-    requests = null;
-    state = null;
-    tenantId = null;
+/**
+ * Invokes a reference to the current flow
+ */
 
-    constructor(flow: IFlow) {
-        this.authenticationToken = flow.authenticationToken;
-        this.id = flow.id;
-        this.objectData = flow.objectData || {};
-        this.requests = flow.requests || [];
-        this.tenantId = flow.tenantId;
-        this.state = new State(flow.state);
+let authenticationToken = null;
+let id = null;
+let objectData = null;
+let requests = null;
+let state = null;
+let tenantId = null;
+
+export const FlowInit = (flow: IFlow) => {
+    authenticationToken = flow.authenticationToken;
+    id = flow.id;
+    objectData = flow.objectData || {};
+    requests = flow.requests || [];
+    tenantId = flow.tenantId;
+    state = StateInit(flow.state);
+
+    return {
+        authenticationToken,
+        id,
+        objectData,
+        requests,
+        tenantId,
+        state,
+    };
+};
+
+export const addRequest = (request: any, snapshot: any) => {
+    request.key = requests.length;
+    request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
+        element => element.id === request.currentMapElementId,
+    ).developerName;
+    requests.push(request);
+};
+
+export const removeRequest = (request: any) => {
+    const index = requests.indexOf(request);
+    requests.splice(index, 1);
+};
+
+export const removeRequests = () => {
+    requests = [];
+};
+
+export const getObjectData = (typeElementId: string) => {
+    return objectData[typeElementId];
+};
+
+export const cacheObjectData = (objectData: any, typeElementId: string) => {
+    if (objectData[typeElementId]) {
+        objectData[typeElementId] = objectData[typeElementId].concat(objectData);
+    } else {
+        objectData[typeElementId] = objectData;
     }
-
-    addRequest(request: any, snapshot: any) {
-        request.key = this.requests.length;
-        request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
-            element => element.id === request.currentMapElementId,
-        ).developerName;
-        this.requests.push(request);
-    }
-
-    removeRequest(request: any) {
-        const index = this.requests.indexOf(request);
-        this.requests.splice(index, 1);
-    }
-
-    removeRequests() {
-        this.requests = [];
-    }
-
-    getObjectData(typeElementId: string) {
-        return this.objectData[typeElementId];
-    }
-
-    cacheObjectData(objectData: any, typeElementId: string) {
-        if (this.objectData[typeElementId]) {
-            this.objectData[typeElementId] = this.objectData[typeElementId].concat(objectData);
-        } else {
-            this.objectData[typeElementId] = objectData;
-        }
-    }
-}
-
-export default Flow;
+};
