@@ -2,8 +2,18 @@ import { clone } from '../services/Utils';
 
 declare var manywho: any;
 
+/**
+ * Helper functions for extracting values 
+ * from the generated flow metatdata 
+ * @param meta 
+ */
 const Snapshot = (meta: any) => {
 
+    /**
+     * @param id 
+     * @param developerName 
+     * @param contentType 
+     */
     const createValue = (id: string, developerName: string, contentType: string) => {
         return {
             contentType,
@@ -24,6 +34,10 @@ const Snapshot = (meta: any) => {
         };
     };
 
+    /**
+     * https://docs.manywho.com/everything-you-want-to-know-about-values/
+     * @param id
+     */
     const getSystemValue = (id: string) => {
         let valueElement = null;
     
@@ -127,6 +141,11 @@ const Snapshot = (meta: any) => {
         return valueElement;
     };
 
+    /**
+     * Returna copy of a value found in the generated metadata
+     * or a system value
+     * @param id 
+     */
     const getValue = (id: any) => {
         let value = getSystemValue(id.id);
 
@@ -140,6 +159,9 @@ const Snapshot = (meta: any) => {
         return clone(value);
     };
 
+    /**
+     * @param id 
+     */
     const getContentTypeForValue = (id: any) => {
         let value = getSystemValue(id.id);
 
@@ -155,6 +177,9 @@ const Snapshot = (meta: any) => {
         return value.contentType;
     };
 
+    /**
+     * @param id 
+     */
     const getNavigationElementReferences = (id: string) => {
         if (meta.navigationElements) {
             return meta.navigationElements

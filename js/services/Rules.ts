@@ -3,8 +3,16 @@ import { IState } from '../interfaces/IModels';
 declare var manywho: any;
 declare var moment: any;
 
+/**
+ * Support for simulating rules whilst a flow is offline
+ */
 const Rules = {
 
+    /**
+     * @param outcomes 
+     * @param state 
+     * @param snapshot 
+     */
     getOutcome(outcomes: any[], state: IState, snapshot: any) {
         if (!outcomes) {
             return null;
@@ -27,6 +35,11 @@ const Rules = {
         }
     },
 
+    /**
+     * @param comparisons 
+     * @param state 
+     * @param snapshot 
+     */
     evaluateComparisons(comparisons: any[], state: IState, snapshot: any[]): boolean {
         let result = false;
 
@@ -45,6 +58,12 @@ const Rules = {
         return result;
     },
 
+    /**
+     * @param rules 
+     * @param criteriaType 
+     * @param state 
+     * @param snapshot 
+     */
     evaluateRules(rules: any[], criteriaType: any, state: IState, snapshot): boolean {
         let result = false;
 
@@ -67,6 +86,12 @@ const Rules = {
         return result;
     },
 
+    /**
+     * @param left 
+     * @param right 
+     * @param contentType 
+     * @param criteriaType 
+     */
     compareValues(left: any, right: any, contentType: any, criteriaType: string) {
         switch (contentType) {
         case manywho.component.contentTypes.object:
@@ -82,6 +107,10 @@ const Rules = {
         }
     },
 
+    /**
+     * @param value 
+     * @param contentType 
+     */
     getContentValue(value: any, contentType: any) {
         const contentValue = value.defaultContentValue || value.contentValue;
 
@@ -100,6 +129,12 @@ const Rules = {
         }
     },
 
+    /**
+     * @param left 
+     * @param right 
+     * @param criteriaType 
+     * @param contentType 
+     */
     compareContentValues(left: any, right: any, criteriaType: string, contentType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'EQUAL':
@@ -144,6 +179,9 @@ const Rules = {
         }
     },
 
+    /**
+     * @param criteriaType 
+     */
     compareObjects(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':
@@ -151,6 +189,9 @@ const Rules = {
         }
     },
 
+    /**
+     * @param criteriaType 
+     */
     compareLists(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {
         case 'IS_EMPTY':

@@ -1,5 +1,12 @@
 declare const manywho: any;
 
+/**
+ * @param items 
+ * @param parent 
+ * @param result 
+ * @param childKey 
+ * @param parentKey 
+ */
 export const flatten = (items: any[], parent: any, result: any[], childKey: string, parentKey: string) => {
     if (items) {
         for (let index = 0; index < items.length; index += 1) {
@@ -17,6 +24,9 @@ export const flatten = (items: any[], parent: any, result: any[], childKey: stri
     return result;
 };
 
+/**
+ * @param object 
+ */
 export const clone = (object: Object) => {
     return !manywho.utils.isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
 };

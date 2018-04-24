@@ -1,3 +1,8 @@
+/**
+ * Script used for generating flow metadata
+ * that gets written to a JS file
+ */
+
 const requestPromise = require('request-promise');
 const fsp = require('fs-promise');
 const argv = require('yargs').argv;

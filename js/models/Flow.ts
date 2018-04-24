@@ -3,16 +3,17 @@ import { IFlow } from '../interfaces/IModels';
 
 declare var manywho: any;
 
-/**
- * Invokes a reference to the current flow
- */
-
 let authenticationToken = null;
 let id = null;
 let objectData = null;
 let requests = null;
 let state = null;
 let tenantId = null;
+
+/**
+ * Returns an object referencing the current flow.
+ * @param flow 
+ */
 
 export const FlowInit = (flow: IFlow) => {
     authenticationToken = flow.authenticationToken;
@@ -32,6 +33,10 @@ export const FlowInit = (flow: IFlow) => {
     };
 };
 
+/**
+ * @param request 
+ * @param snapshot 
+ */
 export const addRequest = (request: any, snapshot: any) => {
     request.key = requests.length;
     request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
@@ -40,19 +45,32 @@ export const addRequest = (request: any, snapshot: any) => {
     requests.push(request);
 };
 
+/**
+ * @param request 
+ */
 export const removeRequest = (request: any) => {
     const index = requests.indexOf(request);
     requests.splice(index, 1);
 };
 
+/**
+ * Empty array of request objects
+ */
 export const removeRequests = () => {
     requests = [];
 };
 
+/**
+ * @param typeElementId 
+ */
 export const getObjectData = (typeElementId: string) => {
     return objectData[typeElementId];
 };
 
+/**
+ * @param objectData 
+ * @param typeElementId 
+ */
 export const cacheObjectData = (objectData: any, typeElementId: string) => {
     if (objectData[typeElementId]) {
         objectData[typeElementId] = objectData[typeElementId].concat(objectData);

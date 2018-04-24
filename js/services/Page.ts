@@ -44,6 +44,12 @@ const Page = {
         return result;
     },
 
+    /**
+     * @param request 
+     * @param mapElement 
+     * @param state 
+     * @param snapshot 
+     */
     generate(request: any, mapElement: any, state: IState, snapshot: any) {
         const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 

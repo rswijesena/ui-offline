@@ -1,7 +1,3 @@
-/**
- * The controller
- */
-
 import { addRequest, FlowInit, getObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';

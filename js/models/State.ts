@@ -8,6 +8,10 @@ let id = null;
 let token = null;
 let values = null;
 
+/**
+ * Returns an object referencing the current state
+ * @param state 
+ */
 export const StateInit = (state: IState) => {
     currentMapElementId = state.currentMapElementId;
     id = state.id;
@@ -22,6 +26,12 @@ export const StateInit = (state: IState) => {
     };
 };
 
+/**
+ * @param id 
+ * @param typeElementId 
+ * @param contentType 
+ * @param command 
+ */
 export const getValue = (id: any, typeElementId: string, contentType: any, command: string) => {
     if (values[id.id]) {
         let value = null;
@@ -58,6 +68,12 @@ export const getValue = (id: any, typeElementId: string, contentType: any, comma
     return null;
 };
 
+/**
+ * @param id 
+ * @param typeElementId 
+ * @param snapshot 
+ * @param value 
+ */
 export const setValue = (id: any, typeElementId: string, snapshot: any, value: any) => {
     if (id.typeElementPropertyId) {
         if (!values[id.id] || !values[id.id].objectData || values[id.id].objectData.length === 0) {
@@ -82,6 +98,11 @@ export const setValue = (id: any, typeElementId: string, snapshot: any, value: a
     }
 };
 
+/**
+ * @param inputs 
+ * @param mapElement 
+ * @param snapshot 
+ */
 export const update = (inputs: any[], mapElement: any, snapshot: any) => {
     inputs.forEach((input) => {
         const page = snapshot.metadata.pageElements.find(pageElement => pageElement.id === mapElement.pageElementId);

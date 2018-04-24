@@ -3,6 +3,11 @@ declare const localforage: any;
 
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
+/**
+ * @param id 
+ * @param flowId 
+ * @param flowVersionId 
+ */
 export const getOfflineData = (id: string, flowId: string = null, flowVersionId: string = null) => {
     return localforage.getItem(`manywho:offline-${id}`)
         .then((value) => {
@@ -27,10 +32,16 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
         });
 };
 
+/**
+ * @param flow 
+ */
 export const setOfflineData = (flow: any) => {
     return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
 };
 
+/**
+ * @param id
+ */
 export const removeOfflineData = (id: string) => {
     return localforage.removeItem(`manywho:offline-${id}`);
 };

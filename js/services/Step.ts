@@ -5,7 +5,14 @@ interface IMapElement {
     userContent: string;
 }
 
+/**
+ * Support for flow steps whilst flow is offline
+ */
 const Step = {
+
+    /**
+     * @param mapElement 
+     */
     generate(mapElement: IMapElement) {
         const containerId = '09c5cb4f-3e7e-4f76-98a7-f6287a33043f';
         const componentId = '98a76ab7-4852-4093-9472-fc1c44283510';
