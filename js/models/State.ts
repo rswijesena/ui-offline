@@ -103,7 +103,7 @@ export const setValue = (id: any, typeElementId: string, snapshot: any, value: a
  * @param mapElement 
  * @param snapshot 
  */
-export const update = (inputs: any[], mapElement: any, snapshot: any) => {
+export const StateUpdate = (inputs: any[], mapElement: any, snapshot: any) => {
     inputs.forEach((input) => {
         const page = snapshot.metadata.pageElements.find(pageElement => pageElement.id === mapElement.pageElementId);
         const component = page.pageComponents.find(pageComponent => pageComponent.id === input.pageComponentId);

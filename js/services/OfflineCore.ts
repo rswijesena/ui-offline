@@ -6,6 +6,7 @@ import Page from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
+import { StateUpdate } from '../models/State';
 import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
 import { clone, flatten, guid } from '../services/Utils';
@@ -345,7 +346,7 @@ const OfflineCore = {
             && request.mapElementInvokeRequest
             && request.mapElementInvokeRequest.pageRequest
             && request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses) {
-            flow.state.update(request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses, mapElement, snapshot);
+            StateUpdate(request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses, mapElement, snapshot);
         }
 
         if (nextMapElement.dataActions) {
