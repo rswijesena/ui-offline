@@ -64,7 +64,7 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="manywho-ui-offline">ManyWho UI Offline</h1>
+				<h1 id="boomi-flow-ui-offline">Boomi Flow UI Offline</h1>
 				<p>Services and components used by the <a href="https://manywho.com">ManyWho</a> UI framework to support running flows offline.</p>
 				<h2 id="usage">Usage</h2>
 				<h3 id="building">Building</h3>
@@ -75,13 +75,14 @@
 				<pre><code><span class="hljs-built_in">npm</span> start
 </code></pre><p>Or dist build:</p>
 				<pre><code>npm <span class="hljs-keyword">run</span><span class="bash"> dist</span>
-</code></pre><h3 id="running">Running</h3>
+</code></pre><h3 id="running-locally">Running locally</h3>
 				<p>Before you can run a flow offline you will need to grab a copy of the flow&#39;s metadata:</p>
 				<p>Where <code>--tenant</code> is the id of the tenant that contains the flow and flow <code>--flow</code> is the flow name.</p>
 				<pre><code>npm <span class="hljs-builtin-name">run</span> offline -- <span class="hljs-attribute">--username</span>=example@example.com <span class="hljs-attribute">--password</span>=example <span class="hljs-attribute">--flow</span>=abc123 <span class="hljs-attribute">--tenant</span>=abc123
-</code></pre><p>This will create a metadata.ts file which will be included as part of the regular build.</p>
+</code></pre><p>This will create a metadata.js file in <code>../ui-html5/build/js</code>.</p>
 				<p>To include the offline components you will need to add the following references to debug.html in the ui-html5 repo:</p>
-				<pre><code><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"build/js/ui-offline.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+				<pre><code><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"build/js/metadata.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"build/js/ui-offline.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre><h2 id="contributing">Contributing</h2>
 				<p>Contributions are welcome to the project - whether they are feature requests, improvements or bug fixes! Refer to
 				<a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for our contribution requirements.</p>
@@ -112,6 +113,27 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_components_requestfault_.html">"components/<wbr>Request<wbr>Fault"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_igooffline_.html">"interfaces/IGo<wbr>Offline"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_igoonline_.html">"interfaces/IGo<wbr>Online"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_imodels_.html">"interfaces/IModels"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_inonetwork_.html">"interfaces/INo<wbr>Network"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_ioffline_.html">"interfaces/IOffline"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_irequest_.html">"interfaces/IRequest"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_interfaces_irequestfault_.html">"interfaces/IRequest<wbr>Fault"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_models_flow_.html">"models/<wbr>Flow"</a>
@@ -151,9 +173,6 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_services_utils_.html">"services/<wbr>Utils"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_services_metadata_.html">"services/metadata"</a>
 					</li>
 				</ul>
 			</nav>

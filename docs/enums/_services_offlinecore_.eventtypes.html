@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>OfflineView | ui-offline</title>
+	<title>EventTypes | ui-offline</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,13 +56,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_components_offline_.html">&quot;components/Offline&quot;</a>
+					<a href="../modules/_services_offlinecore_.html">&quot;services/OfflineCore&quot;</a>
 				</li>
 				<li>
-					<a href="_components_offline_.offlineview.html">OfflineView</a>
+					<a href="_services_offlinecore_.eventtypes.html">EventTypes</a>
 				</li>
 			</ul>
-			<h1>Enumeration OfflineView</h1>
+			<h1>Enumeration EventTypes</h1>
 		</div>
 	</div>
 </header>
@@ -76,9 +76,10 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_components_offline_.offlineview.html#cache" class="tsd-kind-icon">cache</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_components_offline_.offlineview.html#nonetwork" class="tsd-kind-icon">no<wbr>Network</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_components_offline_.offlineview.html#replay" class="tsd-kind-icon">replay</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_services_offlinecore_.eventtypes.html#initialization" class="tsd-kind-icon">initialization</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_services_offlinecore_.eventtypes.html#invoke" class="tsd-kind-icon">invoke</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_services_offlinecore_.eventtypes.html#join" class="tsd-kind-icon">join</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported"><a href="_services_offlinecore_.eventtypes.html#navigation" class="tsd-kind-icon">navigation</a></li>
 							</ul>
 						</section>
 					</div>
@@ -87,32 +88,42 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-					<a name="cache" class="tsd-anchor"></a>
-					<h3>cache</h3>
-					<div class="tsd-signature tsd-kind-icon">cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;0</span></div>
+					<a name="initialization" class="tsd-anchor"></a>
+					<h3>initialization</h3>
+					<div class="tsd-signature tsd-kind-icon">initialization<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;initialization&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/components/Offline.tsx#L16">components/Offline.tsx:16</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/OfflineCore.ts#L22">services/OfflineCore.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-					<a name="nonetwork" class="tsd-anchor"></a>
-					<h3>no<wbr>Network</h3>
-					<div class="tsd-signature tsd-kind-icon">no<wbr>Network<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;2</span></div>
+					<a name="invoke" class="tsd-anchor"></a>
+					<h3>invoke</h3>
+					<div class="tsd-signature tsd-kind-icon">invoke<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;invoke&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/components/Offline.tsx#L18">components/Offline.tsx:18</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/OfflineCore.ts#L19">services/OfflineCore.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-					<a name="replay" class="tsd-anchor"></a>
-					<h3>replay</h3>
-					<div class="tsd-signature tsd-kind-icon">replay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;1</span></div>
+					<a name="join" class="tsd-anchor"></a>
+					<h3>join</h3>
+					<div class="tsd-signature tsd-kind-icon">join<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;join&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/components/Offline.tsx#L17">components/Offline.tsx:17</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/OfflineCore.ts#L20">services/OfflineCore.ts:20</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
+					<a name="navigation" class="tsd-anchor"></a>
+					<h3>navigation</h3>
+					<div class="tsd-signature tsd-kind-icon">navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;navigation&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/OfflineCore.ts#L21">services/OfflineCore.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -125,7 +136,7 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-external-module">
-						<a href="../modules/_components_offline_.html">"components/<wbr>Offline"</a>
+						<a href="../modules/_services_offlinecore_.html">"services/<wbr>Offline<wbr>Core"</a>
 					</li>
 				</ul>
 			</nav>
@@ -134,29 +145,38 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_components_offline_.offlineview.html" class="tsd-kind-icon">Offline<wbr>View</a>
+						<a href="_services_offlinecore_.eventtypes.html" class="tsd-kind-icon">Event<wbr>Types</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-								<a href="_components_offline_.offlineview.html#cache" class="tsd-kind-icon">cache</a>
+								<a href="_services_offlinecore_.eventtypes.html#initialization" class="tsd-kind-icon">initialization</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-								<a href="_components_offline_.offlineview.html#nonetwork" class="tsd-kind-icon">no<wbr>Network</a>
+								<a href="_services_offlinecore_.eventtypes.html#invoke" class="tsd-kind-icon">invoke</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
-								<a href="_components_offline_.offlineview.html#replay" class="tsd-kind-icon">replay</a>
+								<a href="_services_offlinecore_.eventtypes.html#join" class="tsd-kind-icon">join</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum tsd-is-not-exported">
+								<a href="_services_offlinecore_.eventtypes.html#navigation" class="tsd-kind-icon">navigation</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_components_offline_.offline.html" class="tsd-kind-icon">Offline</a>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_services_offlinecore_.html#_" class="tsd-kind-icon">$</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_components_offline_.html#manywho" class="tsd-kind-icon">manywho</a>
+						<a href="../modules/_services_offlinecore_.html#localforage" class="tsd-kind-icon">localforage</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_components_offline_.html#metadata" class="tsd-kind-icon">meta<wbr>Data</a>
+						<a href="../modules/_services_offlinecore_.html#manywho" class="tsd-kind-icon">manywho</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_services_offlinecore_.html#metadata" class="tsd-kind-icon">meta<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
+						<a href="../modules/_services_offlinecore_.html#offlinecore" class="tsd-kind-icon">Offline<wbr>Core</a>
 					</li>
 				</ul>
 			</nav>

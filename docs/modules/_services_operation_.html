@@ -70,22 +70,16 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
-							<h3>Classes</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_services_operation_.operation.html" class="tsd-kind-icon">Operation</a></li>
-							</ul>
-						</section>
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_services_operation_.html#manywho" class="tsd-kind-icon">manywho</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-not-exported">
-							<h3>Functions</h3>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_services_operation_.html#iscommandsupported" class="tsd-kind-icon">is<wbr>Command<wbr>Supported</a></li>
+								<li class="tsd-kind-object-literal tsd-parent-kind-external-module"><a href="_services_operation_.html#operation" class="tsd-kind-icon">Operation</a></li>
 							</ul>
 						</section>
 					</div>
@@ -99,35 +93,109 @@
 					<div class="tsd-signature tsd-kind-icon">manywho<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/c16b575/js/services/Operation.ts#L3">services/Operation.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L4">services/Operation.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="iscommandsupported" class="tsd-anchor"></a>
-					<h3>is<wbr>Command<wbr>Supported</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Command<wbr>Supported<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/c16b575/js/services/Operation.ts#L5">services/Operation.ts:5</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>command: <span class="tsd-signature-type">any</span></h5>
-								</li>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-external-module">
+					<a name="operation" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Operation</h3>
+					<div class="tsd-signature tsd-kind-icon">Operation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L9">services/Operation.ts:9</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Support for performing flow operations whilst offline</p>
+						</div>
+					</div>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="operation.commands" class="tsd-anchor"></a>
+						<h3>commands</h3>
+						<div class="tsd-signature tsd-kind-icon">commands<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[&#x27;NEW&#x27;, &#x27;EMPTY&#x27;, &#x27;SET_EQUAL&#x27;, &#x27;VALUE_OF&#x27;, &#x27;GET_FIRST&#x27;, &#x27;GET_NEXT&#x27;, &#x27;ADD&#x27;, &#x27;REMOVE&#x27;]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L11">services/Operation.ts:11</a></li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="operation.execute" class="tsd-anchor"></a>
+						<h3>execute</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">execute<span class="tsd-signature-symbol">(</span>operation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a>, snapshot<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L34">services/Operation.ts:34</a></li>
+									</ul>
+								</aside>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Perform the operation</p>
+									</div>
+								</div>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>operation: <span class="tsd-signature-type">any</span></h5>
+									</li>
+									<li>
+										<h5>state: <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h5>
+									</li>
+									<li>
+										<h5>snapshot: <span class="tsd-signature-type">any</span></h5>
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+											</div>
+										</div>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="operation.iscommandsupported" class="tsd-anchor"></a>
+						<h3>is<wbr>Command<wbr>Supported</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">is<wbr>Command<wbr>Supported<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L20">services/Operation.ts:20</a></li>
+									</ul>
+								</aside>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Determine if an operation command is supported
+										currently subtract and concatenate are not supported</p>
+									</div>
+									<p>Todo: add support for unsupported commands</p>
+								</div>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>command: <span class="tsd-signature-type">string</span></h5>
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+											</div>
+										</div>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							</li>
+						</ul>
+					</section>
 				</section>
 			</section>
 		</div>
@@ -137,78 +205,18 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_gooffline_.html">"components/<wbr>GoOffline"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_goonline_.html">"components/<wbr>GoOnline"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_nonetwork_.html">"components/<wbr>NoNetwork"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_offline_.html">"components/<wbr>Offline"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_request_.html">"components/<wbr>Request"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_components_requestfault_.html">"components/<wbr>Request<wbr>Fault"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_models_flow_.html">"models/<wbr>Flow"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_models_state_.html">"models/<wbr>State"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_connection_.html">"services/<wbr>Connection"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_dataactions_.html">"services/<wbr>Data<wbr>Actions"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_objectdata_.html">"services/<wbr>Object<wbr>Data"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_offlinecore_.html">"services/<wbr>Offline<wbr>Core"</a>
-					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="_services_operation_.html">"services/<wbr>Operation"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_page_.html">"services/<wbr>Page"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_rules_.html">"services/<wbr>Rules"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_snapshot_.html">"services/<wbr>Snapshot"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_step_.html">"services/<wbr>Step"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_storage_.html">"services/<wbr>Storage"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_utils_.html">"services/<wbr>Utils"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_services_metadata_.html">"services/metadata"</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_services_operation_.operation.html" class="tsd-kind-icon">Operation</a>
-					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_services_operation_.html#manywho" class="tsd-kind-icon">manywho</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_services_operation_.html#iscommandsupported" class="tsd-kind-icon">is<wbr>Command<wbr>Supported</a>
+					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
+						<a href="_services_operation_.html#operation" class="tsd-kind-icon">Operation</a>
 					</li>
 				</ul>
 			</nav>
