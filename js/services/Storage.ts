@@ -22,10 +22,10 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
             })
             .then((flow) => {
                 if (flow) {
-                    return manywho.offline.storage.remove(flow.state.id)
+                    return removeOfflineData(flow.state.id)
                         .then(() => {
                             flow.state.id = id;
-                            return manywho.offline.storage.set(flow);
+                            return setOfflineData(flow);
                         });
                 }
             });

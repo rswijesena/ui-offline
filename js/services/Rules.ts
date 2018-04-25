@@ -1,3 +1,4 @@
+import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
 
 declare var manywho: any;
@@ -71,10 +72,10 @@ const Rules = {
             const contentType = manywho.component.contentTypes.string;
 
             let left = snapshot.getValue(rule.leftValueElementToReferenceId);
-            left = state.getValue(rule.leftValueElementToReferenceId, left.typeElementId, left.contentType) || left;
+            left = getStateValue(rule.leftValueElementToReferenceId, left.typeElementId, left.contentType, '') || left;
 
             let right = snapshot.getValue(rule.rightValueElementToReferenceId);
-            right = state.getValue(rule.rightValueElementToReferenceId, right.typeElementId, right.contentType) || right;
+            right = getStateValue(rule.rightValueElementToReferenceId, right.typeElementId, right.contentType, '') || right;
 
             result = Rules.compareValues(left, right, contentType, rule.criteriaType);
 

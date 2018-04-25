@@ -2,7 +2,7 @@ import { addRequest, FlowInit, getObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import Operation from './Operation';
-import Page from './Page';
+import { getPageContainers, flattenContainers, generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
@@ -152,7 +152,7 @@ const OfflineCore = {
         const flowVersionId = manywho.utils.extractFlowVersionId(flowKey);
         const element = manywho.utils.extractElement(flowKey);
         const stateId = manywho.utils.extractStateId(flowKey);
-        const authenticationToken = manywho.state.getAuthenticationToken(stateId);
+        const authenticationToken = manywho.state.getAuthenticationToken(flowKey);
 
         return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
     },
@@ -369,7 +369,7 @@ const OfflineCore = {
         if (nextMapElement.elementType === 'step') {
             pageResponse = Step.generate(nextMapElement);
         } else if (nextMapElement.elementType === 'input') {
-            pageResponse = Page.generate(request, nextMapElement, flow.state, snapshot);
+            pageResponse = generatePage(request, nextMapElement, flow.state, snapshot);
         } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
             pageResponse = {
                 developerName: 'done',

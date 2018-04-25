@@ -32,7 +32,7 @@ export const StateInit = (state: IState) => {
  * @param contentType 
  * @param command 
  */
-export const getValue = (id: any, typeElementId: string, contentType: any, command: string) => {
+export const getStateValue = (id: any, typeElementId: string, contentType: any, command: string) => {
     if (values[id.id]) {
         let value = null;
 
@@ -74,7 +74,7 @@ export const getValue = (id: any, typeElementId: string, contentType: any, comma
  * @param snapshot 
  * @param value 
  */
-export const setValue = (id: any, typeElementId: string, snapshot: any, value: any) => {
+export const setStateValue = (id: any, typeElementId: string, snapshot: any, value: any) => {
     if (id.typeElementPropertyId) {
         if (!values[id.id] || !values[id.id].objectData || values[id.id].objectData.length === 0) {
             const typeElement = clone(snapshot.metadata.typeElements.find(type => type.id === typeElementId));
@@ -110,7 +110,7 @@ export const StateUpdate = (inputs: any[], mapElement: any, snapshot: any) => {
 
         if (component.valueElementValueBindingReferenceId) {
             const value = snapshot.getValue(component.valueElementValueBindingReferenceId);
-            setValue(component.valueElementValueBindingReferenceId, value.typeElementId, snapshot, input);
+            setStateValue(component.valueElementValueBindingReferenceId, value.typeElementId, snapshot, input);
         }
     });
 };

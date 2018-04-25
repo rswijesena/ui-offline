@@ -1,3 +1,4 @@
+import { getStateValue } from '../models/State';
 import { clone, guid } from '../services/Utils';
 import { IState } from '../interfaces/IModels';
 
@@ -40,7 +41,7 @@ const Operation = {
             }
 
             valueToReference = snapshot.getValue(operation.valueElementToReferenceId);
-            const stateValue = state.getValue(
+            const stateValue = getStateValue(
                 operation.valueElementToReferenceId,
                 valueToReference.typeElementId,
                 valueToReference.contentType,
@@ -60,7 +61,7 @@ const Operation = {
             const typeElementId = valueToApply ? valueToApply.typeElementId : null;
             const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
 
-            const stateValue = state.getValue(
+            const stateValue = getStateValue(
                 operation.valueElementToApplyId,
                 valueToApply.typeElementId,
                 valueToApply.contentType,
