@@ -1,7 +1,7 @@
-import { addRequest, FlowInit, getObjectData } from '../models/Flow';
+import { addRequest, FlowInit, getObjectData, cacheObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
-import Operation from './Operation';
+import { executeOperation } from './Operation';
 import { getPageContainers, flattenContainers, generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
@@ -65,7 +65,7 @@ const OfflineCore = {
             .map(this.getObjectDataRequest)
             .map(this.getChunkedObjectDataRequests);
 
-        this.requests = requests.concat.apply([], this.requests);
+        this.requests = requests.concat.apply([], requests);
 
         const flow = {
             authenticationToken,
@@ -176,20 +176,19 @@ const OfflineCore = {
             onDone: Function) {
 
             let requests = req;
-            const index = reqIndex;
 
-            if (index >= requests.length) {
+            if (reqIndex >= requests.length) {
                 return setOfflineData(flow)
                     .then(onDone);
             }
 
-            const request = requests[index];
+            const request = requests[reqIndex];
             request.stateId = flow.state.id;
 
             return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
                 .then((response) => {
                     if (response.objectData) {
-                        flow.cacheObjectData(response.objectData, request.objectDataType.typeElementId);
+                        cacheObjectData(response.objectData, request.objectDataType.typeElementId);
                     } else {
                         requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
                     }
@@ -197,9 +196,9 @@ const OfflineCore = {
                     return response;
                 })
                 .then((response) => {
-                    index + 1;
-                    onProgress(index, requests.length);
-                    executeRequest(requests, index, flow, currentTypeElementId, onProgress, onDone);
+                    const indy = reqIndex + 1;
+                    onProgress(indy, requests.length);
+                    executeRequest(requests, indy, flow, currentTypeElementId, onProgress, onDone);
                 });
         };
         executeRequest(this.requests, 0, flow, null, onProgress, onDone);
@@ -362,7 +361,7 @@ const OfflineCore = {
             nextMapElement.operations
                 .sort((a, b) => a.order - b.order)
                 .forEach((operation) => {
-                    Operation.execute(operation, flow.state, snapshot);
+                    executeOperation(operation, flow.state, snapshot);
                 });
         }
 
@@ -416,7 +415,10 @@ const OfflineCore = {
      * @param context
      */
     getObjectDataResponse(request: any, flow: IFlow, context: any) {
-        return ObjectData.filter(getObjectData(request.objectDataType.typeElementId), request.listFilter);
+        return ObjectData.filter(
+            getObjectData(request.objectDataType ? request.objectDataType.typeElementId : request.typeElementId),
+            request.listFilter,
+        );
     },
 
     /**

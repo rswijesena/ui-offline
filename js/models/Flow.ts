@@ -71,10 +71,10 @@ export const getObjectData = (typeElementId: string) => {
  * @param objectData 
  * @param typeElementId 
  */
-export const cacheObjectData = (objectData: any, typeElementId: string) => {
+export const cacheObjectData = (data: any, typeElementId: string) => {
     if (objectData[typeElementId]) {
         objectData[typeElementId] = objectData[typeElementId].concat(objectData);
     } else {
-        objectData[typeElementId] = objectData;
+        objectData[typeElementId] = data;
     }
 };
