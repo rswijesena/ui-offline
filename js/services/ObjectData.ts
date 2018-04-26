@@ -6,7 +6,8 @@ import { clone } from '../services/Utils';
 const ObjectData = {
 
     /**
-     * Execute filtering on object data
+     * Execute filtering on object data. Currently supports searching
+     * across every properties `contentValue`.
      * @param objectData
      * @param filter
      */

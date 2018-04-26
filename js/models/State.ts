@@ -99,6 +99,7 @@ export const setStateValue = (id: any, typeElementId: string, snapshot: any, val
 };
 
 /**
+ * Update multiple values in the state from a collection of `PageComponentInputResponses`
  * @param inputs 
  * @param mapElement 
  * @param snapshot 

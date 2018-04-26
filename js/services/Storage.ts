@@ -4,6 +4,9 @@ declare const localforage: any;
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
 /**
+ * Get the previously saved local version of the state from local storage.
+ * If the `id` of the state isn't provided then iterate across all local storage
+ * to find data with a matching `flowId` and `flowVersionId`
  * @param id 
  * @param flowId 
  * @param flowVersionId 

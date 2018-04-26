@@ -7,7 +7,8 @@ import { IFlow } from '../interfaces/IModels';
 const DataActions = {
 
     /**
-     * Performing the data action by altering flow state
+     * Execute the data action (`Load` or `Save`) and update the local state.
+     * `Delete` data actions aren't currently supported.
      * @param action
      * @param flow
      * @param snapshot

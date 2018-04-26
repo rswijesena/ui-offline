@@ -106,7 +106,7 @@
 					<div class="tsd-signature tsd-kind-icon">$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L5">services/Connection.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L5">services/Connection.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -116,7 +116,7 @@
 					<div class="tsd-signature tsd-kind-icon">j<wbr>Query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L4">services/Connection.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L4">services/Connection.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -126,7 +126,7 @@
 					<div class="tsd-signature tsd-kind-icon">manywho<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L3">services/Connection.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L3">services/Connection.ts:3</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -136,7 +136,7 @@
 					<div class="tsd-signature tsd-kind-icon">online<wbr>Status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L7">services/Connection.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L7">services/Connection.ts:7</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -153,12 +153,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L19">services/Connection.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L19">services/Connection.ts:19</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Check network availability by pinging the platform</p>
+									<p>Check network availability by pinging the platform&#39;s health endpoint <code>/api/health</code></p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -175,13 +175,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L36">services/Connection.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L35">services/Connection.ts:35</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Checking boolean flag to determine
-									whether a request should make it to the engine.</p>
+									<p>Check <code>isOffline</code> flag first, if that is false then check via <code>hasNetwork</code></p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -198,7 +197,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L99">services/Connection.ts:99</a></li>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L97">services/Connection.ts:97</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -246,13 +245,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L55">services/Connection.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L53">services/Connection.ts:53</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Making an ajax call to the engine for
-									when the device is online</p>
+									<p>Perform a request to the API in a normal online environment</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -297,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Connection.ts#L126">services/Connection.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Connection.ts#L124">services/Connection.ts:124</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

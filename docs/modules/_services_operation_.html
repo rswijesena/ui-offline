@@ -73,13 +73,15 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_services_operation_.html#commands" class="tsd-kind-icon">commands</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_services_operation_.html#manywho" class="tsd-kind-icon">manywho</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
-							<h3>Object literals</h3>
+							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-object-literal tsd-parent-kind-external-module"><a href="_services_operation_.html#operation" class="tsd-kind-icon">Operation</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_services_operation_.html#executeoperation" class="tsd-kind-icon">execute<wbr>Operation</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_services_operation_.html#iscommandsupported" class="tsd-kind-icon">is<wbr>Command<wbr>Supported</a></li>
 							</ul>
 						</section>
 					</div>
@@ -88,114 +90,100 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="commands" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> commands</h3>
+					<div class="tsd-signature tsd-kind-icon">commands<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[&#x27;NEW&#x27;, &#x27;EMPTY&#x27;, &#x27;SET_EQUAL&#x27;, &#x27;VALUE_OF&#x27;, &#x27;GET_FIRST&#x27;, &#x27;GET_NEXT&#x27;, &#x27;ADD&#x27;, &#x27;REMOVE&#x27;]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Operation.ts#L7">services/Operation.ts:7</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="manywho" class="tsd-anchor"></a>
 					<h3>manywho</h3>
 					<div class="tsd-signature tsd-kind-icon">manywho<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L4">services/Operation.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Operation.ts#L5">services/Operation.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Object literals</h2>
-				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-external-module">
-					<a name="operation" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> Operation</h3>
-					<div class="tsd-signature tsd-kind-icon">Operation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L9">services/Operation.ts:9</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Support for performing flow operations whilst offline</p>
-						</div>
-					</div>
-					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
-						<a name="operation.commands" class="tsd-anchor"></a>
-						<h3>commands</h3>
-						<div class="tsd-signature tsd-kind-icon">commands<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[&#x27;NEW&#x27;, &#x27;EMPTY&#x27;, &#x27;SET_EQUAL&#x27;, &#x27;VALUE_OF&#x27;, &#x27;GET_FIRST&#x27;, &#x27;GET_NEXT&#x27;, &#x27;ADD&#x27;, &#x27;REMOVE&#x27;]</span></div>
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L11">services/Operation.ts:11</a></li>
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="executeoperation" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> execute<wbr>Operation</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">execute<wbr>Operation<span class="tsd-signature-symbol">(</span>operation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a>, snapshot<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Operation.ts#L31">services/Operation.ts:31</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Execute the operation and update the values in the local state.
+									Supports the following command types: NEW, EMPTY, SET_EQUAL, VALUE_OF, GET_FIRST, GET_NEXT, ADD, REMOVE</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>operation: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>state: <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h5>
+								</li>
+								<li>
+									<h5>snapshot: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+										</div>
+									</div>
+								</li>
 							</ul>
-						</aside>
-					</section>
-					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
-						<a name="operation.execute" class="tsd-anchor"></a>
-						<h3>execute</h3>
-						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
-							<li class="tsd-signature tsd-kind-icon">execute<span class="tsd-signature-symbol">(</span>operation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a>, snapshot<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></li>
-						</ul>
-						<ul class="tsd-descriptions">
-							<li class="tsd-description">
-								<aside class="tsd-sources">
-									<ul>
-										<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L34">services/Operation.ts:34</a></li>
-									</ul>
-								</aside>
-								<div class="tsd-comment tsd-typography">
-									<div class="lead">
-										<p>Perform the operation</p>
-									</div>
-								</div>
-								<h4 class="tsd-parameters-title">Parameters</h4>
-								<ul class="tsd-parameters">
-									<li>
-										<h5>operation: <span class="tsd-signature-type">any</span></h5>
-									</li>
-									<li>
-										<h5>state: <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h5>
-									</li>
-									<li>
-										<h5>snapshot: <span class="tsd-signature-type">any</span></h5>
-										<div class="tsd-comment tsd-typography">
-											<div class="lead">
-											</div>
-										</div>
-									</li>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="iscommandsupported" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> is<wbr>Command<wbr>Supported</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Command<wbr>Supported<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/85feaf3/js/services/Operation.ts#L16">services/Operation.ts:16</a></li>
 								</ul>
-								<h4 class="tsd-returns-title">Returns <a href="../interfaces/_interfaces_imodels_.istate.html" class="tsd-signature-type">IState</a></h4>
-							</li>
-						</ul>
-					</section>
-					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
-						<a name="operation.iscommandsupported" class="tsd-anchor"></a>
-						<h3>is<wbr>Command<wbr>Supported</h3>
-						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
-							<li class="tsd-signature tsd-kind-icon">is<wbr>Command<wbr>Supported<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-						</ul>
-						<ul class="tsd-descriptions">
-							<li class="tsd-description">
-								<aside class="tsd-sources">
-									<ul>
-										<li>Defined in <a href="https://github.com/manywho/ui-offline/blob/4bcfdc1/js/services/Operation.ts#L20">services/Operation.ts:20</a></li>
-									</ul>
-								</aside>
-								<div class="tsd-comment tsd-typography">
-									<div class="lead">
-										<p>Determine if an operation command is supported
-										currently subtract and concatenate are not supported</p>
-									</div>
-									<p>Todo: add support for unsupported commands</p>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Determine if an operation command is supported
+									currently subtract and concatenate are not supported</p>
 								</div>
-								<h4 class="tsd-parameters-title">Parameters</h4>
-								<ul class="tsd-parameters">
-									<li>
-										<h5>command: <span class="tsd-signature-type">string</span></h5>
-										<div class="tsd-comment tsd-typography">
-											<div class="lead">
-											</div>
+								<p>Todo: add support for unsupported commands</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>command: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
 										</div>
-									</li>
-								</ul>
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-							</li>
-						</ul>
-					</section>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -213,10 +201,16 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_services_operation_.html#commands" class="tsd-kind-icon">commands</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_services_operation_.html#manywho" class="tsd-kind-icon">manywho</a>
 					</li>
-					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
-						<a href="_services_operation_.html#operation" class="tsd-kind-icon">Operation</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_services_operation_.html#executeoperation" class="tsd-kind-icon">execute<wbr>Operation</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_services_operation_.html#iscommandsupported" class="tsd-kind-icon">is<wbr>Command<wbr>Supported</a>
 					</li>
 				</ul>
 			</nav>

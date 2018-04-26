@@ -125,6 +125,8 @@ const OfflineCore = {
     },
 
     /**
+     * Splits a single request into multiple requests if the `limit` on the `listFilter` of the request
+     * is higher than the `offline.cache.requests.pageSize` setting
      * @param request
      */
     getChunkedObjectDataRequests(request: any) {
@@ -158,6 +160,7 @@ const OfflineCore = {
     },
 
     /**
+     * Execute every data load in the flow and cache the responses locally
      * @param flow
      * @param onProgress
      * @param onDone
@@ -304,34 +307,34 @@ const OfflineCore = {
         let nextMapElement = null;
 
         switch (request.invokeType.toUpperCase()) {
-        case 'FORWARD':
-            let nextMapElementId = null;
-            let outcome = null;
+            case 'FORWARD':
+                let nextMapElementId = null;
+                let outcome = null;
 
-            if (request.mapElementInvokeRequest.selectedOutcomeId) {
-                outcome = mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId);
-            } else if (request.selectedMapElementId) {
-                nextMapElementId = request.selectedMapElementId;
-            } else {
-                outcome = mapElement.outcomes[0];
-            }
+                if (request.mapElementInvokeRequest.selectedOutcomeId) {
+                    outcome = mapElement.outcomes.find(item => item.id === request.mapElementInvokeRequest.selectedOutcomeId);
+                } else if (request.selectedMapElementId) {
+                    nextMapElementId = request.selectedMapElementId;
+                } else {
+                    outcome = mapElement.outcomes[0];
+                }
 
-            if (outcome) {
-                nextMapElementId = outcome.nextMapElementId;
-            }
+                if (outcome) {
+                    nextMapElementId = outcome.nextMapElementId;
+                }
 
-            nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
-            break;
+                nextMapElement = metaData.mapElements.find(element => element.id === nextMapElementId);
+                break;
 
-        case 'NAVIGATE':
-            const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
-            const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
-            nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
-            break;
+            case 'NAVIGATE':
+                const navigation = metaData.navigationElements.find(element => element.id === request.navigationElementId);
+                const navigationItem = navigation.navigationItems.find(item => item.id === request.selectedNavigationItemId);
+                nextMapElement = metaData.mapElements.find(element => element.id === navigationItem.locationMapElementId);
+                break;
 
-        case 'JOIN':
-            nextMapElement = mapElement;
-            break;
+            case 'JOIN':
+                nextMapElement = mapElement;
+                break;
         }
 
         const snapshot: any = Snapshot(metaData);

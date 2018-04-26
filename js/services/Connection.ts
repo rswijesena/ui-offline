@@ -14,7 +14,7 @@ enum EventTypes {
 }
 
 /**
- * Check network availability by pinging the platform
+ * Check network availability by pinging the platform's health endpoint `/api/health`
  */
 export const hasNetwork = () => {
     const deferred = jQuery.Deferred();
@@ -30,8 +30,7 @@ export const hasNetwork = () => {
 };
 
 /**
- * Checking boolean flag to determine
- * whether a request should make it to the engine. 
+ * Check `isOffline` flag first, if that is false then check via `hasNetwork` 
  */
 export const isOnline = () => {
     if (OfflineCore.isOffline) {
@@ -42,8 +41,7 @@ export const isOnline = () => {
 };
 
 /**
- * Making an ajax call to the engine for
- * when the device is online
+ * Perform a request to the API in a normal online environment
  * @param event
  * @param urlPart
  * @param methodType
@@ -81,9 +79,9 @@ export const onlineRequest = (
             }
         },
     })
-        .done(manywho.settings.event(event + '.done'))
-        .fail(manywho.connection.onError)
-        .fail(manywho.settings.event(event + '.fail'));
+    .done(manywho.settings.event(event + '.done'))
+    .fail(manywho.connection.onError)
+    .fail(manywho.settings.event(event + '.fail'));
 };
 
 /**
