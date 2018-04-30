@@ -1,3 +1,6 @@
+import store from '../stores/store';
+import { addToCache, removeFromCache } from '../actions';
+
 declare const manywho;
 declare const localforage: any;
 
@@ -39,12 +42,16 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
  * @param flow 
  */
 export const setOfflineData = (flow: any) => {
-    return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
+    return localforage.setItem(`manywho:offline-${flow.state.id}`, flow, () => {
+        store.dispatch(addToCache(flow));
+    });
 };
 
 /**
  * @param id
  */
 export const removeOfflineData = (id: string) => {
-    return localforage.removeItem(`manywho:offline-${id}`);
+    return localforage.removeItem(`manywho:offline-${id}`, () => {
+        store.dispatch(removeFromCache());
+    });
 };

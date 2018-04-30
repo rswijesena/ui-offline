@@ -1,10 +1,14 @@
 import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
+import { Provider } from 'react-redux';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { clone, flatten, guid } from '../services/Utils';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
+import reducers from '../reducers';
+import store from '../stores/store';
 
+import CacheManager from './CacheManager';
 import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
@@ -102,6 +106,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             return <div className="offline">
                 <div className="offline-options">
                     {button}
+                    <Provider store={store}><CacheManager /></Provider>,
                 </div>
                 {view}
             </div>;
