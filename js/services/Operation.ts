@@ -68,46 +68,46 @@ export const executeOperation = (operation: any, state: IState, snapshot: any) =
         }
 
         switch (operation.valueElementToApplyId.command) {
-            case 'NEW':
-                valueToReference.objectData = [{
-                    externalId: guid(),
-                    internalId: guid(),
-                    developerName: type.developerName,
-                    order: 0,
-                    isSelected: false,
-                    properties: clone(type.properties).map((property) => {
-                        property.contentValue = null;
-                        property.objectData = null;
-                        property.typeElementPropertyId = property.id;
-                        return property;
-                    }),
-                }];
-                break;
+        case 'NEW':
+            valueToReference.objectData = [{
+                externalId: guid(),
+                internalId: guid(),
+                developerName: type.developerName,
+                order: 0,
+                isSelected: false,
+                properties: clone(type.properties).map((property) => {
+                    property.contentValue = null;
+                    property.objectData = null;
+                    property.typeElementPropertyId = property.id;
+                    return property;
+                }),
+            }];
+            break;
 
-            case 'ADD':
-                valueToReference.objectData = valueToReference.objectData || [];
+        case 'ADD':
+            valueToReference.objectData = valueToReference.objectData || [];
 
-                let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
-                    if (valueToReference.objectData.length > 0) {
-                        const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
-                        if (existingItem) {
-                            valueToReference.objectData.splice(valueToReference.objectData.indexOf(existingItem), 1);
-                            return existingItem;
-                        }
+            let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
+                if (valueToReference.objectData.length > 0) {
+                    const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
+                    if (existingItem) {
+                        valueToReference.objectData.splice(valueToReference.objectData.indexOf(existingItem), 1);
+                        return existingItem;
                     }
-                    return objectData;
-                });
+                }
+                return objectData;
+            });
 
-                objectData = objectData.concat(clone(valueToReference.objectData));
-                valueToReference.objectData = objectData;
-                break;
+            objectData = objectData.concat(clone(valueToReference.objectData));
+            valueToReference.objectData = objectData;
+            break;
 
-            case 'REMOVE':
-                valueToReference.objectData = valueToReference.objectData || [];
+        case 'REMOVE':
+            valueToReference.objectData = valueToReference.objectData || [];
 
-                valueToReference.objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
-                    .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
-                break;
+            valueToReference.objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
+                .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
+            break;
         }
 
         setStateValue(operation.valueElementToApplyId, typeElementId, snapshot, valueToReference);
