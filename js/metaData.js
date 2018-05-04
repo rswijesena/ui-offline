@@ -9,7 +9,7 @@ const argv = require('yargs').argv;
 
 (() => {
 
-    const ARGS = ['username', 'password', 'tenant', 'flow'];
+    const ARGS = ['username', 'password', 'tenant', 'flow', 'flowVersionId'];
 
     let envArgs = [];
     for (let key in argv) {
@@ -55,29 +55,16 @@ const argv = require('yargs').argv;
 
         return requestPromise({
             method: "GET",
-            uri: baseUrl + "/api/run/1/flow?filter=substringof(developername, '" + argv.flow + "')",
+            uri: baseUrl + "/api/draw/1/flow/snap/" + argv.flow + "/" + argv.flowVersionId,
             headers: {
+                'authorization': authenticationToken,
                 'ManyWhoTenant': argv.tenant
             },
             json: true
         })    
     })
-    .then((flows) => {
-        if(flows.length === 0) {
-            console.error("ERROR - Flow does not exist");
-            process.exit(1);
-        }
-        return requestPromise({
-            method: "GET",
-            uri: baseUrl + "/api/draw/1/flow/snap/" + flows[0].id.id + "/" + flows[0].id.versionId,
-            headers: {
-                'authorization': authenticationToken,
-                'ManyWhoTenant': argv.tenant
-            }
-        })
-    })
     .then((snapshot) => {
-        return fsp.writeFile('../ui-html5/build/js/metadata.js', `var metaData = ${JSON.stringify(JSON.parse(snapshot))};\n`);
+        return fsp.writeFile('../ui-html5/build/js/metadata.js', `var metaData = ${JSON.stringify(snapshot)};\n`);
     })
     .catch((response) => {
        console.error(response.message);

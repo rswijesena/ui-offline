@@ -30,10 +30,10 @@ npm run dist
 
 Before you can run a flow offline you will need to grab a copy of the flow's metadata:
 
-Where `--tenant` is the id of the tenant that contains the flow and flow `--flow` is the flow name.
+Where `--tenant` is the id of the tenant that contains the flow, `--flow` is the flow id and `--flowVersionId` is the flow version id.
 
 ```
-npm run offline -- --username=example@example.com --password=example --flow=abc123 --tenant=abc123
+npm run offline -- --username=example@example.com --password=example --flow=abc123 --tenant=abc123 --flowVersionId=abc123
 ```
 
 This will create a metadata.js file in `../ui-html5/build/js`.
