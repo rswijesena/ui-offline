@@ -8,7 +8,7 @@ const pathsToClean = [
 
 const config = {
     entry: './js/index.js',
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     module: {
         noParse: [new RegExp('node_modules/localforage/dist/localforage.js')],
         rules: [
