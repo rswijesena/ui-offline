@@ -1,4 +1,4 @@
-# ManyWho UI Offline
+# Boomi Flow UI Offline
 
 Services and components used by the [ManyWho](https://manywho.com) UI framework to support running flows offline.
 
@@ -6,51 +6,44 @@ Services and components used by the [ManyWho](https://manywho.com) UI framework 
 
 ### Building
 
-To build the ui-offline you will need to have [nodejs](http://nodejs.org/), [gulp](http://gulpjs.com/) and [typings](https://github.com/typings/typings) installed.
+To build the ui-offline you will need to have [nodejs](http://nodejs.org/) installed.
 
 Then install dependencies:
 
 ```
 npm install
-typings install
 ```
 
 Then run the dev build:
 
 ```
-gulp watch
+npm start
 ```
 
 Or dist build:
 
 ```
-gulp dist
+npm run dist
 ```
 
-### Running
+### Running locally
 
-Before you can run a flow offline you will need to grab a copy of the flow's metadata via the metadata task:
+Before you can run a flow offline you will need to grab a copy of the flow's metadata:
 
-Where `--tenant` is the id of the tenant that contains the flow
-
-```
-gulp metadata --username="" --password="" --flow="" --tenant=""
-```
-
-This will create a metadata.ts file which will be included as part of the regular build. After getting the metadata start the normal build process with:
+Where `--tenant` is the id of the tenant that contains the flow, `--flow` is the flow id and `--flowVersionId` is the flow version id.
 
 ```
-gulp watch
+npm run offline -- --username=example@example.com --password=example --flow=abc123 --tenant=abc123 --flowVersionId=abc123
 ```
+
+This will create a metadata.js file in `../ui-html5/build/js`.
 
 To include the offline components you will need to add the following references to debug.html in the ui-html5 repo:
 
 ```
-<link rel="stylesheet" href="build/css/ui-offline.css" />
+<script src="build/js/metadata.js"></script>
 <script src="build/js/ui-offline.js"></script>
 ```
-
-These references assume that the build was run with --build switch pointing to the `ui-html5/build` directory.
 
 ## Contributing
 
