@@ -1,4 +1,6 @@
 js/services/metadata.ts
+test-report.xml
+/coverage
 /node_modules
 /dist
 /build
