@@ -29,7 +29,7 @@ class GoOffline extends React.Component<IGoOfflineProps, Partial<IGoOfflineState
         this.props.onOffline();
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
