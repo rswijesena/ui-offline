@@ -40,6 +40,9 @@
         "less-loader": "^4.1.0",
         "lint-staged": "^7.0.4",
         "localforage": "^1.5.6",
+        "react": "^0.14.6",
+        "react-dom": "^0.14.6",
+        "react-addons-test-utils": "^0.14.8",
         "request-promise": "^4.1.1",
         "run-sequence": "^1.2.1",
         "script-loader": "^0.7.0",
@@ -63,6 +66,9 @@
             "**/js/services/*.{ts,tsx}",
             "**/js/models/*.{ts,tsx}"
         ],
+        "setupFiles": [
+            "<rootDir>/test-setup.js"
+        ],
         "transform": {
             "^.+\\.tsx?$": "ts-jest"
         },
@@ -78,9 +84,5 @@
             "\\.(css|less)$": "identity-obj-proxy"
         },
         "testResultsProcessor": "./node_modules/jest-junit-reporter"
-    },
-    "dependencies": {
-        "react": "^16.3.1",
-        "react-dom": "^16.3.1"
     }
 }
