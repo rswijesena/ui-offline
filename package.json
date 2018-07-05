@@ -72,6 +72,7 @@
         "transform": {
             "^.+\\.tsx?$": "ts-jest"
         },
+        "setupTestFrameworkScriptFile": "<rootDir>/setup-tests-globals.js",
         "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
         "moduleFileExtensions": [
             "ts",

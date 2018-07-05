@@ -1,6 +1,6 @@
 # Boomi Flow UI Offline
 
-Services and components used by the [ManyWho](https://manywho.com) UI framework to support running flows offline.
+Services and components used by the [Boomi Flow](https://boomi.com/platform/flow/) UI framework to support running flows offline.
 
 ## Usage
 
@@ -43,6 +43,14 @@ To include the offline components you will need to add the following references 
 ```
 <script src="build/js/metadata.js"></script>
 <script src="build/js/ui-offline.js"></script>
+```
+
+### Running Unit Tests
+
+This project uses the [Jest](https://jestjs.io/) and [Enzyme](https://github.com/airbnb/enzyme) testing libraries. Run the tests with the following:
+
+```
+npm run test
 ```
 
 ## Contributing
