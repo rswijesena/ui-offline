@@ -64,6 +64,33 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
     let pageComponentDataResponses = [];
     if (pageElement.pageComponents) {
         pageComponentDataResponses = pageElement.pageComponents.map((component) => {
+
+            // TODO: Encapsulate into module
+            if (request.invokeType === 'SYNC' && pageElement.pageConditions) {
+                pageElement.pageConditions.forEach((pageCondition) => {
+                    const hasCondition = pageCondition.pageOperations.find(
+                        operation => operation.assignment.assignee.pageObjectReferenceId === component.id,
+                    );
+                    
+                    if (hasCondition !== undefined) {
+                        if (pageCondition.pageRules.length === 1) {
+                            const booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
+                            const booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
+                                component => component.id === booleanComponent,
+                            ).contentValue;
+                            if (
+                                typeof(booleanComponentValue) === 'boolean' ||
+                                booleanComponentValue === 'false' // Engine returns false as a string...
+                            ) {
+                                // Nows we need to find the value to compare against
+                                // which I think will always be a system bool value
+                            }
+                        }
+                    }
+                });
+
+            }
+
             let selectedValue = null;
             let sourceValue = null;
             const value: any = {

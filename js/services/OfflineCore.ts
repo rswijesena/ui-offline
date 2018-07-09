@@ -335,7 +335,12 @@ const OfflineCore = {
         case 'JOIN':
             nextMapElement = mapElement;
             break;
+
+        case 'SYNC':
+            nextMapElement = mapElement;
+            break;
         }
+        
 
         const snapshot: any = Snapshot(metaData);
         let pageResponse = null;
