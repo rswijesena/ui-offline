@@ -65,6 +65,8 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
     if (pageElement.pageComponents) {
         pageComponentDataResponses = pageElement.pageComponents.map((component) => {
 
+            let isVisible = true;
+
             // TODO: Encapsulate into module
             if (request.invokeType === 'SYNC' && pageElement.pageConditions) {
                 pageElement.pageConditions.forEach((pageCondition) => {
@@ -76,14 +78,31 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                         if (pageCondition.pageRules.length === 1) {
                             const booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
                             const booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
-                                component => component.id === booleanComponent,
+                                component => component.pageComponentId === booleanComponent,
                             ).contentValue;
                             if (
                                 typeof(booleanComponentValue) === 'boolean' ||
                                 booleanComponentValue === 'false' // Engine returns false as a string...
                             ) {
-                                // Nows we need to find the value to compare against
-                                // which I think will always be a system bool value
+                                const rightValueRef = snapshot.getSystemValue(
+                                    pageCondition.pageRules[0].right.valueElementToReferenceId.id,
+                                ).defaultContentValue;
+
+                                let leftValueRef = booleanComponentValue;
+
+                                if (booleanComponentValue === true || booleanComponentValue === 'true') {
+                                    leftValueRef = 'True';
+                                }
+                                if (booleanComponentValue === false || booleanComponentValue === 'false') {
+                                    leftValueRef = 'False';
+                                }
+                                
+                                if (leftValueRef !== rightValueRef) {
+                                    isVisible = false;
+                                }
+                                
+                            } else {
+                                throw 'Unsupported page condition';
                             }
                         }
                     }
@@ -94,11 +113,11 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
             let selectedValue = null;
             let sourceValue = null;
             const value: any = {
+                isVisible,
                 pageComponentId: component.id,
                 contentValue: null,
                 objectData: null,
                 contentType: manywho.component.contentTypes.string,
-                isVisible: true,
                 isValid: true,
             };
 

@@ -199,6 +199,7 @@ const Snapshot = (meta: any) => {
         getContentTypeForValue,
         getNavigationElementReferences,
         getValue,
+        getSystemValue,
         metadata: meta,
     };
 };
