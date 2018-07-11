@@ -1,5 +1,6 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
+import { applyBooleanCondition, checkForCondition } from './PageConditions';
 
 declare const manywho: any;
 
@@ -65,13 +66,23 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
     if (pageElement.pageComponents) {
         pageComponentDataResponses = pageElement.pageComponents.map((component) => {
 
-            let isVisible = true;
+            let value: any = {
+                isVisible: true,
+                isEnabled: true,
+                isRequired: true,
+                pageComponentId: component.id,
+                contentValue: null,
+                objectData: null,
+                contentType: manywho.component.contentTypes.string,
+                isValid: true,
+            };
 
-            // TODO: Encapsulate into module
             if (request.invokeType === 'SYNC' && pageElement.pageConditions) {
                 pageElement.pageConditions.forEach((pageCondition) => {
-                    const hasCondition = pageCondition.pageOperations.find(
-                        operation => operation.assignment.assignee.pageObjectReferenceId === component.id,
+
+                    const hasCondition = checkForCondition(
+                        pageCondition.pageOperations,
+                        component.id,
                     );
                     
                     if (hasCondition !== undefined) {
@@ -84,22 +95,12 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                                 typeof(booleanComponentValue) === 'boolean' ||
                                 booleanComponentValue === 'false' // Engine returns false as a string...
                             ) {
-                                const rightValueRef = snapshot.getSystemValue(
-                                    pageCondition.pageRules[0].right.valueElementToReferenceId.id,
-                                ).defaultContentValue;
-
-                                let leftValueRef = booleanComponentValue;
-
-                                if (booleanComponentValue === true || booleanComponentValue === 'true') {
-                                    leftValueRef = 'True';
-                                }
-                                if (booleanComponentValue === false || booleanComponentValue === 'false') {
-                                    leftValueRef = 'False';
-                                }
-                                
-                                if (leftValueRef !== rightValueRef) {
-                                    isVisible = false;
-                                }
+                                value = applyBooleanCondition(
+                                    pageCondition,
+                                    booleanComponentValue,
+                                    snapshot,
+                                    value,
+                                );
                                 
                             } else {
                                 throw 'Unsupported page condition';
@@ -112,14 +113,7 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
 
             let selectedValue = null;
             let sourceValue = null;
-            const value: any = {
-                isVisible,
-                pageComponentId: component.id,
-                contentValue: null,
-                objectData: null,
-                contentType: manywho.component.contentTypes.string,
-                isValid: true,
-            };
+
 
             if (component.valueElementValueBindingReferenceId) {
                 selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
