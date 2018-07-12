@@ -1,6 +1,6 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
-import { applyBooleanCondition, checkForCondition } from './PageConditions';
+import { applyBooleanCondition, checkForCondition, checkForEvents } from './PageConditions';
 
 declare const manywho: any;
 
@@ -45,10 +45,19 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
  * @param request 
  * @param mapElement 
  * @param state 
- * @param snapshot 
+ * @param snapshot
+ * @param tenantId
  */
-export const generatePage = (request: any, mapElement: any, state: IState, snapshot: any) => {
+export const generatePage = (request: any, mapElement: any, state: IState, snapshot: any, tenantId: String) => {
     const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
+
+    const flowKey = manywho.utils.getFlowKey(
+        tenantId,
+        snapshot.metadata.id.id,
+        snapshot.metadata.id.versionId,
+        state.id,
+        'main',
+    );
 
     let pageContainerDataResponses = [];
     if (pageElement.pageContainers) {
@@ -77,33 +86,68 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                 isValid: true,
             };
 
-            if (request.invokeType === 'SYNC' && pageElement.pageConditions) {
+            if (pageElement.pageConditions) {
                 pageElement.pageConditions.forEach((pageCondition) => {
 
+                    // Check component is listening for page condition
                     const hasCondition = checkForCondition(
                         pageCondition.pageOperations,
                         component.id,
                     );
-                    
-                    if (hasCondition !== undefined) {
+
+                    // Check component triggers a page condition
+                    const hasEvents = checkForEvents(
+                        pageCondition.pageRules,
+                        component.id,
+                    );
+
+                    // If a component triggers a page condition
+                    // then the components metadata stored in state
+                    // needs to have the hasEvents property as a flag
+                    // so the ui knows to make a syncronisation call
+                    // to the engine.
+                    if (hasEvents !== undefined) {
+                        component['hasEvents'] = true;
+                    } else {
+                        component['hasEvents'] = false;
+                    }
+
+                    if (hasCondition !== undefined && request.invokeType === 'SYNC') {
                         if (pageCondition.pageRules.length === 1) {
                             const booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
                             const booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
                                 component => component.pageComponentId === booleanComponent,
                             ).contentValue;
-                            if (
-                                typeof(booleanComponentValue) === 'boolean' ||
-                                booleanComponentValue === 'false' // Engine returns false as a string...
-                            ) {
-                                value = applyBooleanCondition(
-                                    pageCondition,
-                                    booleanComponentValue,
-                                    snapshot,
-                                    value,
-                                );
-                                
-                            } else {
-                                throw 'Unsupported page condition';
+
+                            try {
+                                if (
+                                    typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
+                                    booleanComponentValue === 'false' // Engine returns false as a string...
+                                ) {
+                                    value = applyBooleanCondition(
+                                        pageCondition,
+                                        booleanComponentValue,
+                                        snapshot,
+                                        value,
+                                    );
+                                    
+                                } else {
+                                    const errorMsg = `${component.developerName} has an unsupported page condition`;
+
+                                    console.error(errorMsg);
+                                    if (manywho.settings.isDebugEnabled(flowKey)) {
+                                        throw new Error(errorMsg);
+                                    }
+                                }
+
+                            } catch (error) {
+                                manywho.model.addNotification(flowKey, {
+                                    message: error.message,
+                                    position: 'center',
+                                    type: 'warning',
+                                    timeout: 0,
+                                    dismissible: true,
+                                });
                             }
                         }
                     }

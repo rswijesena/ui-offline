@@ -219,6 +219,15 @@ const OfflineCore = {
      * @param stateId
      */
     getResponse(context: any, event: EventTypes, urlPart: string, request: any, tenantId: string, stateId: string) {
+
+        // When running a flow in debug mode, calls to the
+        // logging endpoint are being intercepted, this handles that.
+        if (manywho.utils.isEqual(event, 'log')) {
+            return new Promise((resolve) => {
+                resolve(true);
+            });
+        }
+
         let flowStateId = stateId;
         if (request && request.stateId) {
             flowStateId = request.stateId;
@@ -376,7 +385,7 @@ const OfflineCore = {
         if (nextMapElement.elementType === 'step') {
             pageResponse = Step.generate(nextMapElement);
         } else if (nextMapElement.elementType === 'input') {
-            pageResponse = generatePage(request, nextMapElement, flow.state, snapshot);
+            pageResponse = generatePage(request, nextMapElement, flow.state, snapshot, flow.tenantId);
         } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
             pageResponse = {
                 developerName: 'done',

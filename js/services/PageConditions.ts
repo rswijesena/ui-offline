@@ -1,20 +1,43 @@
+const METADATA_TYPES = {
+    visible: 'METADATA.VISIBLE',
+    required: 'METADATA.REQUIRED',
+    enabled: 'METADATA.ENABLED',
+};
+
 /**
- *
+ * @param pageOperations An array of page operation objects for a particular condition
+ * @param componentId 
+ * @description To check if a component is listening for a page condition to be triggered
  */
-export const checkForCondition = (pageOperations, componentId) => {
+export const checkForCondition = (pageOperations, componentId: String) => {
     return pageOperations.find(
         operation => operation.assignment.assignee.pageObjectReferenceId === componentId,
     );
 };
 
 /**
- *
+ * @param pageRules An array of rule objects for a particular condition
+ * @param componentId
+ * @description To check if a component triggers a page condition
+ */
+export const checkForEvents = (pageRules, componentId: String) => {
+    return pageRules.find(
+        rule => rule.left.pageObjectReferenceId === componentId,
+    );
+};
+
+/**
+ * @param pageCondition A single page conditions metadata
+ * @param booleanComponentValue The value ID of the component that triggers the condition
+ * @param snapshot 
+ * @param componentProps An object with some default component properties such as isRequired etc
+ * @description Handling simple true/false page conditions whilst offline
  */
 export const applyBooleanCondition = (
-pageCondition,
-booleanComponentValue,
-snapshot,
-componentProps) => {
+pageCondition: any,
+booleanComponentValue: (String|Boolean),
+snapshot: any,
+componentProps: any) => {
 
     const newProps = {
         isVisible: componentProps.isVisible,
@@ -43,7 +66,7 @@ componentProps) => {
     let toggle = null;
     
     if (leftValueRef === 'False' && rightValueRef === 'False') {
-        toggle = false;
+        toggle = true;
     }
 
     if (leftValueRef === 'True' && rightValueRef === 'True') {
@@ -55,20 +78,20 @@ componentProps) => {
     }
 
     if (leftValueRef === 'False' && rightValueRef === 'True') {
-        toggle = true;
+        toggle = false;
     }
 
     switch (metaDataType) {
 
-    case 'METADATA.VISIBLE':
+    case METADATA_TYPES.visible:
         newProps.isVisible = toggle;
         return Object.assign(componentProps, newProps);
 
-    case 'METADATA.REQUIRED':
+    case METADATA_TYPES.required:
         newProps.isRequired = toggle;
         return Object.assign(componentProps, newProps);
 
-    case 'METADATA.ENABLED':
+    case METADATA_TYPES.enabled:
         newProps.isEnabled = toggle;
         return Object.assign(componentProps, newProps);
 
