@@ -30,7 +30,7 @@
         "css-loader": "^0.28.11",
         "del": "^1.1.1",
         "enzyme": "^3.3.0",
-        "enzyme-adapter-react-14": "^1.0.5",
+        "enzyme-adapter-react-16": "^1.1.1",
         "fs-promise": "^2.0.2",
         "husky": "^0.14.3",
         "identity-obj-proxy": "^3.0.0",
@@ -40,9 +40,7 @@
         "less-loader": "^4.1.0",
         "lint-staged": "^7.0.4",
         "localforage": "^1.5.6",
-        "react": "^0.14.6",
-        "react-dom": "^0.14.6",
-        "react-addons-test-utils": "^0.14.8",
+        "react-addons-test-utils": "^15.6.2",
         "request-promise": "^4.1.1",
         "run-sequence": "^1.2.1",
         "script-loader": "^0.7.0",
@@ -85,5 +83,10 @@
             "\\.(css|less)$": "identity-obj-proxy"
         },
         "testResultsProcessor": "./node_modules/jest-junit-reporter"
+    },
+    "dependencies": {
+        "react": "^16.3.1",
+        "react-dom": "^16.3.1",
+        "tslint-config-airbnb": "^5.8.0"
     }
 }
