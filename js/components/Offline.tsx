@@ -61,7 +61,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         this.setState({ view: null });
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);

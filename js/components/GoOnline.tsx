@@ -57,7 +57,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
         this.props.onClose(this.flow);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         manywho.settings.initialize({
             offline: {
                 isOnline: true,
