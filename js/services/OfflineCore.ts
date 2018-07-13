@@ -223,9 +223,7 @@ const OfflineCore = {
         // When running a flow in debug mode, calls to the
         // logging endpoint are being intercepted, this handles that.
         if (manywho.utils.isEqual(event, 'log')) {
-            return new Promise((resolve) => {
-                resolve(true);
-            });
+            return Promise.resolve();
         }
 
         let flowStateId = stateId;

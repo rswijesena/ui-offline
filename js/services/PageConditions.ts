@@ -34,10 +34,11 @@ export const checkForEvents = (pageRules, componentId: String) => {
  * @description Handling simple true/false page conditions whilst offline
  */
 export const applyBooleanCondition = (
-pageCondition: any,
-booleanComponentValue: (String|Boolean),
-snapshot: any,
-componentProps: any) => {
+    pageCondition: any,
+    booleanComponentValue: (String|Boolean),
+    snapshot: any,
+    componentProps: any,
+) => {
 
     const newProps = {
         isVisible: componentProps.isVisible,
