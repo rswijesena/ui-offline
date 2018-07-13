@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import NoNetwork from '../js/components/NoNetwork';
+import NoNetwork from '../../js/components/NoNetwork';
 
 describe('NoNetwork component behaviour', () => {
 

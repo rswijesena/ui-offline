@@ -6,7 +6,7 @@ const METADATA_TYPES = {
 
 /**
  * @param pageOperations An array of page operation objects for a particular condition
- * @param componentId 
+ * @param componentId
  * @description To check if a component is listening for a page condition to be triggered
  */
 export const checkForCondition = (pageOperations, componentId: String) => {
@@ -29,7 +29,7 @@ export const checkForEvents = (pageRules, componentId: String) => {
 /**
  * @param pageCondition A single page conditions metadata
  * @param booleanComponentValue The value ID of the component that triggers the condition
- * @param snapshot 
+ * @param snapshot
  * @param componentProps An object with some default component properties such as isRequired etc
  * @description Handling simple true/false page conditions whilst offline
  */
@@ -65,7 +65,7 @@ export const applyBooleanCondition = (
     }
 
     let toggle = null;
-    
+
     if (leftValueRef === 'False' && rightValueRef === 'False') {
         toggle = true;
     }
@@ -98,5 +98,5 @@ export const applyBooleanCondition = (
 
     default:
         return componentProps;
-    }  
+    }
 };

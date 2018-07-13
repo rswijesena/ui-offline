@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import Offline from '../js/components/Offline';
+import Offline from '../../js/components/Offline';
 
 describe('Offline component behaviour', () => {
 

@@ -42,9 +42,9 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
 };
 
 /**
- * @param request 
- * @param mapElement 
- * @param state 
+ * @param request
+ * @param mapElement
+ * @param state
  * @param snapshot
  * @param tenantId
  */
@@ -130,7 +130,6 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                                         snapshot,
                                         value,
                                     );
-                                    
                                 } else {
                                     const errorMsg = `${component.developerName} has an unsupported page condition`;
 
@@ -157,7 +156,6 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
 
             let selectedValue = null;
             let sourceValue = null;
-
 
             if (component.valueElementValueBindingReferenceId) {
                 selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);

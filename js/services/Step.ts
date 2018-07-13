@@ -11,7 +11,7 @@ interface IMapElement {
 const Step = {
 
     /**
-     * @param mapElement 
+     * @param mapElement
      */
     generate(mapElement: IMapElement) {
         const containerId = '09c5cb4f-3e7e-4f76-98a7-f6287a33043f';

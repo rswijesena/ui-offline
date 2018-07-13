@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GoOnline from '../js/components/GoOnline';
+import GoOnline from '../../js/components/GoOnline';
 
 describe('GoOnline component behaviour', () => {
 

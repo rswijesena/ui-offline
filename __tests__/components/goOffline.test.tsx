@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GoOffline from '../js/components/GoOffline';
+import GoOffline from '../../js/components/GoOffline';
 
 describe('GoOffline component behaviour', () => {
 

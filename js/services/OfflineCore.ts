@@ -84,7 +84,7 @@ const OfflineCore = {
 
     /**
      * Returns an object data request object during initilisation,
-     * based on the generated metadata properties 
+     * based on the generated metadata properties
      * @param request
      */
     getObjectDataRequest(request: any) {
@@ -105,11 +105,11 @@ const OfflineCore = {
             token: null,
             listFilter: request.listFilter || {},
         };
-    
+
         objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
-    
+
         const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
-    
+
         objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
         objectDataRequest.objectDataType = {
             typeElementId: typeElement.id,
@@ -120,7 +120,7 @@ const OfflineCore = {
                 };
             }),
         };
-    
+
         return objectDataRequest;
     },
 
@@ -133,19 +133,19 @@ const OfflineCore = {
         const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
         const iterations = Math.ceil(request.listFilter.limit / pageSize);
         const pages = [];
-    
+
         for (let i = 0; i < iterations; i += 1) {
             const page = clone(request);
             page.listFilter.limit = pageSize;
             page.listFilter.offset = i * pageSize;
             pages.push(page);
         }
-    
+
         return pages;
     },
 
     /**
-     * Invoking the flow once the user has come back online 
+     * Invoking the flow once the user has come back online
      * @param flowKey
      */
     rejoin(flowKey: string) {
@@ -258,7 +258,7 @@ const OfflineCore = {
                         {
                             invokeType: 'JOIN',
                             currentMapElementId: flow.state.currentMapElementId,
-                        }, 
+                        },
                         flow,
                         context,
                     );
@@ -347,7 +347,6 @@ const OfflineCore = {
             nextMapElement = mapElement;
             break;
         }
-        
 
         const snapshot: any = Snapshot(metaData);
         let pageResponse = null;
@@ -391,11 +390,11 @@ const OfflineCore = {
             };
         }
 
-        if (nextMapElement.outcomes && !pageResponse) { 
+        if (nextMapElement.outcomes && !pageResponse) {
             return setOfflineData(flow)
                 .then(() => {
                     return OfflineCore.getResponse(
-                        context,null, null,
+                        context, null, null,
                         {
                             currentMapElementId: nextMapElement.id,
                             mapElementInvokeRequest: {
@@ -403,8 +402,8 @@ const OfflineCore = {
                             },
                             invokeType: 'FORWARD',
                             stateId: request.stateId,
-                        }, 
-                        request.tenantId, 
+                        },
+                        request.tenantId,
                         request.stateId,
                     );
                 });

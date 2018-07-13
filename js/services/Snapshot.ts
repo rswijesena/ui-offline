@@ -3,16 +3,16 @@ import { clone } from '../services/Utils';
 declare var manywho: any;
 
 /**
- * Helper functions for extracting values 
- * from the generated flow metatdata 
- * @param meta 
+ * Helper functions for extracting values
+ * from the generated flow metatdata
+ * @param meta
  */
 const Snapshot = (meta: any) => {
 
     /**
-     * @param id 
-     * @param developerName 
-     * @param contentType 
+     * @param id
+     * @param developerName
+     * @param contentType
      */
     const createValue = (id: string, developerName: string, contentType: string) => {
         return {
@@ -40,7 +40,7 @@ const Snapshot = (meta: any) => {
      */
     const getSystemValue = (id: string) => {
         let valueElement = null;
-    
+
         if (manywho.utils.isEqual('03DC41DD-1C6B-4B33-BF61-CBD1D0778FFF', id, true)) {
             // This is a $User reference
             valueElement = createValue('03DC41DD-1C6B-4B33-BF61-CBD1D0778FFF', '$User', manywho.component.contentTypes.object);
@@ -144,7 +144,7 @@ const Snapshot = (meta: any) => {
     /**
      * Returna copy of a value found in the generated metadata
      * or a system value
-     * @param id 
+     * @param id
      */
     const getValue = (id: any) => {
         let value = getSystemValue(id.id);
@@ -160,7 +160,7 @@ const Snapshot = (meta: any) => {
     };
 
     /**
-     * @param id 
+     * @param id
      */
     const getContentTypeForValue = (id: any) => {
         let value = getSystemValue(id.id);
@@ -178,7 +178,7 @@ const Snapshot = (meta: any) => {
     };
 
     /**
-     * @param id 
+     * @param id
      */
     const getNavigationElementReferences = (id: string) => {
         if (meta.navigationElements) {

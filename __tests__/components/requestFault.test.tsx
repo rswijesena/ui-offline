@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import RequestFault from '../js/components/RequestFault';
+import RequestFault from '../../js/components/RequestFault';
 
 describe('RequestFault component behaviour', () => {
 

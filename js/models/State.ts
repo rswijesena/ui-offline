@@ -10,7 +10,7 @@ let values = null;
 
 /**
  * Returns an object referencing the current state
- * @param state 
+ * @param state
  */
 export const StateInit = (state: IState) => {
     currentMapElementId = state.currentMapElementId;
@@ -27,10 +27,10 @@ export const StateInit = (state: IState) => {
 };
 
 /**
- * @param id 
- * @param typeElementId 
- * @param contentType 
- * @param command 
+ * @param id
+ * @param typeElementId
+ * @param contentType
+ * @param command
  */
 export const getStateValue = (id: any, typeElementId: string, contentType: any, command: string) => {
     if (values[id.id]) {
@@ -69,10 +69,10 @@ export const getStateValue = (id: any, typeElementId: string, contentType: any, 
 };
 
 /**
- * @param id 
- * @param typeElementId 
- * @param snapshot 
- * @param value 
+ * @param id
+ * @param typeElementId
+ * @param snapshot
+ * @param value
  */
 export const setStateValue = (id: any, typeElementId: string, snapshot: any, value: any) => {
     if (id.typeElementPropertyId) {
@@ -100,9 +100,9 @@ export const setStateValue = (id: any, typeElementId: string, snapshot: any, val
 
 /**
  * Update multiple values in the state from a collection of `PageComponentInputResponses`
- * @param inputs 
- * @param mapElement 
- * @param snapshot 
+ * @param inputs
+ * @param mapElement
+ * @param snapshot
  */
 export const StateUpdate = (inputs: any[], mapElement: any, snapshot: any) => {
     inputs.forEach((input) => {
