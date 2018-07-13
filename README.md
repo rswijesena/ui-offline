@@ -1,5 +1,6 @@
 # Boomi Flow UI Offline
 
+<<<<<<< HEAD
 Services and components used by the [Boomi Flow](https://boomi.com/flow) UI framework to support running flows offline.
 
 ## How it Works
@@ -29,6 +30,9 @@ By default 250 records from each data load will be cached on the client. This is
 
 By default cached data will be stored using the IndexedDB mechnaism, with a fallback to WebSQL. More information on these when
 running in a cordova environment can be found here: https://cordova.apache.org/docs/en/latest/cordova/storage/storage.html
+=======
+Services and components used by the [Boomi Flow](https://boomi.com/platform/flow/) UI framework to support running flows offline.
+>>>>>>> feature/CORE-4441
 
 ## Usage
 
@@ -71,6 +75,14 @@ To include the offline components you will need to add the following references 
 ```
 <script src="build/js/metadata.js"></script>
 <script src="build/js/ui-offline.js"></script>
+```
+
+### Running Unit Tests
+
+This project uses the [Jest](https://jestjs.io/) and [Enzyme](https://github.com/airbnb/enzyme) testing libraries. Run the tests with the following:
+
+```
+npm run test
 ```
 
 ## Contributing
