@@ -112,17 +112,32 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                         component['hasEvents'] = false;
                     }
 
-                    if (hasCondition !== undefined && request.invokeType === 'SYNC') {
+                    if (hasCondition !== undefined) {
                         if (pageCondition.pageRules.length === 1) {
-                            const booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
-                            const booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
-                                component => component.pageComponentId === booleanComponent,
-                            ).contentValue;
+
+                            let booleanComponentValue = null;
+                            let booleanComponent = null;
+
+                            if (request.invokeType === 'SYNC') {
+                                booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
+                                booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
+                                    component => component.pageComponentId === booleanComponent,
+                                ).contentValue;
+                            } else {
+                                // This is for handling when the user has gone into offline
+                                // mode before hitting the page. We have no idea what the pageComponentInputResponses
+                                // are so have to extract the value id from the metatdata in our snapshot
+                                booleanComponent = pageCondition.pageRules[0].left.valueElementToReferenceId.id;
+                                booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
+                            }
 
                             try {
                                 if (
                                     typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
-                                    booleanComponentValue === 'false' // Engine returns false as a string...
+                                    booleanComponentValue === 'False' ||
+                                    booleanComponentValue === 'false' ||
+                                    booleanComponentValue === 'true' ||
+                                    booleanComponentValue === 'True'
                                 ) {
                                     value = applyBooleanCondition(
                                         pageCondition,

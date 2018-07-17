@@ -57,10 +57,10 @@ export const applyBooleanCondition = (
 
     // Sometimes the engine sets boolean content values as strings
     // so to be safe we will always transform to a string
-    if (booleanComponentValue === true || booleanComponentValue === 'true') {
+    if (booleanComponentValue === true || booleanComponentValue === 'true' || booleanComponentValue === 'True') {
         leftValueRef = 'True';
     }
-    if (booleanComponentValue === false || booleanComponentValue === 'false') {
+    if (booleanComponentValue === false || booleanComponentValue === 'false' || booleanComponentValue === 'False') {
         leftValueRef = 'False';
     }
 
