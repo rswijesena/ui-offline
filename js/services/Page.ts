@@ -1,6 +1,6 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
-import { applyBooleanCondition, checkForCondition, checkForEvents } from './PageConditions';
+import PageConditions from './PageConditions';
 
 declare const manywho: any;
 
@@ -48,7 +48,7 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
  * @param snapshot
  * @param tenantId
  */
-export const generatePage = (request: any, mapElement: any, state: IState, snapshot: any, tenantId: String) => {
+export const generatePage = function (request: any, mapElement: any, state: IState, snapshot: any, tenantId: String) {
     const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
     const flowKey = manywho.utils.getFlowKey(
@@ -90,13 +90,13 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                 pageElement.pageConditions.forEach((pageCondition) => {
 
                     // Check component is listening for page condition
-                    const hasCondition = checkForCondition(
+                    const hasCondition = PageConditions.checkForCondition(
                         pageCondition.pageOperations,
                         component.id,
                     );
 
                     // Check component triggers a page condition
-                    const hasEvents = checkForEvents(
+                    const hasEvents = PageConditions.checkForEvents(
                         pageCondition.pageRules,
                         component.id,
                     );
@@ -126,7 +126,7 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                             } else {
                                 // This is for handling when the user has gone into offline
                                 // mode before hitting the page. We have no idea what the pageComponentInputResponses
-                                // are so have to extract the value id from the metatdata in our snapshot
+                                // are so have to extract the value id from the metadata in our snapshot
                                 booleanComponent = pageCondition.pageRules[0].left.valueElementToReferenceId.id;
                                 booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
                             }
@@ -139,7 +139,7 @@ export const generatePage = (request: any, mapElement: any, state: IState, snaps
                                     booleanComponentValue === 'true' ||
                                     booleanComponentValue === 'True'
                                 ) {
-                                    value = applyBooleanCondition(
+                                    value = PageConditions.applyBooleanCondition(
                                         pageCondition,
                                         booleanComponentValue,
                                         snapshot,

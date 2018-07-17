@@ -58,7 +58,7 @@
         "yargs": "^2.3.0"
     },
     "jest": {
-        "collectCoverage": true,
+        "collectCoverage": false,
         "collectCoverageFrom": [
             "**/js/components/*.{ts,tsx}",
             "**/js/services/*.{ts,tsx}",

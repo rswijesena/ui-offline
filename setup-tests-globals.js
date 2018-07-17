@@ -11,6 +11,11 @@ window.localforage = {
         return new Promise((resolve, reject) => {
             resolve(true);
         });
+    }),
+    setItem: jest.fn(() => {
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        });
     })
 }
 
@@ -22,12 +27,18 @@ window.manywho = {
         extractFlowId: jest.fn(),
         extractStateId: jest.fn(),
         extractFlowVersionId: jest.fn(),
-        extractTenantId: jest.fn()
+        extractTenantId: jest.fn(),
+        getFlowKey: jest.fn(),
     },
     state: {
         getAuthenticationToken: jest.fn(),
         getState: jest.fn(() => {
             return {token: ''};
         })
+    },
+    component: {
+        contentTypes: {
+            string: ''
+        }
     }
 } 
