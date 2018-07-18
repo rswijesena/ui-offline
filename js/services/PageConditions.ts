@@ -11,10 +11,17 @@ const PageConditions = {
      * @param componentId
      * @description To check if a component is listening for a page condition to be triggered
      */
-    checkForCondition: (pageOperations, componentId: String) => {
-        return pageOperations.find(
-            operation => operation.assignment.assignee.pageObjectReferenceId === componentId,
-        );
+    checkForCondition: (pageConditions, componentId: String) => {
+        let result = undefined;
+        pageConditions.forEach((pageCondition) => {
+            pageCondition.pageOperations.forEach((operation) => {
+                if (operation.assignment.assignee.pageObjectReferenceId === componentId) {
+                    result = operation;
+                }
+            });
+        });
+
+        return result;
     },
 
     /**
@@ -22,10 +29,17 @@ const PageConditions = {
      * @param componentId
      * @description To check if a component triggers a page condition
      */
-    checkForEvents: (pageRules, componentId: String) => {
-        return pageRules.find(
-            rule => rule.left.pageObjectReferenceId === componentId,
-        );
+    checkForEvents: (pageConditions, componentId: String) => {
+        let result = undefined;
+        pageConditions.forEach((pageCondition) => {
+            pageCondition.pageRules.forEach((pageRule) => {
+                if (pageRule.left.pageObjectReferenceId === componentId) {
+                    result = pageRule;
+                }
+            });
+        });
+
+        return result;
     },
 
     /**

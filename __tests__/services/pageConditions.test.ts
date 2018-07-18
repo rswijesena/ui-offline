@@ -14,7 +14,7 @@ const mockComponentProps = {
 describe('Page conditions expected behaviour', () => {
     test('Checking for a condition will return an operation if found', () => {
         const componentId = 'test';
-        const operations = [
+        const pageOperations = [
             {
                 assignment: {
                     assignee: {
@@ -23,13 +23,13 @@ describe('Page conditions expected behaviour', () => {
                 },
             },
         ];
-        const hasCondition = PageConditions.checkForCondition(operations, componentId);
-        expect(hasCondition).toEqual(operations[0]);
+        const hasCondition = PageConditions.checkForCondition([{ pageOperations }], componentId);
+        expect(hasCondition).toEqual(pageOperations[0]);
     });
     test('Checking for a condition will return undefined if not found', () => {
         const componentId = 'test';
         const pageObjectReferenceId = 'abc123';
-        const operations = [
+        const pageOperations = [
             {
                 assignment: {
                     assignee: {
@@ -38,32 +38,32 @@ describe('Page conditions expected behaviour', () => {
                 },
             },
         ];
-        const hasCondition = PageConditions.checkForCondition(operations, componentId);
+        const hasCondition = PageConditions.checkForCondition([{ pageOperations }], componentId);
         expect(hasCondition).toBeUndefined();
     });
     test('Checking for events will return a page rule if found', () => {
         const componentId = 'test';
-        const rules = [
+        const pageRules = [
             {
                 left: {
                     pageObjectReferenceId: componentId,
                 },
             },
         ];
-        const hasEvent = PageConditions.checkForEvents(rules, componentId);
-        expect(hasEvent).toEqual(rules[0]);
+        const hasEvent = PageConditions.checkForEvents([{ pageRules }], componentId);
+        expect(hasEvent).toEqual(pageRules[0]);
     });
     test('Checking for events will return undefined if not found', () => {
         const componentId = 'test';
         const pageObjectReferenceId = 'abc123';
-        const rules = [
+        const pageRules = [
             {
                 left: {
                     pageObjectReferenceId,
                 },
             },
         ];
-        const hasEvent = PageConditions.checkForEvents(rules, componentId);
+        const hasEvent = PageConditions.checkForEvents([{ pageRules }], componentId);
         expect(hasEvent).toBeUndefined();
     });
     test('Applying a page condition will return component props', () => {

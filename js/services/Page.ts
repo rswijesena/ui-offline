@@ -87,30 +87,31 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             };
 
             if (pageElement.pageConditions) {
+
+                // Check component is listening for page condition
+                const hasCondition = PageConditions.checkForCondition(
+                    pageElement.pageConditions,
+                    component.id,
+                );
+
+                // Check component triggers a page condition
+                const hasEvents = PageConditions.checkForEvents(
+                    pageElement.pageConditions,
+                    component.id,
+                );
+
+                // If a component triggers a page condition
+                // then the components metadata stored in state
+                // needs to have the hasEvents property as a flag
+                // so the ui knows to make a syncronisation call
+                // to the engine.
+                if (hasEvents !== undefined) {
+                    component['hasEvents'] = true;
+                } else {
+                    component['hasEvents'] = false;
+                }
+
                 pageElement.pageConditions.forEach((pageCondition) => {
-
-                    // Check component is listening for page condition
-                    const hasCondition = PageConditions.checkForCondition(
-                        pageCondition.pageOperations,
-                        component.id,
-                    );
-
-                    // Check component triggers a page condition
-                    const hasEvents = PageConditions.checkForEvents(
-                        pageCondition.pageRules,
-                        component.id,
-                    );
-
-                    // If a component triggers a page condition
-                    // then the components metadata stored in state
-                    // needs to have the hasEvents property as a flag
-                    // so the ui knows to make a syncronisation call
-                    // to the engine.
-                    if (hasEvents !== undefined) {
-                        component['hasEvents'] = true;
-                    } else {
-                        component['hasEvents'] = false;
-                    }
 
                     if (hasCondition !== undefined) {
                         if (pageCondition.pageRules.length === 1) {
