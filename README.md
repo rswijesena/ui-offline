@@ -73,6 +73,14 @@ To include the offline components you will need to add the following references 
 <script src="build/js/ui-offline.js"></script>
 ```
 
+### Running Unit Tests
+
+This project uses the [Jest](https://jestjs.io/) and [Enzyme](https://github.com/airbnb/enzyme) testing libraries. Run the tests with the following:
+
+```
+npm run test
+```
+
 ## Contributing
 
 Contributions are welcome to the project - whether they are feature requests, improvements or bug fixes! Refer to 

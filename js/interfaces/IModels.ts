@@ -12,11 +12,9 @@ export interface IFlow {
 
 export interface IState {
     currentMapElementId: string;
-    id: boolean;
+    id: string;
     token: string;
     values: any;
     getValue?: Function;
     setValue?: Function;
 }
-
-

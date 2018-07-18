@@ -12,7 +12,7 @@ let tenantId = null;
 
 /**
  * Returns an object referencing the current flow.
- * @param flow 
+ * @param flow
  */
 
 export const FlowInit = (flow: IFlow) => {
@@ -34,8 +34,8 @@ export const FlowInit = (flow: IFlow) => {
 };
 
 /**
- * @param request 
- * @param snapshot 
+ * @param request
+ * @param snapshot
  */
 export const addRequest = (request: any, snapshot: any) => {
     request.key = requests.length;
@@ -46,7 +46,7 @@ export const addRequest = (request: any, snapshot: any) => {
 };
 
 /**
- * @param request 
+ * @param request
  */
 export const removeRequest = (request: any) => {
     const index = requests.indexOf(request);
@@ -61,15 +61,15 @@ export const removeRequests = () => {
 };
 
 /**
- * @param typeElementId 
+ * @param typeElementId
  */
 export const getObjectData = (typeElementId: string) => {
     return objectData[typeElementId];
 };
 
 /**
- * @param objectData 
- * @param typeElementId 
+ * @param objectData
+ * @param typeElementId
  */
 export const cacheObjectData = (data: any, typeElementId: string) => {
     if (objectData[typeElementId]) {

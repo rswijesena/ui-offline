@@ -30,7 +30,7 @@ export const hasNetwork = () => {
 };
 
 /**
- * Check `isOffline` flag first, if that is false then check via `hasNetwork` 
+ * Check `isOffline` flag first, if that is false then check via `hasNetwork`
  */
 export const isOnline = () => {
     if (OfflineCore.isOffline) {
@@ -135,7 +135,7 @@ export const request = (
 
                 // Device is connected to the internet
                 return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
-            } 
+            }
 
             // Device is not connected to the internet
             return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);

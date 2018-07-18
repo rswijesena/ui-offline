@@ -10,9 +10,9 @@ declare var moment: any;
 const Rules = {
 
     /**
-     * @param outcomes 
-     * @param state 
-     * @param snapshot 
+     * @param outcomes
+     * @param state
+     * @param snapshot
      */
     getOutcome(outcomes: any[], state: IState, snapshot: any) {
         if (!outcomes) {
@@ -37,9 +37,9 @@ const Rules = {
     },
 
     /**
-     * @param comparisons 
-     * @param state 
-     * @param snapshot 
+     * @param comparisons
+     * @param state
+     * @param snapshot
      */
     evaluateComparisons(comparisons: any[], state: IState, snapshot: any[]): boolean {
         let result = false;
@@ -60,10 +60,10 @@ const Rules = {
     },
 
     /**
-     * @param rules 
-     * @param criteriaType 
-     * @param state 
-     * @param snapshot 
+     * @param rules
+     * @param criteriaType
+     * @param state
+     * @param snapshot
      */
     evaluateRules(rules: any[], criteriaType: any, state: IState, snapshot): boolean {
         let result = false;
@@ -88,10 +88,10 @@ const Rules = {
     },
 
     /**
-     * @param left 
-     * @param right 
-     * @param contentType 
-     * @param criteriaType 
+     * @param left
+     * @param right
+     * @param contentType
+     * @param criteriaType
      */
     compareValues(left: any, right: any, contentType: any, criteriaType: string) {
         switch (contentType) {
@@ -109,8 +109,8 @@ const Rules = {
     },
 
     /**
-     * @param value 
-     * @param contentType 
+     * @param value
+     * @param contentType
      */
     getContentValue(value: any, contentType: any) {
         const contentValue = value.defaultContentValue || value.contentValue;
@@ -131,10 +131,10 @@ const Rules = {
     },
 
     /**
-     * @param left 
-     * @param right 
-     * @param criteriaType 
-     * @param contentType 
+     * @param left
+     * @param right
+     * @param criteriaType
+     * @param contentType
      */
     compareContentValues(left: any, right: any, criteriaType: string, contentType: string) {
         switch (criteriaType.toUpperCase()) {
@@ -183,7 +183,7 @@ const Rules = {
     /**
      * TODO: Un-hide the docs for this onces its implemented
      * @hidden
-     * @param criteriaType 
+     * @param criteriaType
      */
     compareObjects(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {
@@ -195,7 +195,7 @@ const Rules = {
     /**
      * TODO: Un-hide the docs for this onces its implemented
      * @hidden
-     * @param criteriaType 
+     * @param criteriaType
      */
     compareLists(criteriaType: string) {
         switch (criteriaType.toUpperCase()) {

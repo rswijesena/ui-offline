@@ -9,14 +9,13 @@ const commands = ['NEW', 'EMPTY', 'SET_EQUAL', 'VALUE_OF', 'GET_FIRST', 'GET_NEX
 /**
  * Determine if an operation command is supported
  * currently subtract and concatenate are not supported
- * 
  * Todo: add support for unsupported commands
  * @param command
  */
 const isCommandSupported = (command: string) => {
     if (manywho.utils.isNullOrWhitespace(command) || commands.indexOf(command) !== -1) {
         return true;
-    }  
+    }
     manywho.log.info('The Operation command is not supported and this operation will be ignored: ' + command);
     return false;
 };
