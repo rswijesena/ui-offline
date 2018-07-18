@@ -234,7 +234,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
             }
 
-            return Object.assign(value, component, { attributes: component.attributes || {} });
+            return Object.assign(component, value, { attributes: component.attributes || {} });
         });
     }
 
