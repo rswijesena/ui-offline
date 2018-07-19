@@ -16,7 +16,7 @@ const PageConditions = {
         pageConditions.forEach((pageCondition) => {
             pageCondition.pageOperations.forEach((operation) => {
                 if (operation.assignment.assignee.pageObjectReferenceId === componentId) {
-                    result = operation;
+                    result = pageCondition;
                 }
             });
         });

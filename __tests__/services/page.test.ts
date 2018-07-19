@@ -1,3 +1,9 @@
+jest.mock('../../js/models/State', () => ({
+    getStateValue: jest.fn(() => {
+        return { contentValue: 'True' };
+    }),
+}));
+
 import { generatePage } from '../../js/services/Page';
 import PageConditions from '../../js/services/PageConditions';
 
@@ -43,6 +49,9 @@ const mockSnapshot = {
                             {
                                 left: {
                                     pageObjectReferenceId: 'test',
+                                    valueElementToReferenceId: {
+                                        id: 'test',
+                                    },
                                 },
                                 right: {
                                     valueElementToReferenceId: 'test',

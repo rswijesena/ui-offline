@@ -78,7 +78,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             let value: any = {
                 isVisible: true,
                 isEnabled: true,
-                isRequired: true,
+                isRequired: component.isRequired,
                 pageComponentId: component.id,
                 contentValue: null,
                 objectData: null,
@@ -111,62 +111,74 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     component['hasEvents'] = false;
                 }
 
-                pageElement.pageConditions.forEach((pageCondition) => {
+                if (hasCondition !== undefined) {
+                    if (hasCondition.pageRules.length === 1) {
 
-                    if (hasCondition !== undefined) {
-                        if (pageCondition.pageRules.length === 1) {
+                        let booleanComponentValue = null;
+                        let booleanComponent = null;
 
-                            let booleanComponentValue = null;
-                            let booleanComponent = null;
+                        if (request.invokeType === 'SYNC') {
+                            booleanComponent = hasCondition.pageRules[0].left.pageObjectReferenceId;
 
-                            if (request.invokeType === 'SYNC') {
-                                booleanComponent = pageCondition.pageRules[0].left.pageObjectReferenceId;
-                                booleanComponentValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
-                                    component => component.pageComponentId === booleanComponent,
-                                ).contentValue;
+                            // Get the values content value from state
+                            booleanComponentValue = getStateValue(
+                                { id: hasCondition.pageRules[0].left.valueElementToReferenceId.id },
+                                null,
+                                'Boolean',
+                                '',
+                            ).contentValue;
+
+                            // However, the pageComponentInputResponses may
+                            // contain a null content value for the value we want,
+                            // in which case we will need to extract the
+                            // default content value from our snapshot
+                            if (booleanComponentValue === null) {
+                                booleanComponentValue = snapshot.getValue(
+                                    { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
+                                ).defaultContentValue;
+                            }
+                        } else {
+                            // This is for handling when the user has gone into offline
+                            // mode before hitting the page. We have no idea what the pageComponentInputResponses
+                            // are so have to extract the value id from the metadata in our snapshot
+                            booleanComponent = hasCondition.pageRules[0].left.valueElementToReferenceId.id;
+                            booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
+                        }
+
+                        try {
+                            if (
+                                typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
+                                booleanComponentValue === 'False' ||
+                                booleanComponentValue === 'false' ||
+                                booleanComponentValue === 'true' ||
+                                booleanComponentValue === 'True'
+                            ) {
+                                value = PageConditions.applyBooleanCondition(
+                                    hasCondition,
+                                    booleanComponentValue,
+                                    snapshot,
+                                    value,
+                                );
                             } else {
-                                // This is for handling when the user has gone into offline
-                                // mode before hitting the page. We have no idea what the pageComponentInputResponses
-                                // are so have to extract the value id from the metadata in our snapshot
-                                booleanComponent = pageCondition.pageRules[0].left.valueElementToReferenceId.id;
-                                booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
-                            }
+                                const errorMsg = `${component.developerName} has an unsupported page condition`;
 
-                            try {
-                                if (
-                                    typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
-                                    booleanComponentValue === 'False' ||
-                                    booleanComponentValue === 'false' ||
-                                    booleanComponentValue === 'true' ||
-                                    booleanComponentValue === 'True'
-                                ) {
-                                    value = PageConditions.applyBooleanCondition(
-                                        pageCondition,
-                                        booleanComponentValue,
-                                        snapshot,
-                                        value,
-                                    );
-                                } else {
-                                    const errorMsg = `${component.developerName} has an unsupported page condition`;
-
-                                    console.error(errorMsg);
-                                    if (manywho.settings.isDebugEnabled(flowKey)) {
-                                        throw new Error(errorMsg);
-                                    }
+                                console.error(errorMsg);
+                                if (manywho.settings.isDebugEnabled(flowKey)) {
+                                    throw new Error(errorMsg);
                                 }
-
-                            } catch (error) {
-                                manywho.model.addNotification(flowKey, {
-                                    message: error.message,
-                                    position: 'center',
-                                    type: 'warning',
-                                    timeout: 0,
-                                    dismissible: true,
-                                });
                             }
+
+                        } catch (error) {
+                            manywho.model.addNotification(flowKey, {
+                                message: error.message,
+                                position: 'center',
+                                type: 'warning',
+                                timeout: 0,
+                                dismissible: true,
+                            });
                         }
                     }
-                });
+                }
 
             }
 

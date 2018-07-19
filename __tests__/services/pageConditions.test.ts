@@ -12,7 +12,7 @@ const mockComponentProps = {
 };
 
 describe('Page conditions expected behaviour', () => {
-    test('Checking for a condition will return an operation if found', () => {
+    test('Checking for a condition will return a page condition if found', () => {
         const componentId = 'test';
         const pageOperations = [
             {
@@ -24,7 +24,7 @@ describe('Page conditions expected behaviour', () => {
             },
         ];
         const hasCondition = PageConditions.checkForCondition([{ pageOperations }], componentId);
-        expect(hasCondition).toEqual(pageOperations[0]);
+        expect(hasCondition).toEqual({ pageOperations: [pageOperations[0]] });
     });
     test('Checking for a condition will return undefined if not found', () => {
         const componentId = 'test';
