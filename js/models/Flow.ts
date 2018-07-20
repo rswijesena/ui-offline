@@ -68,13 +68,14 @@ export const getObjectData = (typeElementId: string) => {
 };
 
 /**
- * @param objectData
+ * @param data
  * @param typeElementId
  */
 export const cacheObjectData = (data: any, typeElementId: string) => {
     if (objectData[typeElementId]) {
-        objectData[typeElementId] = objectData[typeElementId].concat(objectData);
+        objectData[typeElementId] = objectData[typeElementId].concat(data);
     } else {
         objectData[typeElementId] = data;
     }
+    return objectData;
 };
