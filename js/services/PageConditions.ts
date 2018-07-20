@@ -43,6 +43,13 @@ const PageConditions = {
     },
 
     /**
+     * @description Handling scalar page conditions whilst offline
+     */
+    applyScalarCondition: () => {
+        return;
+    },
+
+    /**
      * @param pageCondition A single page conditions metadata
      * @param booleanComponentValue The value ID of the component that triggers the condition
      * @param snapshot

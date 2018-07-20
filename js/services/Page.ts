@@ -114,14 +114,14 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 if (hasCondition !== undefined) {
                     if (hasCondition.pageRules.length === 1) {
 
-                        let booleanComponentValue = null;
-                        let booleanComponent = null;
+                        let triggerComponentValue = null;
+                        let triggerComponent = null;
 
                         if (request.invokeType === 'SYNC') {
-                            booleanComponent = hasCondition.pageRules[0].left.pageObjectReferenceId;
+                            triggerComponent = hasCondition.pageRules[0].left.pageObjectReferenceId;
 
                             // Get the values content value from state
-                            booleanComponentValue = getStateValue(
+                            triggerComponentValue = getStateValue(
                                 { id: hasCondition.pageRules[0].left.valueElementToReferenceId.id },
                                 null,
                                 'Boolean',
@@ -132,8 +132,8 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                             // contain a null content value for the value we want,
                             // in which case we will need to extract the
                             // default content value from our snapshot
-                            if (booleanComponentValue === null) {
-                                booleanComponentValue = snapshot.getValue(
+                            if (triggerComponentValue === null) {
+                                triggerComponentValue = snapshot.getValue(
                                     { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
                                 ).defaultContentValue;
                             }
@@ -141,24 +141,39 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                             // This is for handling when the user has gone into offline
                             // mode before hitting the page. We have no idea what the pageComponentInputResponses
                             // are so have to extract the value id from the metadata in our snapshot
-                            booleanComponent = hasCondition.pageRules[0].left.valueElementToReferenceId.id;
-                            booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
+                            triggerComponentValue = snapshot.getValue(
+                                { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
+                            ).defaultContentValue;
                         }
 
                         try {
+
+                            // Handling boolean page conditions
                             if (
-                                typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
-                                booleanComponentValue === 'False' ||
-                                booleanComponentValue === 'false' ||
-                                booleanComponentValue === 'true' ||
-                                booleanComponentValue === 'True'
+                                typeof(triggerComponentValue) === 'boolean' ||
+                                triggerComponentValue === 'False' ||
+                                triggerComponentValue === 'false' ||
+                                triggerComponentValue === 'true' ||
+                                triggerComponentValue === 'True'
                             ) {
                                 value = PageConditions.applyBooleanCondition(
                                     hasCondition,
-                                    booleanComponentValue,
+                                    triggerComponentValue,
                                     snapshot,
                                     value,
                                 );
+
+                            // Handling scalar page conditions
+                            } else if (
+                                typeof(triggerComponentValue) === 'string' ||
+                                typeof(triggerComponentValue) === 'number'
+                            ) {
+                                value = PageConditions.applyScalarCondition();
+
+                            // We will for now assume that any other content value type
+                            // represents a more complex page condition
+                            // TODO - perform further checks on page condition metadata
+                            // to determine if is more advanced
                             } else {
                                 const errorMsg = `${component.developerName} has an unsupported page condition`;
 
