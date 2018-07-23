@@ -4,6 +4,12 @@ const METADATA_TYPES = {
     enabled: 'METADATA.ENABLED',
 };
 
+const CRITERIA = {
+    isEmpty: 'IS_EMPTY',
+    isEqual: 'EQUAL',
+    isNotEqual: 'NOT_EQUAL',
+};
+
 const PageConditions = {
 
     /**
@@ -45,8 +51,78 @@ const PageConditions = {
     /**
      * @description Handling scalar page conditions whilst offline
      */
-    applyScalarCondition: () => {
-        return;
+    applyScalarCondition: (
+        pageCondition: any,
+        leftValueReference: (String|Number),
+        rightValueReference: (String|Number),
+        componentProps: any,
+    ) => {
+
+        const newProps = {
+            isVisible: componentProps.isVisible,
+            isRequired: componentProps.isRequired,
+            isEnabled: componentProps.isEnabled,
+        };
+
+        const metaDataType = pageCondition.pageOperations[0].assignment.assignee.metadataType;
+        const criteria = pageCondition.pageRules[0].criteriaType;
+        let toggle = null;
+
+        switch (criteria) {
+
+        case CRITERIA.isEmpty:
+            if (rightValueReference === 'False') {
+                if (!leftValueReference) {
+                    toggle = true;
+                } else {
+                    toggle = false;
+                }
+                break;
+            }
+
+            if (rightValueReference === 'True') {
+                if (leftValueReference) {
+                    toggle = true;
+                } else {
+                    toggle = false;
+                }
+                break;
+            }
+
+        case CRITERIA.isEqual:
+            if (leftValueReference === rightValueReference) {
+                toggle = true;
+            } else {
+                toggle = false;
+            }
+            break;
+
+        case CRITERIA.isNotEqual:
+            if (leftValueReference !== rightValueReference) {
+                toggle = true;
+            } else {
+                toggle = false;
+            }
+            break;
+        }
+
+        switch (metaDataType) {
+
+        case METADATA_TYPES.visible:
+            newProps.isVisible = toggle;
+            return Object.assign(componentProps, newProps);
+
+        case METADATA_TYPES.required:
+            newProps.isRequired = toggle;
+            return Object.assign(componentProps, newProps);
+
+        case METADATA_TYPES.enabled:
+            newProps.isEnabled = toggle;
+            return Object.assign(componentProps, newProps);
+
+        default:
+            return componentProps;
+        }
     },
 
     /**

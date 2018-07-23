@@ -89,7 +89,8 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             if (pageElement.pageConditions) {
 
                 // Check component is listening for page condition
-                const hasCondition = PageConditions.checkForCondition(
+                // and return the page condition metadata if exists
+                const assocCondition = PageConditions.checkForCondition(
                     pageElement.pageConditions,
                     component.id,
                 );
@@ -111,64 +112,104 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     component['hasEvents'] = false;
                 }
 
-                if (hasCondition !== undefined) {
-                    if (hasCondition.pageRules.length === 1) {
+                if (assocCondition !== undefined) {
 
-                        let triggerComponentValue = null;
-                        let triggerComponent = null;
+                    // This is the value associated to the component that
+                    // triggers the page condition
+                    const leftValueElementToReference = assocCondition.pageRules[0].left.valueElementToReferenceId;
+
+                    // This is the value that is used for checking equality
+                    // against the current value of the trigger component
+                    // (so when a scalar page condition is performed)
+                    const rightValueElementToReference = assocCondition.pageRules[0].right.valueElementToReferenceId;
+                    const leftpageObjectReferenceId = assocCondition.pageRules[0].left.pageObjectReferenceId;
+
+                    let leftValueElementContentValue = null;
+                    let rightValueElementContentValue = null;
+                    let leftpageObjectReferenceValue = null;
+
+                    if (assocCondition.pageRules.length === 1) {
 
                         if (request.invokeType === 'SYNC') {
-                            triggerComponent = hasCondition.pageRules[0].left.pageObjectReferenceId;
 
                             // Get the values content value from state
-                            triggerComponentValue = getStateValue(
-                                { id: hasCondition.pageRules[0].left.valueElementToReferenceId.id },
+                            leftValueElementContentValue = leftValueElementToReference ? getStateValue(
+                                { id: leftValueElementToReference.id },
                                 null,
                                 'Boolean',
                                 '',
-                            ).contentValue;
+                            ).contentValue
+                            : null;
 
                             // However, the pageComponentInputResponses may
                             // contain a null content value for the value we want,
                             // in which case we will need to extract the
                             // default content value from our snapshot
-                            if (triggerComponentValue === null) {
-                                triggerComponentValue = snapshot.getValue(
-                                    { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
-                                ).defaultContentValue;
+                            if (leftValueElementContentValue === null) {
+                                leftValueElementContentValue = leftValueElementToReference ? snapshot.getValue(
+                                    { id: leftValueElementToReference.id },
+                                ).defaultContentValue
+                                : null;
                             }
+
+                            rightValueElementContentValue = rightValueElementToReference ? snapshot.getValue(
+                                { id: rightValueElementToReference.id },
+                            ).defaultContentValue
+                            : null;
+
+                            leftpageObjectReferenceValue = request.mapElementInvokeRequest.pageRequest.pageComponentInputResponses.find(
+                                component => component.pageComponentId === leftpageObjectReferenceId,
+                            ).contentValue;
                         } else {
+
                             // This is for handling when the user has gone into offline
                             // mode before hitting the page. We have no idea what the pageComponentInputResponses
                             // are so have to extract the value id from the metadata in our snapshot
-                            triggerComponentValue = snapshot.getValue(
-                                { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
-                            ).defaultContentValue;
+                            leftValueElementContentValue = leftValueElementToReference ? snapshot.getValue(
+                                { id: leftValueElementToReference.id },
+                            ).defaultContentValue
+                            : null;
+
+                            rightValueElementContentValue = rightValueElementToReference ? snapshot.getValue(
+                                { id: rightValueElementToReference.id },
+                            ).defaultContentValue
+                            : null;
+
+                            const extractComponentValue = pageElement.pageComponents.find(
+                                component => component.id === leftpageObjectReferenceId,
+                            ).valueElementValueBindingReferenceId.id;
+                            leftpageObjectReferenceValue = snapshot.getValue({ id: extractComponentValue });
                         }
 
                         try {
 
                             // Handling boolean page conditions
                             if (
-                                typeof(triggerComponentValue) === 'boolean' ||
-                                triggerComponentValue === 'False' ||
-                                triggerComponentValue === 'false' ||
-                                triggerComponentValue === 'true' ||
-                                triggerComponentValue === 'True'
+                                typeof(leftValueElementContentValue) === 'boolean' ||
+                                leftValueElementContentValue === 'False' ||
+                                leftValueElementContentValue === 'false' ||
+                                leftValueElementContentValue === 'true' ||
+                                leftValueElementContentValue === 'True'
                             ) {
                                 value = PageConditions.applyBooleanCondition(
-                                    hasCondition,
-                                    triggerComponentValue,
+                                    assocCondition,
+                                    leftValueElementContentValue,
                                     snapshot,
                                     value,
                                 );
 
                             // Handling scalar page conditions
                             } else if (
-                                typeof(triggerComponentValue) === 'string' ||
-                                typeof(triggerComponentValue) === 'number'
+                                typeof(rightValueElementContentValue) === 'string' ||
+                                typeof(rightValueElementContentValue) === 'number'
                             ) {
-                                value = PageConditions.applyScalarCondition();
+
+                                value = PageConditions.applyScalarCondition(
+                                    assocCondition,
+                                    leftpageObjectReferenceValue,
+                                    rightValueElementContentValue,
+                                    value,
+                                );
 
                             // We will for now assume that any other content value type
                             // represents a more complex page condition
