@@ -1,3 +1,5 @@
+import { getStateValue, setStateValue } from '../models/State';
+
 const METADATA_TYPES = {
     visible: 'METADATA.VISIBLE',
     required: 'METADATA.REQUIRED',
@@ -10,14 +12,14 @@ const CRITERIA = {
     isNotEqual: 'NOT_EQUAL',
 };
 
-const PageConditions = {
+export default (() => {
 
     /**
      * @param pageOperations An array of page operation objects for a particular condition
      * @param componentId
      * @description To check if a component is listening for a page condition to be triggered
      */
-    checkForCondition: (pageConditions, componentId: String) => {
+    const checkForCondition = (pageConditions, componentId: String) => {
         let result = undefined;
         pageConditions.forEach((pageCondition) => {
             pageCondition.pageOperations.forEach((operation) => {
@@ -28,14 +30,14 @@ const PageConditions = {
         });
 
         return result;
-    },
+    };
 
     /**
      * @param pageRules An array of rule objects for a particular condition
      * @param componentId
      * @description To check if a component triggers a page condition
      */
-    checkForEvents: (pageConditions, componentId: String) => {
+    const checkForEvents = (pageConditions, componentId: String) => {
         let result = undefined;
         pageConditions.forEach((pageCondition) => {
             pageCondition.pageRules.forEach((pageRule) => {
@@ -46,16 +48,207 @@ const PageConditions = {
         });
 
         return result;
-    },
+    };
 
     /**
+     * @param condition Page condition metadata
+     * @param pageElement Page metadata
+     * @param request Request metadata
+     * @param snapshot used to extract stae values
+     * @description Extracting metadata values from a page condition
+     * that get used later when applying page condition logic on the client
+     */
+    const extractPageConditionValues = (
+        condition: any,
+        pageElement: any,
+        request: any,
+        snapshot: any,
+    ) => {
+
+        // This is the value that is used for checking equality
+        // against the current value of the trigger component
+        // (so when a scalar page condition is performed)
+        const rightValueElementToReference =
+        condition
+        .pageRules[0]
+        .right
+        .valueElementToReferenceId;
+
+        // And this is it's content value
+        const rightValueElementContentValue =
+        rightValueElementToReference
+        ? snapshot
+            .getValue(
+                { id: rightValueElementToReference.id },
+            ).defaultContentValue
+        : null;
+
+        // The id of the component that triggers the page condition
+        const leftpageObjectReferenceId = condition
+        .pageRules[0]
+        .left
+        .pageObjectReferenceId;
+
+        // This is the id of the value associated
+        // to the component that triggers the page condition
+        const leftValueElementToReference = pageElement
+        .pageComponents
+        .find(
+            component => component.id === leftpageObjectReferenceId,
+        ).valueElementValueBindingReferenceId;
+
+        const pageOpAssigeeComponent = condition
+        .pageOperations[0]
+        .assignment
+        .assignee
+        .pageObjectReferenceId;
+
+        const pageOpAssigneeValue = pageElement
+        .pageComponents
+        .find(
+            component => component.id === pageOpAssigeeComponent,
+        ).valueElementValueBindingReferenceId;
+
+        // e.g. required, visible etc
+        const metaDataType = condition
+        .pageOperations[0]
+        .assignment
+        .assignee
+        .metadataType;
+
+        // e.g. is equal/not equal etc
+        const criteria = condition.
+        pageRules[0]
+        .criteriaType;
+
+        let leftValueElementContentValue = null;
+        let leftpageObjectReferenceValue = null;
+
+        if (request.invokeType === 'SYNC') {
+
+            // Get the values content value from state
+            leftValueElementContentValue = leftValueElementToReference
+            ? getStateValue(
+                { id: leftValueElementToReference.id },
+                null,
+                'Boolean',
+                '',
+            ).contentValue
+            : null;
+
+            // However, the pageComponentInputResponses may
+            // contain a null content value for the value we want,
+            // in which case we will need to extract the
+            // default content value from our snapshot
+            if (leftValueElementContentValue === null) {
+                leftValueElementContentValue = leftValueElementToReference
+                    ? snapshot
+                        .getValue(
+                            { id: leftValueElementToReference.id },
+                        ).defaultContentValue
+                    : null;
+            }
+
+            // When the flow attempts to sync with the engine i.e.
+            // when the value of a page component changes
+            // to trigger a page conditionthen we want to
+            // extract that changed value from the incomping request
+            leftpageObjectReferenceValue =
+                request
+                .mapElementInvokeRequest
+                .pageRequest
+                .pageComponentInputResponses
+                .find(
+                    component => component.pageComponentId === leftpageObjectReferenceId,
+                ).contentValue;
+
+            /*const currentPageOperationComponentValue =
+                request
+                .mapElementInvokeRequest
+                .pageRequest
+                .pageComponentInputResponses
+                .find(
+                    component => component.pageComponentId === pageOpAssigeeComponent,
+                ).contentValue;*/
+
+            setStateValue(
+                { id: pageOpAssigneeValue },
+                '',
+                null,
+                '',
+            );
+
+            console.log('foo');
+
+        } else {
+
+            // This is for handling when the user has gone into offline
+            // mode before hitting the page. We have no idea what the pageComponentInputResponses
+            // are so have to extract the value id from the metadata in our snapshot
+            leftpageObjectReferenceValue = snapshot.getValue(
+                { id: leftValueElementToReference.id },
+            ).defaultContentValue;
+        }
+
+        return {
+            rightValueElementToReference,
+            leftpageObjectReferenceId,
+            leftValueElementToReference,
+            rightValueElementContentValue,
+            leftpageObjectReferenceValue,
+            leftValueElementContentValue,
+            metaDataType,
+            criteria,
+        };
+    };
+
+    /**
+     * @param newProps // Object with key values that can potentially be changed
+     * @param componentProps // Object decribing all component properties
+     * @param toggle
+     * @param metaDataType // Determines which property gets changed
+     * @description Determine which prop value to update based on metadata type
+     */
+    const updateComponentValue = (
+        newProps: any,
+        componentProps: any,
+        toggle: Boolean,
+        metaDataType: String,
+    ) => {
+
+        switch (metaDataType) {
+
+        case METADATA_TYPES.visible:
+            newProps.isVisible = toggle;
+            return Object.assign(componentProps, newProps);
+
+        case METADATA_TYPES.required:
+            newProps.isRequired = toggle;
+            return Object.assign(componentProps, newProps);
+
+        case METADATA_TYPES.enabled:
+            newProps.isEnabled = toggle;
+            return Object.assign(componentProps, newProps);
+
+        default:
+            return componentProps;
+        }
+    };
+
+    /**
+     * @param leftValueReference
+     * @param rightValueReference
+     * @param componentProps
+     * @param metaDataType
+     * @param criteria
      * @description Handling scalar page conditions whilst offline
      */
-    applyScalarCondition: (
-        pageCondition: any,
+    const applyScalarCondition = (
         leftValueReference: (String|Number),
         rightValueReference: (String|Number),
         componentProps: any,
+        metaDataType: String,
+        criteria: String,
     ) => {
 
         const newProps = {
@@ -64,8 +257,6 @@ const PageConditions = {
             isEnabled: componentProps.isEnabled,
         };
 
-        const metaDataType = pageCondition.pageOperations[0].assignment.assignee.metadataType;
-        const criteria = pageCondition.pageRules[0].criteriaType;
         let toggle = null;
 
         switch (criteria) {
@@ -73,18 +264,18 @@ const PageConditions = {
         case CRITERIA.isEmpty:
             if (rightValueReference === 'False') {
                 if (!leftValueReference) {
-                    toggle = true;
-                } else {
                     toggle = false;
+                } else {
+                    toggle = true;
                 }
                 break;
             }
 
             if (rightValueReference === 'True') {
                 if (leftValueReference) {
-                    toggle = true;
-                } else {
                     toggle = false;
+                } else {
+                    toggle = true;
                 }
                 break;
             }
@@ -106,24 +297,13 @@ const PageConditions = {
             break;
         }
 
-        switch (metaDataType) {
-
-        case METADATA_TYPES.visible:
-            newProps.isVisible = toggle;
-            return Object.assign(componentProps, newProps);
-
-        case METADATA_TYPES.required:
-            newProps.isRequired = toggle;
-            return Object.assign(componentProps, newProps);
-
-        case METADATA_TYPES.enabled:
-            newProps.isEnabled = toggle;
-            return Object.assign(componentProps, newProps);
-
-        default:
-            return componentProps;
-        }
-    },
+        return updateComponentValue(
+            newProps,
+            componentProps,
+            toggle,
+            metaDataType,
+        );
+    };
 
     /**
      * @param pageCondition A single page conditions metadata
@@ -132,11 +312,12 @@ const PageConditions = {
      * @param componentProps An object with some default component properties such as isRequired etc
      * @description Handling simple true/false page conditions whilst offline
      */
-    applyBooleanCondition: (
+    const applyBooleanCondition = (
         pageCondition: any,
         booleanComponentValue: (String|Boolean),
         snapshot: any,
         componentProps: any,
+        metaDataType: String,
     ) => {
 
         const newProps = {
@@ -145,12 +326,15 @@ const PageConditions = {
             isEnabled: componentProps.isEnabled,
         };
 
-        const metaDataType = pageCondition.pageOperations[0].assignment.assignee.metadataType;
-
         // For boolean page conditions, this value will always be a system value
-        const rightValueRef = snapshot.getSystemValue(
-            pageCondition.pageRules[0].right.valueElementToReferenceId.id,
-        ).defaultContentValue;
+        const rightValueRef = snapshot
+            .getSystemValue(
+                pageCondition
+                .pageRules[0]
+                .right
+                .valueElementToReferenceId
+                .id,
+            ).defaultContentValue;
 
         let leftValueRef = booleanComponentValue;
 
@@ -181,24 +365,20 @@ const PageConditions = {
             toggle = false;
         }
 
-        switch (metaDataType) {
+        return updateComponentValue(
+            newProps,
+            componentProps,
+            toggle,
+            metaDataType,
+        );
+    };
 
-        case METADATA_TYPES.visible:
-            newProps.isVisible = toggle;
-            return Object.assign(componentProps, newProps);
-
-        case METADATA_TYPES.required:
-            newProps.isRequired = toggle;
-            return Object.assign(componentProps, newProps);
-
-        case METADATA_TYPES.enabled:
-            newProps.isEnabled = toggle;
-            return Object.assign(componentProps, newProps);
-
-        default:
-            return componentProps;
-        }
-    },
-};
-
-export default PageConditions;
+    return {
+        applyBooleanCondition,
+        applyScalarCondition,
+        updateComponentValue,
+        checkForEvents,
+        checkForCondition,
+        extractPageConditionValues,
+    };
+})();
