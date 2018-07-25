@@ -15,7 +15,7 @@ const CRITERIA = {
 export default (() => {
 
     /**
-     * @param pageOperations An array of page operation objects for a particular condition
+     * @param pageConditions An array of page conditions metadata
      * @param componentId
      * @description To check if a component is listening for a page condition to be triggered
      */
@@ -33,7 +33,7 @@ export default (() => {
     };
 
     /**
-     * @param pageRules An array of rule objects for a particular condition
+     * @param pageConditions An array of page conditions metadata
      * @param componentId
      * @description To check if a component triggers a page condition
      */
@@ -245,7 +245,7 @@ export default (() => {
         }
     };
 
-    /**
+    /**pageOpAssigneeValue
      * @param leftValueReference Value of the component that triggers the condition
      * @param rightValueReference Value that leftValueReference is compared with
      * @param componentProps
