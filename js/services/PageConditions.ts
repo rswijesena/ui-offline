@@ -97,12 +97,15 @@ export default (() => {
             component => component.id === leftpageObjectReferenceId,
         ).valueElementValueBindingReferenceId;
 
+        // Id of the page component that listens for the condition
         const pageOpAssigeeComponent = condition
         .pageOperations[0]
         .assignment
         .assignee
         .pageObjectReferenceId;
 
+        // Value id for the page component
+        // that listens for the condition
         const pageOpAssigneeValue = pageElement
         .pageComponents
         .find(
@@ -162,24 +165,6 @@ export default (() => {
                     component => component.pageComponentId === leftpageObjectReferenceId,
                 ).contentValue;
 
-            /*const currentPageOperationComponentValue =
-                request
-                .mapElementInvokeRequest
-                .pageRequest
-                .pageComponentInputResponses
-                .find(
-                    component => component.pageComponentId === pageOpAssigeeComponent,
-                ).contentValue;*/
-
-            setStateValue(
-                { id: pageOpAssigneeValue },
-                '',
-                null,
-                '',
-            );
-
-            console.log('foo');
-
         } else {
 
             // This is for handling when the user has gone into offline
@@ -199,14 +184,19 @@ export default (() => {
             leftValueElementContentValue,
             metaDataType,
             criteria,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
         };
     };
 
     /**
-     * @param newProps // Object with key values that can potentially be changed
-     * @param componentProps // Object decribing all component properties
+     * @param newProps Object with key values that can potentially be changed
+     * @param componentProps Object decribing all component properties
      * @param toggle
-     * @param metaDataType // Determines which property gets changed
+     * @param metaDataType Determines which property gets changed
+     * @param pageOpAssigeeComponent Id of the component in the page operation
+     * @param pageOpAssigneeValue Id of the component value in the page operation
+     * @param invokeType The type of incoming request from the runtime UI
      * @description Determine which prop value to update based on metadata type
      */
     const updateComponentValue = (
@@ -214,12 +204,32 @@ export default (() => {
         componentProps: any,
         toggle: Boolean,
         metaDataType: String,
+        pageOpAssigeeComponent: String,
+        pageOpAssigneeValue: String,
+        invokeType: String,
     ) => {
 
         switch (metaDataType) {
 
         case METADATA_TYPES.visible:
             newProps.isVisible = toggle;
+
+            // When the page component that is listening for the page
+            // condition has been triggered to become invisible
+            // then it's value needs to be cleared out
+            if (toggle === false && invokeType === 'SYNC') {
+                const values = {
+                    contentValue: '',
+                    objectData: null,
+                    pageComponentId: pageOpAssigeeComponent,
+                };
+                setStateValue(
+                    { id: pageOpAssigneeValue },
+                    '',
+                    null,
+                    values,
+                );
+            }
             return Object.assign(componentProps, newProps);
 
         case METADATA_TYPES.required:
@@ -236,19 +246,25 @@ export default (() => {
     };
 
     /**
-     * @param leftValueReference
-     * @param rightValueReference
+     * @param leftValueReference Value of the component that triggers the condition
+     * @param rightValueReference Value that leftValueReference is compared with
      * @param componentProps
-     * @param metaDataType
-     * @param criteria
+     * @param invokeType The type of incoming request from the runtime UI
+     * @param metaDataType Determines which property gets changed
+     * @param criteria Determines what logic is applied to the condition
+     * @param pageOpAssigeeComponent Id of the component in the page operation
+     * @param pageOpAssigneeValue Object representing the component value in the page operation
      * @description Handling scalar page conditions whilst offline
      */
     const applyScalarCondition = (
         leftValueReference: (String|Number),
         rightValueReference: (String|Number),
         componentProps: any,
+        invokeType: String,
         metaDataType: String,
         criteria: String,
+        pageOpAssigeeComponent: String,
+        pageOpAssigneeValue: any,
     ) => {
 
         const newProps = {
@@ -302,6 +318,9 @@ export default (() => {
             componentProps,
             toggle,
             metaDataType,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue.id,
+            invokeType,
         );
     };
 
@@ -310,6 +329,10 @@ export default (() => {
      * @param booleanComponentValue The value ID of the component that triggers the condition
      * @param snapshot
      * @param componentProps An object with some default component properties such as isRequired etc
+     * @param invokeType The type of incoming request from the runtime UI
+     * @param metaDataType Determines which property gets changed
+     * @param pageOpAssigeeComponent Id of the component in the page operation
+     * @param pageOpAssigneeValue Object representing the component value in the page operation
      * @description Handling simple true/false page conditions whilst offline
      */
     const applyBooleanCondition = (
@@ -317,7 +340,10 @@ export default (() => {
         booleanComponentValue: (String|Boolean),
         snapshot: any,
         componentProps: any,
+        invokeType: String,
         metaDataType: String,
+        pageOpAssigeeComponent: String,
+        pageOpAssigneeValue: any,
     ) => {
 
         const newProps = {
@@ -370,6 +396,9 @@ export default (() => {
             componentProps,
             toggle,
             metaDataType,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue.id,
+            invokeType,
         );
     };
 

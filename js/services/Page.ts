@@ -117,6 +117,9 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 // with one rule to start with
                 if (assocCondition !== undefined && assocCondition.pageRules.length === 1) {
 
+                    // Theres a bunch of component/value ID's and metadata
+                    // that need to be extracted from the page condition metadata/flow snapshot/state,
+                    // we do this here and return everything needed as key value pairs
                     const conditionMeta: any = PageConditions.extractPageConditionValues(
                         assocCondition,
                         pageElement,
@@ -139,7 +142,10 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                                 conditionMeta.leftValueElementContentValue,
                                 snapshot,
                                 value,
+                                request.invokeType,
                                 conditionMeta.metaDataType,
+                                conditionMeta.pageOpAssigeeComponent,
+                                conditionMeta.pageOpAssigneeValue,
                             );
 
                         // Handling scalar page conditions
@@ -152,8 +158,11 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                                 conditionMeta.leftpageObjectReferenceValue,
                                 conditionMeta.rightValueElementContentValue,
                                 value,
+                                request.invokeType,
                                 conditionMeta.metaDataType,
                                 conditionMeta.criteria,
+                                conditionMeta.pageOpAssigeeComponent,
+                                conditionMeta.pageOpAssigneeValue,
                             );
 
                         // We will for now assume that any other content value type
