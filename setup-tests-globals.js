@@ -40,5 +40,8 @@ window.manywho = {
         contentTypes: {
             string: ''
         }
+    },
+    model: {
+        addNotification: jest.fn()
     }
 } 
