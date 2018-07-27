@@ -13,6 +13,9 @@ jest.mock('../../js/services/PageConditions', () => ({
 import { generatePage } from '../../js/services/Page';
 import PageConditions from '../../js/services/PageConditions';
 
+// This is here as @types/jest does not type cast mockReturnValue
+const castPageConditions: any = PageConditions;
+
 const globalAny:any = global;
 
 const mockRequest = {
@@ -133,7 +136,7 @@ describe('Page service expected behaviour', () => {
     test('If a trigger components value is that of a boolean then call boolean page condition function', () => {
         const spy = jest.spyOn(PageConditions, 'applyBooleanCondition');
         const resp = { leftValueElementContentValue: true };
-        PageConditions.extractPageConditionValues.mockReturnValue(resp);
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
         expect(spy).toHaveBeenCalled();
     });
@@ -141,7 +144,7 @@ describe('Page service expected behaviour', () => {
     test('If a comparable value (page rule right) is that of a string then call scalar page condition function', () => {
         const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: 'test' };
-        PageConditions.extractPageConditionValues.mockReturnValue(resp);
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
         expect(spy).toHaveBeenCalled();
     });
@@ -149,7 +152,7 @@ describe('Page service expected behaviour', () => {
     test('If a comparable value (page rule right) is that of a number then call scalar page condition function', () => {
         const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: 10 };
-        PageConditions.extractPageConditionValues.mockReturnValue(resp);
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
         expect(spy).toHaveBeenCalled();
     });
@@ -157,7 +160,7 @@ describe('Page service expected behaviour', () => {
     test('More complex page conditions throw an error', () => {
         const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: [], leftValueElementContentValue: [] };
-        PageConditions.extractPageConditionValues.mockReturnValue(resp);
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId),
         expect(globalAny.window.manywho.model.addNotification).toHaveBeenCalled();
     });
