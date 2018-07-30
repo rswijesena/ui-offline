@@ -215,7 +215,7 @@ const updateComponentValue = (
         // When the page component that is listening for the page
         // condition has been triggered to become invisible
         // then it's value needs to be cleared out
-        if (toggle === false && invokeType === 'SYNC') {
+        if (toggle === false && invokeType === 'SYNC' && pageOpAssigneeValue) {
             const values = {
                 contentValue: '',
                 objectData: null,
