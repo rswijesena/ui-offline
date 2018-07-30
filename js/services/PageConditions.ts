@@ -203,7 +203,7 @@ const updateComponentValue = (
     toggle: Boolean,
     metaDataType: String,
     pageOpAssigeeComponent: String,
-    pageOpAssigneeValue: String,
+    pageOpAssigneeValue: any,
     invokeType: String,
 ) => {
 
@@ -222,7 +222,7 @@ const updateComponentValue = (
                 pageComponentId: pageOpAssigeeComponent,
             };
             setStateValue(
-                { id: pageOpAssigneeValue },
+                { id: pageOpAssigneeValue.id },
                 '',
                 null,
                 values,
@@ -317,7 +317,7 @@ const applyScalarCondition = (
         toggle,
         metaDataType,
         pageOpAssigeeComponent,
-        pageOpAssigneeValue.id,
+        pageOpAssigneeValue,
         invokeType,
     );
 };
@@ -395,7 +395,7 @@ const applyBooleanCondition = (
         toggle,
         metaDataType,
         pageOpAssigeeComponent,
-        pageOpAssigneeValue.id,
+        pageOpAssigneeValue,
         invokeType,
     );
 };
