@@ -241,7 +241,7 @@ describe('Page conditions expected behaviour', () => {
         const criteria = 'IS_EMPTY';
         const invokeType = 'SYNC';
 
-        const result = PageConditions.applyScalarCondition(
+        const result: any = PageConditions.applyScalarCondition(
             leftValue,
             rightValue,
             mockComponentProps,
@@ -280,7 +280,7 @@ describe('Page conditions expected behaviour', () => {
         const criteria = 'IS_EMPTY';
         const invokeType = 'SYNC';
 
-        const result = PageConditions.applyScalarCondition(
+        const result: any = PageConditions.applyScalarCondition(
             leftValue,
             rightValue,
             mockComponentProps,
