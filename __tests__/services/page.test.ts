@@ -1,11 +1,22 @@
-jest.mock('../../js/models/State', () => ({
-    getStateValue: jest.fn(() => {
-        return { contentValue: 'True' };
+jest.mock('../../js/services/PageConditions', () => ({
+    checkForCondition: jest.fn(() => {
+        return { pageRules: ['test'] };
     }),
+    checkForEvents:  jest.fn(() => {
+        return [];
+    }),
+    extractPageConditionValues: jest.fn(),
+    applyScalarCondition: jest.fn(),
+    applyBooleanCondition: jest.fn(),
 }));
 
 import { generatePage } from '../../js/services/Page';
 import PageConditions from '../../js/services/PageConditions';
+
+// This is here as @types/jest does not type cast mockReturnValue
+const castPageConditions: any = PageConditions;
+
+const globalAny:any = global;
 
 const mockRequest = {
     annotations: null,
@@ -112,17 +123,46 @@ describe('Page service expected behaviour', () => {
         const spy = jest.spyOn(PageConditions, 'checkForEvents');
         const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
         expect(spy).toHaveBeenCalled();
-        expect(page.pageResponse.pageComponentDataResponses[0].hasEvents).toBeTruthy();
     });
 
     test('If a page component triggers a page condition then its hasEvents prop must be true', () => {
         const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(page.pageResponse.pageComponentDataResponses[0].hasEvents).toBeTruthy();
+        const pageComponentDataResponses = page.pageResponse.pageComponentDataResponses.filter(
+            response => response.hasEvents === true,
+        );
+        expect(pageComponentDataResponses.length).toEqual(1);
     });
 
-    test('If a page has a boolean page condition that component has correct metadata properties', () => {
-        const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(page.pageResponse.pageComponentDataResponses[0].isVisible).toBeFalsy();
+    test('If a trigger components value is that of a boolean then call boolean page condition function', () => {
+        const spy = jest.spyOn(PageConditions, 'applyBooleanCondition');
+        const resp = { leftValueElementContentValue: true };
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    test('If a comparable value (page rule right) is that of a string then call scalar page condition function', () => {
+        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
+        const resp = { rightValueElementContentValue: 'test' };
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    test('If a comparable value (page rule right) is that of a number then call scalar page condition function', () => {
+        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
+        const resp = { rightValueElementContentValue: 10 };
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    test('More complex page conditions throw an error', () => {
+        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
+        const resp = { rightValueElementContentValue: [], leftValueElementContentValue: [] };
+        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId),
+        expect(globalAny.window.manywho.model.addNotification).toHaveBeenCalled();
     });
 
 });
