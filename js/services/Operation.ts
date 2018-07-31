@@ -1,6 +1,7 @@
 import { getStateValue, setStateValue } from '../models/State';
 import { clone, guid } from '../services/Utils';
 import { IState } from '../interfaces/IModels';
+import Worker from 'worker-loader?publicPath=build/js/&name=worker.js!../../workers/Worker';
 
 declare var manywho: any;
 
@@ -29,6 +30,17 @@ const isCommandSupported = (command: string) => {
  */
 export const executeOperation = (operation: any, state: IState, snapshot: any) => {
     let valueToReference: any = { objectData: null, contentValue: null };
+
+    if (operation.macroElementToExecuteId) {
+        const worker = new Worker();
+
+        worker.postMessage('Test');
+
+        worker.onmessage = (e) => {
+            console.log(e.data + ' has been received');
+            worker.terminate();
+        };
+    }
 
     if (operation.valueElementToReferenceId) {
         if (!isCommandSupported(operation.valueElementToReferenceId.command)) {

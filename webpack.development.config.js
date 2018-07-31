@@ -9,7 +9,7 @@ const config = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                loader: "ts-loader",
                 exclude: /node_modules/
             },
             {
