@@ -1,15 +1,9 @@
 import PageConditions from '../../js/services/PageConditions';
+import { setStateValue } from '../../js/models/State';
 
-const mockComponentProps = {
-    isVisible: true,
-    isEnabled: true,
-    isRequired: true,
-    pageComponentId: 'test',
-    contentValue: null,
-    objectData: null,
-    contentType: 'boolean',
-    isValid: true,
-};
+jest.mock('../../js/models/State', () => ({
+    setStateValue: jest.fn(),
+}));
 
 describe('Page conditions expected behaviour', () => {
     test('Checking for a condition will return a page condition if found', () => {
@@ -66,118 +60,258 @@ describe('Page conditions expected behaviour', () => {
         const hasEvent = PageConditions.checkForEvents([{ pageRules }], componentId);
         expect(hasEvent).toBeUndefined();
     });
-    test('Applying a page condition will return component props', () => {
-        const pageCondition = {
-            pageRules: [
-                {
-                    left: {
-                        pageObjectReferenceId: 'test',
-                    },
-                    right: {
-                        valueElementToReferenceId: {
-                            id: 'test',
-                        },
-                    },
-                },
-            ],
-            pageOperations: [
-                {
-                    assignment: {
-                        assignee: {
-                            pageObjectReferenceId: 'test',
-                            metadataType: 'METADATA.VISIBLE',
-                        },
-                    },
-                },
-            ],
+    test('isEnabled component value gets modified', () => {
+
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
         };
 
-        const snapshot = {
-            getSystemValue: jest.fn(() => {
-                return { defaultContentValue: 'True' };
-            }),
+        const newProps = {
+            isVisible: mockComponentProps.isVisible,
+            isRequired: mockComponentProps.isRequired,
+            isEnabled: mockComponentProps.isEnabled,
         };
 
-        const component = PageConditions.applyBooleanCondition(pageCondition, true, snapshot, mockComponentProps);
-        expect(component).toEqual(mockComponentProps);
+        const update = PageConditions.updateComponentValue(
+            newProps,
+            mockComponentProps,
+            false,
+            'METADATA.ENABLED',
+            null,
+            null,
+            null,
+        );
+
+        expect(mockComponentProps.isEnabled).toBeFalsy();
     });
-    test('When visible metadata type the isVisible prop is modified', () => {
-        const pageCondition = {
-            pageRules: [
-                {
-                    left: {
-                        pageObjectReferenceId: 'test',
-                    },
-                    right: {
-                        valueElementToReferenceId: {
-                            id: 'test',
-                        },
-                    },
-                },
-            ],
-            pageOperations: [
-                {
-                    assignment: {
-                        assignee: {
-                            pageObjectReferenceId: 'test',
-                            metadataType: 'METADATA.VISIBLE',
-                        },
-                    },
-                },
-            ],
+    test('isRequired component value gets modified', () => {
+
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
         };
 
-        const snapshot = {
-            getSystemValue: jest.fn(() => {
-                return { defaultContentValue: 'False' };
-            }),
+        const newProps = {
+            isVisible: mockComponentProps.isVisible,
+            isRequired: mockComponentProps.isRequired,
+            isEnabled: mockComponentProps.isEnabled,
         };
 
-        const component = PageConditions.applyBooleanCondition(pageCondition, true, snapshot, mockComponentProps);
-        expect(component.isVisible).toBeFalsy();
+        const update = PageConditions.updateComponentValue(
+            newProps,
+            mockComponentProps,
+            false,
+            'METADATA.REQUIRED',
+            null,
+            null,
+            null,
+        );
+
+        expect(mockComponentProps.isRequired).toBeFalsy();
     });
-    test('When required metadata type the isRequired prop is modified', () => {
-        const pageCondition = {
-            pageRules: [
-                {
-                    left: {
-                        pageObjectReferenceId: 'test',
-                    },
-                    right: {
-                        valueElementToReferenceId: {
-                            id: 'test',
-                        },
-                    },
-                },
-            ],
-            pageOperations: [
-                {
-                    assignment: {
-                        assignee: {
-                            pageObjectReferenceId: 'test',
-                            metadataType: 'METADATA.REQUIRED',
-                        },
-                    },
-                },
-            ],
+    test('isVisible component value gets modified and state value gets updated', () => {
+
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
         };
 
-        const snapshot = {
-            getSystemValue: jest.fn(() => {
-                return { defaultContentValue: 'False' };
-            }),
+        const newProps = {
+            isVisible: mockComponentProps.isVisible,
+            isRequired: mockComponentProps.isRequired,
+            isEnabled: mockComponentProps.isEnabled,
         };
 
-        const component = PageConditions.applyBooleanCondition(pageCondition, true, snapshot, mockComponentProps);
-        expect(component.isRequired).toBeFalsy();
+        const update = PageConditions.updateComponentValue(
+            newProps,
+            mockComponentProps,
+            false,
+            'METADATA.VISIBLE',
+            'test',
+            'test',
+            'SYNC',
+        );
+        expect(setStateValue).toHaveBeenCalled();
+        expect(mockComponentProps.isVisible).toBeFalsy();
     });
-    test('When enabled metadata type the isEnabled prop is modified', () => {
-        const pageCondition = {
+    test('When applying scalar condition, toggle is set to true when two values are equal', () => {
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
+        };
+
+        const leftValue = 'test';
+        const rightValue = 'test';
+        const pageOpAssigeeComponent = 'test';
+        const pageOpAssigneeValue = { id: 'test' };
+        const metaDataType = 'METADATA.REQUIRED';
+        const criteria = 'EQUAL';
+        const invokeType = 'SYNC';
+
+        const result = PageConditions.applyScalarCondition(
+            leftValue,
+            rightValue,
+            mockComponentProps,
+            invokeType,
+            metaDataType,
+            criteria,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
+        );
+
+        expect(result).toEqual(mockComponentProps);
+    });
+    test('When applying scalar condition, toggle is set to true when two values are not equal', () => {
+
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
+        };
+
+        const leftValue = 'test1';
+        const rightValue = 'test2';
+        const pageOpAssigeeComponent = 'test';
+        const pageOpAssigneeValue = { id: 'test' };
+        const metaDataType = 'METADATA.REQUIRED';
+        const criteria = 'NOT_EQUAL';
+        const invokeType = 'SYNC';
+
+        const result = PageConditions.applyScalarCondition(
+            leftValue,
+            rightValue,
+            mockComponentProps,
+            invokeType,
+            metaDataType,
+            criteria,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
+        );
+
+        expect(result).toEqual(mockComponentProps);
+    });
+    test('When applying scalar condition, toggle is set to false when critera is is set to is empty', () => {
+
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
+        };
+
+        const leftValue = 'test';
+        const rightValue = 'True';
+        const pageOpAssigeeComponent = 'test';
+        const pageOpAssigneeValue = { id: 'test' };
+        const metaDataType = 'METADATA.REQUIRED';
+        const criteria = 'IS_EMPTY';
+        const invokeType = 'SYNC';
+
+        const result: any = PageConditions.applyScalarCondition(
+            leftValue,
+            rightValue,
+            mockComponentProps,
+            invokeType,
+            metaDataType,
+            criteria,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
+        );
+
+        expect(result.isRequired).toBeFalsy();
+    });
+    test('When applying scalar condition, toggle is set to false when criteris is set to is not empty', () => {
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
+        };
+
+        const newProps = {
+            isVisible: mockComponentProps.isVisible,
+            isRequired: mockComponentProps.isRequired,
+            isEnabled: mockComponentProps.isEnabled,
+        };
+
+        const leftValue = null;
+        const rightValue = 'False';
+        const pageOpAssigeeComponent = 'test';
+        const pageOpAssigneeValue = { id: 'test' };
+        const metaDataType = 'METADATA.REQUIRED';
+        const criteria = 'IS_EMPTY';
+        const invokeType = 'SYNC';
+
+        const result: any = PageConditions.applyScalarCondition(
+            leftValue,
+            rightValue,
+            mockComponentProps,
+            invokeType,
+            metaDataType,
+            criteria,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
+        );
+
+        expect(result.isRequired).toBeFalsy();
+    });
+    test('When applying boolean condition, component props are returned', () => {
+        const mockComponentProps = {
+            isVisible: true,
+            isEnabled: true,
+            isRequired: true,
+            pageComponentId: 'test',
+            contentValue: null,
+            objectData: null,
+            contentType: 'boolean',
+            isValid: true,
+        };
+
+        const snaptshot = {
+            getSystemValue: jest.fn(() => false),
+        };
+
+        const condition = {
             pageRules: [
                 {
-                    left: {
-                        pageObjectReferenceId: 'test',
-                    },
                     right: {
                         valueElementToReferenceId: {
                             id: 'test',
@@ -185,25 +319,24 @@ describe('Page conditions expected behaviour', () => {
                     },
                 },
             ],
-            pageOperations: [
-                {
-                    assignment: {
-                        assignee: {
-                            pageObjectReferenceId: 'test',
-                            metadataType: 'METADATA.ENABLED',
-                        },
-                    },
-                },
-            ],
         };
 
-        const snapshot = {
-            getSystemValue: jest.fn(() => {
-                return { defaultContentValue: 'False' };
-            }),
-        };
+        const pageOpAssigeeComponent = 'test';
+        const pageOpAssigneeValue = { id: 'test' };
+        const metaDataType = 'METADATA.REQUIRED';
+        const invokeType = 'SYNC';
 
-        const component = PageConditions.applyBooleanCondition(pageCondition, true, snapshot, mockComponentProps);
-        expect(component.isEnabled).toBeFalsy();
+        const result = PageConditions.applyBooleanCondition(
+            condition,
+            true,
+            snaptshot,
+            mockComponentProps,
+            invokeType,
+            metaDataType,
+            pageOpAssigeeComponent,
+            pageOpAssigneeValue,
+        );
+
+        expect(result).toEqual(mockComponentProps);
     });
 });

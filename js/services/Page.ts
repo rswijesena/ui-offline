@@ -89,7 +89,8 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             if (pageElement.pageConditions) {
 
                 // Check component is listening for page condition
-                const hasCondition = PageConditions.checkForCondition(
+                // and return the page condition metadata if exists
+                const assocCondition = PageConditions.checkForCondition(
                     pageElement.pageConditions,
                     component.id,
                 );
@@ -111,72 +112,80 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     component['hasEvents'] = false;
                 }
 
-                if (hasCondition !== undefined) {
-                    if (hasCondition.pageRules.length === 1) {
+                // It's possible to have multiple page rules,
+                // but offline will only support conditions
+                // with one rule to start with
+                if (assocCondition !== undefined && assocCondition.pageRules.length === 1) {
 
-                        let booleanComponentValue = null;
-                        let booleanComponent = null;
+                    // Theres a bunch of component/value ID's and metadata
+                    // that need to be extracted from the page condition metadata/flow snapshot/state,
+                    // we do this here and return everything needed as key value pairs
+                    const conditionMeta: any = PageConditions.extractPageConditionValues(
+                        assocCondition,
+                        pageElement,
+                        request,
+                        snapshot,
+                    );
 
-                        if (request.invokeType === 'SYNC') {
-                            booleanComponent = hasCondition.pageRules[0].left.pageObjectReferenceId;
+                    try {
 
-                            // Get the values content value from state
-                            booleanComponentValue = getStateValue(
-                                { id: hasCondition.pageRules[0].left.valueElementToReferenceId.id },
-                                null,
-                                'Boolean',
-                                '',
-                            ).contentValue;
+                        // Handling boolean page conditions
+                        if (
+                            typeof(conditionMeta.leftValueElementContentValue) === 'boolean' ||
+                            conditionMeta.leftValueElementContentValue === 'False' ||
+                            conditionMeta.leftValueElementContentValue === 'false' ||
+                            conditionMeta.leftValueElementContentValue === 'true' ||
+                            conditionMeta.leftValueElementContentValue === 'True'
+                        ) {
+                            value = PageConditions.applyBooleanCondition(
+                                assocCondition,
+                                conditionMeta.leftValueElementContentValue,
+                                snapshot,
+                                value,
+                                request.invokeType,
+                                conditionMeta.metaDataType,
+                                conditionMeta.pageOpAssigeeComponent,
+                                conditionMeta.pageOpAssigneeValue,
+                            );
 
-                            // However, the pageComponentInputResponses may
-                            // contain a null content value for the value we want,
-                            // in which case we will need to extract the
-                            // default content value from our snapshot
-                            if (booleanComponentValue === null) {
-                                booleanComponentValue = snapshot.getValue(
-                                    { id:hasCondition.pageRules[0].left.valueElementToReferenceId.id },
-                                ).defaultContentValue;
-                            }
+                        // Handling scalar page conditions
+                        } else if (
+                            typeof(conditionMeta.rightValueElementContentValue) === 'string' ||
+                            typeof(conditionMeta.rightValueElementContentValue) === 'number'
+                        ) {
+
+                            value = PageConditions.applyScalarCondition(
+                                conditionMeta.leftpageObjectReferenceValue,
+                                conditionMeta.rightValueElementContentValue,
+                                value,
+                                request.invokeType,
+                                conditionMeta.metaDataType,
+                                conditionMeta.criteria,
+                                conditionMeta.pageOpAssigeeComponent,
+                                conditionMeta.pageOpAssigneeValue,
+                            );
+
+                        // We will for now assume that any other content value type
+                        // represents a more complex page condition
+                        // TODO - perform further checks on page condition metadata
+                        // to determine if is more advanced
                         } else {
-                            // This is for handling when the user has gone into offline
-                            // mode before hitting the page. We have no idea what the pageComponentInputResponses
-                            // are so have to extract the value id from the metadata in our snapshot
-                            booleanComponent = hasCondition.pageRules[0].left.valueElementToReferenceId.id;
-                            booleanComponentValue = snapshot.getValue({ id:booleanComponent }).defaultContentValue;
-                        }
+                            const errorMsg = `${component.developerName} has an unsupported page condition`;
 
-                        try {
-                            if (
-                                typeof(booleanComponentValue) === 'boolean' || // Currently, only boolean page conditions are supported
-                                booleanComponentValue === 'False' ||
-                                booleanComponentValue === 'false' ||
-                                booleanComponentValue === 'true' ||
-                                booleanComponentValue === 'True'
-                            ) {
-                                value = PageConditions.applyBooleanCondition(
-                                    hasCondition,
-                                    booleanComponentValue,
-                                    snapshot,
-                                    value,
-                                );
-                            } else {
-                                const errorMsg = `${component.developerName} has an unsupported page condition`;
-
-                                console.error(errorMsg);
-                                if (manywho.settings.isDebugEnabled(flowKey)) {
-                                    throw new Error(errorMsg);
-                                }
+                            console.error(errorMsg);
+                            if (manywho.settings.isDebugEnabled(flowKey)) {
+                                throw new Error(errorMsg);
                             }
-
-                        } catch (error) {
-                            manywho.model.addNotification(flowKey, {
-                                message: error.message,
-                                position: 'center',
-                                type: 'warning',
-                                timeout: 0,
-                                dismissible: true,
-                            });
                         }
+
+                    } catch (error) {
+                        manywho.model.addNotification(flowKey, {
+                            message: error.message,
+                            position: 'center',
+                            type: 'warning',
+                            timeout: 0,
+                            dismissible: true,
+                        });
                     }
                 }
 
