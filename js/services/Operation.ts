@@ -32,14 +32,61 @@ export const executeOperation = (operation: any, state: IState, snapshot: any) =
     let valueToReference: any = { objectData: null, contentValue: null };
 
     if (operation.macroElementToExecuteId) {
-        const worker = new Worker();
+        const macro = snapshot.getMacro(operation.macroElementToExecuteId);
 
-        worker.postMessage('Test');
+        if (macro) {
+            const macroCode = macro.code;
+            /*
+            const test = (obj) => {
+                const state = {
+                    setDateTimeValue: (a, b) => {
+                        const z = snapshot.getValueByName(a.replace(/[^a-zA-Z ]/g, ''));
+                        const values = {
+                            contentValue: b,
+                            objectData: null,
+                            pageComponentId: null,
+                        };
+                        setStateValue(
+                            { id: z.id },
+                            '',
+                            null,
+                            values,
+                        );
+                        return z;
+                    },
+                };
+                return Function('"use strict";return (' + obj + ')')()(
+                    state,
+                );
+            };*/
+            /*
+            console.log(test(
+                'function(state){return ' + macroCode + '}',
+            ));
+            */
+            const worker = new Worker();
 
-        worker.onmessage = (e) => {
-            console.log(e.data + ' has been received');
-            worker.terminate();
-        };
+            worker.postMessage({ snapshot, macro: macroCode });
+
+            worker.onmessage = (e) => {
+                console.log(e.data + ' has been received');
+
+                const values = {
+                    contentValue: e.data.newContentValue,
+                    objectData: null,
+                    pageComponentId: null,
+                };
+
+                setStateValue(
+                    { id: e.data.valueId },
+                    '',
+                    null,
+                    values,
+                );
+
+                worker.terminate();
+            };
+        }
     }
 
     if (operation.valueElementToReferenceId) {

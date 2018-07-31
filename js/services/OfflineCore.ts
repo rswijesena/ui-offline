@@ -380,7 +380,7 @@ const OfflineCore = {
         }
 
         if (nextMapElement.elementType === 'step') {
-            pageResponse = Step.generate(nextMapElement);
+            pageResponse = Step.generate(nextMapElement, snapshot);
         } else if (nextMapElement.elementType === 'input') {
             pageResponse = generatePage(request, nextMapElement, flow.state, snapshot, flow.tenantId);
         } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
