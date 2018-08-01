@@ -14,6 +14,7 @@ const Step = {
 
     /**
      * @param mapElement
+     * @param snapshot
      */
     generate(mapElement: IMapElement, snapshot) {
 

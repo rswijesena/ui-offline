@@ -1,7 +1,7 @@
 import { addRequest, FlowInit, getObjectData, cacheObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
-import { executeOperation } from './Operation';
+import { executeOperation, invokeMacroWorker } from './Operation';
 import { getPageContainers, flattenContainers, generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
@@ -349,7 +349,6 @@ const OfflineCore = {
         }
 
         const snapshot: any = Snapshot(metaData);
-        let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
             addRequest(request, snapshot);
@@ -371,14 +370,44 @@ const OfflineCore = {
                 });
         }
 
+        const asyncOperations = [];
+
         if (nextMapElement.operations) {
             nextMapElement.operations
                 .sort((a, b) => a.order - b.order)
                 .forEach((operation) => {
-                    executeOperation(operation, flow.state, snapshot);
+                    if (operation.macroElementToExecuteId) {
+                        asyncOperations.push(
+                            invokeMacroWorker(operation, snapshot),
+                        );
+                    } else {
+                        asyncOperations.push(
+                            executeOperation(operation, flow.state, snapshot),
+                        );
+                    }
                 });
-        }
 
+            return Promise.all(asyncOperations).then(() => {
+                return this.constructResponse(
+                    nextMapElement,
+                    request,
+                    snapshot,
+                    flow,
+                    context,
+                );
+            });
+        }
+        return this.constructResponse(
+            nextMapElement,
+            request,
+            snapshot,
+            flow,
+            context,
+        );
+    },
+
+    constructResponse(nextMapElement, request, snapshot, flow, context) {
+        let pageResponse = null;
         if (nextMapElement.elementType === 'step') {
             pageResponse = Step.generate(nextMapElement, snapshot);
         } else if (nextMapElement.elementType === 'input') {
