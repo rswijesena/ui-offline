@@ -24,7 +24,7 @@ const Step = {
             if (valueNames.length > 0) {
                 valueNames.forEach((valueName) => {
                     const valueObject = snapshot.getValueByName(
-                        valueName.replace(/[^a-zA-Z ]/g, ''),
+                        valueName.replace(/[^a-zA-Z0-9 ]/g, ''),
                     );
                     const currentValue = getStateValue(
                         { id: valueObject.id },

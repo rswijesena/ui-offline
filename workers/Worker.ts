@@ -44,7 +44,7 @@ const executeMacro = (macro, metadata) => {
             return;
         },
         getValue: (value) => {
-            return;
+            return getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata).defaultContentValue;
         },
         setArray: (value, objectData) => {
             return;
@@ -68,7 +68,15 @@ const executeMacro = (macro, metadata) => {
             return;
         },
         setValue: (value, string) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: string,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
     };
 
@@ -97,7 +105,7 @@ ctx.onmessage = (e) => {
     currentState = parsedResponse.state;
 
     const macroResult = executeMacro(
-        'function(state){return ' + parsedResponse.macro + '}',
+        'function(state){ ' + parsedResponse.macro + '}',
         parsedResponse.metadata,
     );
     ctx.postMessage(macroResult);
