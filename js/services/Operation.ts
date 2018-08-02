@@ -26,32 +26,28 @@ const isCommandSupported = (command: string) => {
  * @param snapshot
  * @description instantiating a web worker for securely evaluating macros
  */
-export const invokeMacroWorker = (operation: any, snapshot: any) => {
+export const invokeMacroWorker = (operation: any, state: any, snapshot: any) => {
     return new Promise((resolve) => {
         const macro = snapshot.getMacro(operation.macroElementToExecuteId);
         if (macro) {
-            const macroCode = macro.code;
             const worker = new Worker();
 
             worker.postMessage(
-                JSON.stringify({ metadata: snapshot.metadata, macro: macroCode }),
+                JSON.stringify({ state, metadata: snapshot.metadata, macro: macro.code }),
             );
 
             worker.onmessage = (workerResponse) => {
-                console.log('Response has been received');
 
-                const values = {
-                    contentValue: workerResponse.data.newContentValue,
-                    objectData: null,
-                    pageComponentId: null,
-                };
+                const updatedValues = workerResponse.data.values;
 
-                setStateValue(
-                    { id: workerResponse.data.valueId },
-                    '',
-                    null,
-                    values,
-                );
+                for (const key of Object.keys(updatedValues)) {
+                    setStateValue(
+                        { id: key },
+                        '',
+                        null,
+                        updatedValues[key],
+                    );
+                }
 
                 worker.terminate();
                 resolve();

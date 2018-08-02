@@ -1,11 +1,20 @@
 const ctx: Worker = self as any;
 
+let currentState = null;
+
 const executeMacro = (macro, metadata) => {
 
     const state = {
         setDateTimeValue: (value, operation) => {
             const valueObject = getValueByName(value.replace(/[^a-zA-Z ]/g, ''), metadata);
-            return { valueId: valueObject.id, newContentValue: operation };
+
+            const valueProperties = {
+                contentValue: operation,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         createObject: (type) => {
             return;
@@ -63,24 +72,33 @@ const executeMacro = (macro, metadata) => {
         },
     };
 
-    return Function('"use strict";return (' + macro + ')')()(
+    Function('"use strict";return (' + macro + ')')()(
         state,
     );
+
+    return currentState;
 };
 
 const getValueByName = (name: string, metadata: any) => {
     return metadata.valueElements.find(element => element.developerName === name);
 };
 
-ctx.onmessage = (e) => {
-    console.log('Message received from main thread');
-    const parsedResponse = JSON.parse(e.data);
-    const macroCode = parsedResponse.macro;
-    const metadata = parsedResponse.metadata;
-    const macroResult = executeMacro(
-        'function(state){return ' + macroCode + '}',
-        metadata,
-    );
+const setStateValue = (id: string, value: any) => {
+    currentState.values[id] = cloneStateValue(value);
+};
 
+const cloneStateValue = (object) => {
+    return object;
+};
+
+ctx.onmessage = (e) => {
+    const parsedResponse = JSON.parse(e.data);
+
+    currentState = parsedResponse.state;
+
+    const macroResult = executeMacro(
+        'function(state){return ' + parsedResponse.macro + '}',
+        parsedResponse.metadata,
+    );
     ctx.postMessage(macroResult);
 };

@@ -378,7 +378,7 @@ const OfflineCore = {
                 .forEach((operation) => {
                     if (operation.macroElementToExecuteId) {
                         asyncOperations.push(
-                            invokeMacroWorker(operation, snapshot),
+                            invokeMacroWorker(operation, flow.state, snapshot),
                         );
                     } else {
                         asyncOperations.push(
