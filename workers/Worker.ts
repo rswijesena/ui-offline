@@ -44,7 +44,11 @@ const executeMacro = (macro, metadata) => {
             return;
         },
         getValue: (value) => {
-            return getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata).defaultContentValue;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         setArray: (value, objectData) => {
             return;
@@ -88,7 +92,15 @@ const executeMacro = (macro, metadata) => {
 };
 
 const getValueByName = (name: string, metadata: any) => {
-    return metadata.valueElements.find(element => element.developerName === name);
+    const value =  metadata.valueElements.find(element => element.developerName === name);
+
+    // If the values content value has already been modified
+    // whilst offline then we want to return this instaed of the default
+    // content value found in the metadata object
+    if (currentState.values[value.id]) {
+        return { props: currentState.values[value.id], id: value.id };
+    }
+    return value;
 };
 
 const setStateValue = (id: string, value: any) => {
