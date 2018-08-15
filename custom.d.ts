@@ -1,4 +1,4 @@
-declare module 'worker-loader?publicPath=build/js/&name=worker.js!*' {
+declare module 'worker-loader?name=worker.js!*' {
     class WebpackWorker extends Worker {
         constructor();
     }
