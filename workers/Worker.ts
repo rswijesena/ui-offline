@@ -20,28 +20,64 @@ const executeMacro = (macro, metadata) => {
             return;
         },
         getArray: (value) => {
-            return;
+            const listValue = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            listValue.defaultObjectData.forEach((value) => {
+                const macroFunctions: any = bindFunctions(value);
+                for (const key of Object.keys(macroFunctions)) {
+                    value[key] = macroFunctions[key];
+                }
+            });
+
+            return listValue.defaultObjectData;
         },
         getBooleanValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getContentValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getDateTimeValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getNumberValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getObject: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getPasswordValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getStringValue: (value) => {
-            return;
+            const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+            if (valueObj.props) {
+                return valueObj.props.contentValue;
+            }
+            return valueObj.defaultContentValue;
         },
         getValue: (value) => {
             const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
@@ -51,25 +87,81 @@ const executeMacro = (macro, metadata) => {
             return valueObj.defaultContentValue;
         },
         setArray: (value, objectData) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                objectData,
+                contentValue: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setBooleanValue: (value, boolean) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: boolean,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setContentValue: (value, content) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: content,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setNumberValue: (value, number) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: number,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setObject: (value, objectData) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                objectData,
+                contentValue: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setPasswordValue: (value, password) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: password,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setStringValue: (value, string) => {
-            return;
+            const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
+            const valueProperties = {
+                contentValue: string,
+                objectData: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(valueObject.id, valueProperties);
         },
         setValue: (value, string) => {
             const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
@@ -89,6 +181,29 @@ const executeMacro = (macro, metadata) => {
     );
 
     return currentState;
+};
+
+/**
+ * @param value
+ * @description macros use a defined set of functions that are called on list value items
+ * to perform operations such as extratacting certain item properties.
+ */
+const bindFunctions = (value) => {
+    return {
+        getPropertyStringValue: (typeElementPropertyId) => {
+            const listItem = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
+            return listItem.contentValue;
+        },
+        getPropertyValue: (typeElementPropertyId) => {},
+        getPropertyContentValue: (typeElementPropertyId) => {},
+        getPropertyPasswordValue: (typeElementPropertyId) => {},
+        getPropertyNumberValue: (typeElementPropertyId) => {},
+        getPropertyDateTimeValue: (typeElementPropertyId) => {},
+        getPropertyBooleanValue: (typeElementPropertyId) => {},
+        getPropertyArray: (typeElementPropertyId) => {},
+        getPropertyObject: (typeElementPropertyId) => {},
+        setProperty: (typeElementPropertyId, contentValue) => {},
+    };
 };
 
 const getValueByName = (name: string, metadata: any) => {
