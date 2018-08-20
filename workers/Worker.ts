@@ -213,6 +213,32 @@ const bindFunctions = (value) => {
         }
     };
 
+    const setProperty = (typeElementPropertyId, contentType, contentValue) => {
+        if (value.properties || value.properties !== null) {
+            const specifiedProperty = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
+            if (specifiedProperty.contentType !== contentType) {
+                throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
+            }
+
+            if (contentType === CONTENT_TYPES.LIST || contentType === CONTENT_TYPES.OBJECT) {
+                specifiedProperty.objectData = contentValue;
+            } else {
+                specifiedProperty.contentValue = contentValue;
+            }
+
+            const valueProperties = {
+                objectData: value,
+                contentValue: null,
+                pageComponentId: null,
+            };
+
+            setStateValue(value.id, valueProperties);
+
+        } else {
+            throw new Error(`${value.developerName} has no object data properties`);
+        }
+    };
+
     return {
         getPropertyStringValue: (typeElementPropertyId) => {
             return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING);
@@ -238,14 +264,30 @@ const bindFunctions = (value) => {
         getPropertyObject: (typeElementPropertyId) => {
             return getProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT);
         },
-        setPropertyStringValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyContentValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyPasswordValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyNumberValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyDateTimeValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyBooleanValue: (typeElementPropertyId, contentValue) => {},
-        setPropertyArray: (typeElementPropertyId, contentValue) => {},
-        setPropertyObject: (typeElementPropertyId, contentValue) => {},
+        setPropertyStringValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyContentValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyPasswordValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyNumberValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyDateTimeValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyBooleanValue: (typeElementPropertyId, contentValue) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue);
+        },
+        setPropertyArray: (typeElementPropertyId, objectData) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, objectData);
+        },
+        setPropertyObject: (typeElementPropertyId, objectData) => {
+            setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, objectData);
+        },
     };
 };
 
