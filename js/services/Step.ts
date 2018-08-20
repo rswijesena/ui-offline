@@ -24,7 +24,7 @@ const Step = {
             if (valueNames.length > 0) {
                 valueNames.forEach((valueName) => {
                     const valueObject = snapshot.getValueByName(
-                        valueName.replace(/[^a-zA-Z0-9 ]/g, ''),
+                        valueName.split('.')[0].replace(/[^a-zA-Z0-9 ]/g, ''),
                     );
                     const currentValue = getStateValue(
                         { id: valueObject.id },
@@ -32,6 +32,12 @@ const Step = {
                         valueObject.contentType,
                         '',
                     );
+                    if (valueObject.contentType === 'ContentObject') {
+                        const property = currentValue.objectData[0].properties.find(
+                            property => property.developerName === valueName.split('.')[1].replace(/[^a-zA-Z0-9 ]/g, ''),
+                        );
+                        contentCopy = contentCopy.replace(valueName, property.contentValue);
+                    }
                     contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
                 });
                 return contentCopy;

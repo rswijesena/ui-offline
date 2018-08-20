@@ -1,5 +1,16 @@
 const ctx: Worker = self as any;
 
+const CONTENT_TYPES = {
+    OBJECT: 'ContentObject',
+    BOOLEAN: 'ContentBoolean',
+    STRING: 'ContentString',
+    LIST: 'ContentList',
+    NUMBER: 'ContentNumber',
+    DATETIME: 'ContentDateTime',
+    PASSWORD: 'ContentPassword',
+    CONTENT: 'ContentContent',
+};
+
 let currentState = null;
 
 const executeMacro = (macro, metadata) => {
@@ -61,9 +72,9 @@ const executeMacro = (macro, metadata) => {
         getObject: (value) => {
             const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
             if (valueObj.props) {
-                return valueObj.props.contentValue;
+                return valueObj.props.objectData;
             }
-            return valueObj.defaultContentValue;
+            return valueObj.defaultObjectData;
         },
         getPasswordValue: (value) => {
             const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
@@ -186,23 +197,55 @@ const executeMacro = (macro, metadata) => {
 /**
  * @param value
  * @description macros use a defined set of functions that are called on list value items
- * to perform operations such as extratacting certain item properties.
+ * to perform operations such as extgetPropertyStringValueratacting certain item properties.
  */
 const bindFunctions = (value) => {
+
+    const getProperty = (typeElementPropertyId, contentType) => {
+        if (value.properties || value.properties !== null) {
+            const specifiedProperty = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
+            if (specifiedProperty.contentType !== contentType) {
+                throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
+            }
+            return specifiedProperty.contentValue;
+        } else {
+            throw new Error(`${value.developerName} has no object data properties`);
+        }
+    };
+
     return {
         getPropertyStringValue: (typeElementPropertyId) => {
-            const listItem = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
-            return listItem.contentValue;
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING);
         },
-        getPropertyValue: (typeElementPropertyId) => {},
-        getPropertyContentValue: (typeElementPropertyId) => {},
-        getPropertyPasswordValue: (typeElementPropertyId) => {},
-        getPropertyNumberValue: (typeElementPropertyId) => {},
-        getPropertyDateTimeValue: (typeElementPropertyId) => {},
-        getPropertyBooleanValue: (typeElementPropertyId) => {},
-        getPropertyArray: (typeElementPropertyId) => {},
-        getPropertyObject: (typeElementPropertyId) => {},
-        setProperty: (typeElementPropertyId, contentValue) => {},
+        getPropertyContentValue: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT);
+        },
+        getPropertyPasswordValue: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD);
+        },
+        getPropertyNumberValue: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER);
+        },
+        getPropertyDateTimeValue: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME);
+        },
+        getPropertyBooleanValue: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN);
+        },
+        getPropertyArray: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.LIST);
+        },
+        getPropertyObject: (typeElementPropertyId) => {
+            return getProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT);
+        },
+        setPropertyStringValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyContentValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyPasswordValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyNumberValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyDateTimeValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyBooleanValue: (typeElementPropertyId, contentValue) => {},
+        setPropertyArray: (typeElementPropertyId, contentValue) => {},
+        setPropertyObject: (typeElementPropertyId, contentValue) => {},
     };
 };
 
