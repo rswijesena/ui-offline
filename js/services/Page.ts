@@ -1,5 +1,6 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
+import { getCachedValues } from './StateCaching';
 import PageConditions from './PageConditions';
 
 declare const manywho: any;
@@ -11,7 +12,11 @@ declare const manywho: any;
 export const getPageContainers = (container: any) => {
     if (container.pageContainers) {
         container.pageContainerResponses = container.pageContainers.map(getPageContainers);
-        delete container.pageContainers;
+
+        // TODO: find out why this key is being deleted
+        // as doing so prevents containers from being flattened
+
+        // delete container.pageContainers;
     }
     return container;
 };
@@ -74,6 +79,10 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
     let pageComponentDataResponses = [];
     if (pageElement.pageComponents) {
         pageComponentDataResponses = pageElement.pageComponents.map((component) => {
+
+            // Retrieving component content values that have
+            // been stored in state whilst the flow was online
+            const cachedComponents = getCachedValues();
 
             let value: any = {
                 isVisible: true,
@@ -207,6 +216,19 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
                 if (stateValue) {
                     selectedValue = stateValue;
+                } else {
+
+                    // If there is no component content value in the offline
+                    // state, then lets refer back to any values stored in
+                    // the online state and set that as the content value
+                    for (const key of Object.keys(cachedComponents)) {
+                        if (key === component.id) {
+                            const cachedComponent = cachedComponents[component.id];
+                            if (cachedComponent) {
+                                selectedValue = cachedComponent;
+                            }
+                        }
+                    }
                 }
             }
 

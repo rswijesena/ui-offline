@@ -4,6 +4,7 @@ import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { clone, flatten, guid } from '../services/Utils';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
+import { killCachingInterval, setCachingInterval } from '../services/StateCaching';
 
 import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';
@@ -32,6 +33,11 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOffline = () => {
+
+        // We do not want to keep caching
+        // whilst the flow is offline
+        killCachingInterval();
+
         this.setState({ view: null });
         OfflineCore.isOffline = true;
         this.forceUpdate();
@@ -45,6 +51,10 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOnline = (flow) => {
+
+        // Start caching again!
+        setCachingInterval(this.props.flowKey);
+
         this.setState({ view: null });
         OfflineCore.isOffline = false;
 
@@ -62,12 +72,19 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     componentDidMount() {
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
+        const flowKey = this.props.flowKey;
+        const stateId = manywho.utils.extractStateId(flowKey);
+        const id = manywho.utils.extractFlowId(flowKey);
+        const versionId = manywho.utils.extractFlowVersionId(flowKey);
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
+
+                // This is when we initiate caching component values in state,
+                // might not be the best time to initiate this, but cannot find
+                // another way of accessing the flowkey when the flow is initialising.
+                setCachingInterval(flowKey);
+
                 if (flow) {
                     this.onOffline();
                 }
