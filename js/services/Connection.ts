@@ -1,6 +1,8 @@
+import { extractComponentValues } from './StateCaching';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
+declare const metaData: any;
 declare const jQuery: any;
 declare const $: any;
 
@@ -58,6 +60,19 @@ export const onlineRequest = (
     stateId: string,
     authenticationToken: string,
     request: any) => {
+
+    // We want to cache page component values
+    // as the user moves through the flow
+    if (stateId && event === 'invoke') {
+        const flowKey = manywho.utils.getFlowKey(
+            tenantId,
+            metaData.id.id,
+            metaData.id.versionId,
+            stateId,
+            'main',
+        );
+        extractComponentValues(flowKey);
+    }
 
     let json = null;
 
@@ -132,6 +147,19 @@ export const request = (
     return isOnline()
         .then((response) => {
             if (response) {
+
+                if (stateId && authenticationToken) {
+                    const url = `${manywho.settings.global('platform.uri')}/api/admin/1/states/${stateId}`;
+                    const request = {
+                        headers: {
+                            Authorization: authenticationToken,
+                        },
+                    };
+                    return fetch(url, request)
+                        .then((response) => {
+                            console.log(response);
+                        });
+                }
 
                 // Device is connected to the internet
                 return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);

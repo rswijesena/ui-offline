@@ -8,12 +8,11 @@
 // well as the the other stateful parts (offline state)
 declare const manywho: any;
 
-let key = null;
 let interval = null;
 const cachedComponents = {};
 
-const extractComponentValues = () => {
-    const components = manywho.state.getComponents(key);
+export const extractComponentValues = (flowKey) => {
+    const components = manywho.state.getComponents(flowKey);
     console.log('Caching components');
 
     for (const key of Object.keys(components)) {
@@ -32,10 +31,9 @@ export const getCachedValues = () => {
 };
 
 export const setCachingInterval = (flowKey) => {
-    key = flowKey;
 
     // TODO: look at possibly calling the caching function
     // recursively from within a setTimeout instead
     // in case the caching takes longer than the defined interval.
-    interval = setInterval(extractComponentValues, 5000); // This needs to be configurable
+    interval = setInterval(() => { extractComponentValues(flowKey); }, 5000); // This needs to be configurable
 };
