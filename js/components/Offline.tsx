@@ -49,8 +49,13 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         OfflineCore.isOffline = false;
 
         setOfflineData(flow)
-            .then(() => OfflineCore.rejoin(this.props.flowKey))
-            .then(() => removeOfflineData(flow.state.id));
+            .then(() => OfflineCore.rejoin(this.props.flowKey));
+
+            // I think we need to find a different way of clearing out stale
+            // cache as there are instances where we still need cached values,
+            // like when values are set whilst offline, then user returns online then back offline again
+
+            // .then(() => removeOfflineData(flow.state.id));
     }
 
     onCloseOnline = () => {

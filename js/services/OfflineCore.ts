@@ -77,8 +77,12 @@ const OfflineCore = {
             id: metaData.id,
         };
 
+        /*
         return removeOfflineData(stateId)
             .then(() => setOfflineData(flow))
+            .then(() => FlowInit(flow));*/
+
+        return setOfflineData(flow)
             .then(() => FlowInit(flow));
     },
 
