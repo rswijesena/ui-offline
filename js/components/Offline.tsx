@@ -53,7 +53,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     onOnline = (flow) => {
 
         // Start caching again!
-        setCachingInterval(this.props.flowKey);
+        setCachingInterval(flow.state.id, this.props.flowKey);
 
         this.setState({ view: null });
         OfflineCore.isOffline = false;
@@ -88,7 +88,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
                 // This is when we initiate caching component values in state,
                 // might not be the best time to initiate this, but cannot find
                 // another way of accessing the flowkey when the flow is initialising.
-                setCachingInterval(flowKey);
+                setCachingInterval(stateId, flowKey);
 
                 if (flow) {
                     this.onOffline();

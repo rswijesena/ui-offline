@@ -3,6 +3,14 @@ declare const localforage: any;
 
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
+const offlineStore = localforage.createInstance({
+    name: 'offline',
+});
+
+const onlineStore = localforage.createInstance({
+    name: 'online',
+});
+
 /**
  * Get the previously saved local version of the state from local storage.
  * If the `id` of the state isn't provided then iterate across all local storage
@@ -12,13 +20,13 @@ localforage.setDriver(['asyncStorage', 'webSQLStorage']);
  * @param flowVersionId
  */
 export const getOfflineData = (id: string, flowId: string = null, flowVersionId: string = null) => {
-    return localforage.getItem(`manywho:offline-${id}`)
+    return offlineStore.getItem(`manywho:offline-${id}`)
         .then((value) => {
             if (value) {
                 return value;
             }
 
-            return localforage.iterate((value, key) => {
+            return offlineStore.iterate((value, key) => {
                 if (value.id.id === flowId && value.id.versionId === flowVersionId) {
                     return value;
                 }
@@ -42,7 +50,7 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
 export const setOfflineData = (flow: any) => {
 
     // Checking if there is an existing cache for current state
-    return localforage.getItem(`manywho:offline-${flow.state.id}`)
+    return offlineStore.getItem(`manywho:offline-${flow.state.id}`)
         .then((value) => {
 
             // A cache store should only be created if one
@@ -56,13 +64,13 @@ export const setOfflineData = (flow: any) => {
                     // If the flow has a new state then we want to clear out
                     // stale cache from previous state/s. Any cache store which
                     // has the same associated flow id and version will be removed
-                    localforage.iterate((value, key) => {
+                    offlineStore.iterate((value, key) => {
                         if (value.id.id === flow.id.id && value.id.versionId === flow.id.versionId) {
                             removeOfflineData(value.state.id);
                         }
                     });
                 }
-                return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
+                return offlineStore.setItem(`manywho:offline-${flow.state.id}`, flow);
             }
         });
 };
@@ -71,5 +79,32 @@ export const setOfflineData = (flow: any) => {
  * @param id
  */
 export const removeOfflineData = (id: string) => {
-    return localforage.removeItem(`manywho:offline-${id}`);
+    return offlineStore.removeItem(`manywho:offline-${id}`);
+};
+
+/**
+ * @param stateId
+ * @description
+ */
+export const getOnlineData = (stateId: string) => {
+    return onlineStore.getItem(`manywho:online-${stateId}`)
+        .then((value) => {
+            if (value) {
+                return value;
+            }
+        });
+};
+
+/**
+ * @param flow
+ * @param components page components
+ * @description creating and updating indexDB cache store
+ * holding page component content values that had been set whilst online
+ */
+export const setOnlineData = (stateId: string, components: any) => {
+
+    return onlineStore.getItem(`manywho:online-${stateId}`)
+        .then(() => {
+            return onlineStore.setItem(`manywho:online-${stateId}`, components);
+        });
 };

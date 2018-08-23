@@ -71,7 +71,7 @@ export const onlineRequest = (
             stateId,
             'main',
         );
-        extractComponentValues(flowKey);
+        extractComponentValues(stateId, flowKey);
     }
 
     let json = null;

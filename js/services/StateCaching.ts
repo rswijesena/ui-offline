@@ -1,7 +1,9 @@
+import { getOnlineData, setOnlineData } from './Storage';
+
 declare const manywho: any;
 
 let interval = null;
-let cachedComponents = {};
+const cachedComponents = {};
 
 /**
  * @param flowKey
@@ -9,14 +11,15 @@ let cachedComponents = {};
  * runtime state and storing in a new state that gets updated
  * via the set interval
  */
-export const extractComponentValues = (flowKey) => {
+export const extractComponentValues = (stateId, flowKey) => {
     const components = manywho.state.getComponents(flowKey);
     if (components) {
         const clone = {};
         for (const key of Object.keys(components)) {
             clone[key] = components[key];
         }
-        cachedComponents = clone;
+        const result = Object.assign(cachedComponents, clone);
+        setOnlineData(stateId, result);
     }
 };
 
@@ -33,8 +36,8 @@ export const killCachingInterval = () => {
  * whereby the key is the component id and the value describes
  * the component properties
  */
-export const getCachedValues = () => {
-    return cachedComponents;
+export const getCachedValues = (stateId) => {
+    return getOnlineData(stateId);
 };
 
 /**
@@ -42,8 +45,8 @@ export const getCachedValues = () => {
  * @description for updating the page component state
  * periodically based on a time set by the flow builder
  */
-export const setCachingInterval = (flowKey) => {
+export const setCachingInterval = (stateId, flowKey) => {
     interval = setInterval(
-        () => { extractComponentValues(flowKey); }, 5000,
+        () => { extractComponentValues(stateId, flowKey); }, 5000,
     );
 };

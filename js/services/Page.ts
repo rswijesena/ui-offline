@@ -52,8 +52,16 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
  * @param state
  * @param snapshot
  * @param tenantId
+ * @param cachedPageComponents properties for all page components stored in browser cache
  */
-export const generatePage = function (request: any, mapElement: any, state: IState, snapshot: any, tenantId: String) {
+export const generatePage = function (
+    request: any,
+    mapElement: any,
+    state: IState,
+    snapshot: any,
+    tenantId: String,
+    cachedPageComponents: any,
+) {
     const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
     const flowKey = manywho.utils.getFlowKey(
@@ -79,10 +87,6 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
     let pageComponentDataResponses = [];
     if (pageElement.pageComponents) {
         pageComponentDataResponses = pageElement.pageComponents.map((component) => {
-
-            // Retrieving component content values that have
-            // been stored in state whilst the flow was online
-            const cachedComponents = getCachedValues();
 
             let value: any = {
                 isVisible: true,
@@ -220,10 +224,10 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
                     // If there is no component content value in the offline
                     // state, then lets refer back to any values stored in
-                    // the online state and set that as the content value
-                    for (const key of Object.keys(cachedComponents)) {
+                    // the online component cache and set that as the content value
+                    for (const key of Object.keys(cachedPageComponents)) {
                         if (key === component.id) {
-                            const cachedComponent = cachedComponents[component.id];
+                            const cachedComponent = cachedPageComponents[component.id];
                             if (cachedComponent) {
                                 selectedValue = cachedComponent;
                             }
