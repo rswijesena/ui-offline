@@ -1,3 +1,5 @@
+import { getStateValue } from '../models/State';
+
 interface IMapElement {
     developerName: string;
     id: string;
@@ -12,8 +14,38 @@ const Step = {
 
     /**
      * @param mapElement
+     * @param snapshot
      */
-    generate(mapElement: IMapElement) {
+    generate(mapElement: IMapElement, snapshot) {
+
+        const checkContentForValues = (content) => {
+            let contentCopy = content;
+            const valueNames = content.match(/{([^}]*)}/g);
+            if (valueNames.length > 0) {
+                valueNames.forEach((valueName) => {
+                    const valueObject = snapshot.getValueByName(
+                        valueName.split('.')[0].replace(/[^a-zA-Z0-9 ]/g, ''),
+                    );
+                    const currentValue = getStateValue(
+                        { id: valueObject.id },
+                        null,
+                        valueObject.contentType,
+                        '',
+                    );
+                    if (valueObject.contentType === 'ContentObject') {
+                        const property = currentValue.objectData[0].properties.find(
+                            property => property.developerName === valueName.split('.')[1].replace(/[^a-zA-Z0-9 ]/g, ''),
+                        );
+                        contentCopy = contentCopy.replace(valueName, property.contentValue);
+                    }
+                    contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
+                });
+                return contentCopy;
+            }
+
+            return content;
+        };
+
         const containerId = '09c5cb4f-3e7e-4f76-98a7-f6287a33043f';
         const componentId = '98a76ab7-4852-4093-9472-fc1c44283510';
 
@@ -51,7 +83,7 @@ const Step = {
                         pageComponentId: componentId,
                         isVisible: true,
                         isEnabled: true,
-                        content: mapElement.userContent,
+                        content: checkContentForValues(mapElement.userContent),
                     },
                 ],
             },

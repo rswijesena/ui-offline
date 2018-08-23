@@ -1,6 +1,7 @@
 import { getStateValue, setStateValue } from '../models/State';
 import { clone, guid } from '../services/Utils';
 import { IState } from '../interfaces/IModels';
+import Worker from 'worker-loader?name=worker.js!../../workers/Worker';
 
 declare var manywho: any;
 
@@ -21,6 +22,41 @@ const isCommandSupported = (command: string) => {
 };
 
 /**
+ * @param operation
+ * @param snapshot
+ * @description instantiating a web worker for securely evaluating macros
+ */
+export const invokeMacroWorker = (operation: any, state: any, snapshot: any) => {
+    return new Promise((resolve) => {
+        const macro = snapshot.getMacro(operation.macroElementToExecuteId);
+        if (macro) {
+            const worker = new Worker();
+
+            worker.postMessage(
+                JSON.stringify({ state, metadata: snapshot.metadata, macro: macro.code }),
+            );
+
+            worker.onmessage = (workerResponse) => {
+
+                const updatedValues = workerResponse.data.values;
+
+                for (const key of Object.keys(updatedValues)) {
+                    setStateValue(
+                        { id: key },
+                        '',
+                        null,
+                        updatedValues[key],
+                    );
+                }
+
+                worker.terminate();
+                resolve();
+            };
+        }
+    });
+};
+
+/**
  * Execute the operation and update the values in the local state.
  * Supports the following command types: NEW, EMPTY, SET_EQUAL, VALUE_OF, GET_FIRST, GET_NEXT, ADD, REMOVE
  * @param operation
@@ -28,89 +64,91 @@ const isCommandSupported = (command: string) => {
  * @param snapshot
  */
 export const executeOperation = (operation: any, state: IState, snapshot: any) => {
-    let valueToReference: any = { objectData: null, contentValue: null };
+    return new Promise((resolve) => {
+        let valueToReference: any = { objectData: null, contentValue: null };
 
-    if (operation.valueElementToReferenceId) {
-        if (!isCommandSupported(operation.valueElementToReferenceId.command)) {
-            return state;
+        if (operation.valueElementToReferenceId) {
+            if (!isCommandSupported(operation.valueElementToReferenceId.command)) {
+                return state;
+            }
+
+            valueToReference = snapshot.getValue(operation.valueElementToReferenceId);
+            const stateValue = getStateValue(
+                operation.valueElementToReferenceId,
+                valueToReference.typeElementId,
+                valueToReference.contentType,
+                operation.valueElementToReferenceId.command,
+            );
+            if (stateValue) {
+                valueToReference = stateValue;
+            }
         }
 
-        valueToReference = snapshot.getValue(operation.valueElementToReferenceId);
-        const stateValue = getStateValue(
-            operation.valueElementToReferenceId,
-            valueToReference.typeElementId,
-            valueToReference.contentType,
-            operation.valueElementToReferenceId.command,
-        );
-        if (stateValue) {
-            valueToReference = stateValue;
-        }
-    }
+        if (operation.valueElementToApplyId) {
+            if (!isCommandSupported(operation.valueElementToApplyId.command)) {
+                return state;
+            }
 
-    if (operation.valueElementToApplyId) {
-        if (!isCommandSupported(operation.valueElementToApplyId.command)) {
-            return state;
-        }
+            let valueToApply = snapshot.getValue(operation.valueElementToApplyId);
+            const typeElementId = valueToApply ? valueToApply.typeElementId : null;
+            const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
 
-        let valueToApply = snapshot.getValue(operation.valueElementToApplyId);
-        const typeElementId = valueToApply ? valueToApply.typeElementId : null;
-        const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
+            const stateValue = getStateValue(
+                operation.valueElementToApplyId,
+                valueToApply.typeElementId,
+                valueToApply.contentType,
+                operation.valueElementToApplyId.command,
+            );
+            if (stateValue) {
+                valueToApply = stateValue;
+            }
 
-        const stateValue = getStateValue(
-            operation.valueElementToApplyId,
-            valueToApply.typeElementId,
-            valueToApply.contentType,
-            operation.valueElementToApplyId.command,
-        );
-        if (stateValue) {
-            valueToApply = stateValue;
-        }
+            switch (operation.valueElementToApplyId.command) {
+            case 'NEW':
+                valueToReference.objectData = [{
+                    externalId: guid(),
+                    internalId: guid(),
+                    developerName: type.developerName,
+                    order: 0,
+                    isSelected: false,
+                    properties: clone(type.properties).map((property) => {
+                        property.contentValue = null;
+                        property.objectData = null;
+                        property.typeElementPropertyId = property.id;
+                        return property;
+                    }),
+                }];
+                break;
 
-        switch (operation.valueElementToApplyId.command) {
-        case 'NEW':
-            valueToReference.objectData = [{
-                externalId: guid(),
-                internalId: guid(),
-                developerName: type.developerName,
-                order: 0,
-                isSelected: false,
-                properties: clone(type.properties).map((property) => {
-                    property.contentValue = null;
-                    property.objectData = null;
-                    property.typeElementPropertyId = property.id;
-                    return property;
-                }),
-            }];
-            break;
+            case 'ADD':
+                valueToReference.objectData = valueToReference.objectData || [];
 
-        case 'ADD':
-            valueToReference.objectData = valueToReference.objectData || [];
-
-            let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
-                if (valueToReference.objectData.length > 0) {
-                    const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
-                    if (existingItem) {
-                        valueToReference.objectData.splice(valueToReference.objectData.indexOf(existingItem), 1);
-                        return existingItem;
+                let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
+                    if (valueToReference.objectData.length > 0) {
+                        const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
+                        if (existingItem) {
+                            valueToReference.objectData.splice(valueToReference.objectData.indexOf(existingItem), 1);
+                            return existingItem;
+                        }
                     }
-                }
-                return objectData;
-            });
+                    return objectData;
+                });
 
-            objectData = objectData.concat(clone(valueToReference.objectData));
-            valueToReference.objectData = objectData;
-            break;
+                objectData = objectData.concat(clone(valueToReference.objectData));
+                valueToReference.objectData = objectData;
+                break;
 
-        case 'REMOVE':
-            valueToReference.objectData = valueToReference.objectData || [];
+            case 'REMOVE':
+                valueToReference.objectData = valueToReference.objectData || [];
 
-            valueToReference.objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
-                .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
-            break;
+                valueToReference.objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || [])
+                    .filter(objectData => !valueToReference.objectData.find(item => item.externalId === objectData.externalId));
+                break;
+            }
+
+            setStateValue(operation.valueElementToApplyId, typeElementId, snapshot, valueToReference);
         }
 
-        setStateValue(operation.valueElementToApplyId, typeElementId, snapshot, valueToReference);
-    }
-
-    return state;
+        resolve(state);
+    });
 };
