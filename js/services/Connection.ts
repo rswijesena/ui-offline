@@ -39,7 +39,7 @@ export const isOnline = () => {
         return ($.Deferred()).resolve(false);
     }
 
-    return hasNetwork(); // Ping engine
+    return hasNetwork();
 };
 
 /**
@@ -60,19 +60,6 @@ export const onlineRequest = (
     stateId: string,
     authenticationToken: string,
     request: any) => {
-
-    // We want to cache page component values
-    // as the user moves through the flow
-    if (stateId && event === 'invoke') {
-        const flowKey = manywho.utils.getFlowKey(
-            tenantId,
-            metaData.id.id,
-            metaData.id.versionId,
-            stateId,
-            'main',
-        );
-        extractComponentValues(stateId, flowKey);
-    }
 
     let json = null;
 
@@ -109,7 +96,15 @@ export const onlineRequest = (
  * @param tenantId
  * @param stateId
  */
-export const offlineRequest = (resolveContext: any, event: EventTypes, urlPart: string, request: string, tenantId: string, stateId: string) => {
+export const offlineRequest = (
+    resolveContext: any,
+    event: EventTypes,
+    urlPart: string,
+    request: string,
+    tenantId: string,
+    stateId: string,
+    authenticationToken: string,
+) => {
     const deferred = jQuery.Deferred();
 
     OfflineCore.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
@@ -118,7 +113,25 @@ export const offlineRequest = (resolveContext: any, event: EventTypes, urlPart: 
         });
 
     return deferred
-        .done(manywho.settings.event(event + '.done'))
+        .done((response) => {
+            manywho.settings.event(event + '.done');
+            console.log('MAKE API CALL!!!!!');
+            isOnline()
+                .then((response) => {
+                    if (response && request && event === 'invoke') {
+                        onlineRequest(
+                            event,
+                            '/api/run/1/state/' + stateId,
+                            'POST',
+                            tenantId,
+                            stateId,
+                            authenticationToken,
+                            request,
+                        );
+                    }
+                });
+
+        })
         .fail(manywho.connection.onError)
         .fail(manywho.settings.event(event + '.fail'));
 };
@@ -148,24 +161,12 @@ export const request = (
         .then((response) => {
             if (response) {
 
-                if (stateId && authenticationToken) {
-                    const url = `${manywho.settings.global('platform.uri')}/api/admin/1/states/${stateId}`;
-                    const request = {
-                        headers: {
-                            Authorization: authenticationToken,
-                        },
-                    };
-                    return fetch(url, request)
-                        .then((response) => {
-                            console.log(response);
-                        });
-                }
-
                 // Device is connected to the internet
                 return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);
+                // return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId, authenticationToken);
             }
 
             // Device is not connected to the internet
-            return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
+            return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId, authenticationToken);
         });
 };

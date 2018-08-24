@@ -24,7 +24,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            view: null,
+            view: 0,
         };
     }
 
@@ -36,7 +36,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
         // We do not want to keep caching
         // whilst the flow is offline
-        killCachingInterval();
+        // killCachingInterval();
 
         this.setState({ view: null });
         OfflineCore.isOffline = true;
@@ -53,7 +53,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     onOnline = (flow) => {
 
         // Start caching again!
-        setCachingInterval(flow.state.id, this.props.flowKey);
+        // setCachingInterval(flow.state.id, this.props.flowKey);
 
         this.setState({ view: null });
         OfflineCore.isOffline = false;
@@ -77,7 +77,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     componentDidMount() {
-        const flowKey = this.props.flowKey;
+        /*const flowKey = this.props.flowKey;
         const stateId = manywho.utils.extractStateId(flowKey);
         const id = manywho.utils.extractFlowId(flowKey);
         const versionId = manywho.utils.extractFlowVersionId(flowKey);
@@ -93,7 +93,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
                 if (flow) {
                     this.onOffline();
                 }
-            });
+            });*/
     }
 
     render() {

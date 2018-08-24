@@ -52,7 +52,6 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
  * @param state
  * @param snapshot
  * @param tenantId
- * @param cachedPageComponents properties for all page components stored in browser cache
  */
 export const generatePage = function (
     request: any,
@@ -60,7 +59,6 @@ export const generatePage = function (
     state: IState,
     snapshot: any,
     tenantId: String,
-    cachedPageComponents: any,
 ) {
     const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
@@ -220,7 +218,7 @@ export const generatePage = function (
 
                 if (stateValue) {
                     selectedValue = stateValue;
-                } else {
+                /*} else {
 
                     // If there is no component content value in the offline
                     // state, then lets refer back to any values stored in
@@ -232,7 +230,7 @@ export const generatePage = function (
                                 selectedValue = cachedComponent;
                             }
                         }
-                    }
+                    }*/
                 }
             }
 
