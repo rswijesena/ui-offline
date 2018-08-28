@@ -1,4 +1,4 @@
-import { extractComponentValues } from './StateCaching';
+import { foo } from './StateCaching';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
@@ -71,7 +71,7 @@ export const onlineRequest = (
             stateId,
             'main',
         );
-        extractComponentValues(stateId, flowKey);
+        foo(stateId, flowKey);
     }
 
     let json = null;

@@ -1,4 +1,4 @@
-import { getOnlineData, setOnlineData } from './Storage';
+import { getOfflineData, getOnlineData, setOnlineData } from './Storage';
 
 declare const manywho: any;
 
@@ -11,15 +11,40 @@ const cachedComponents = {};
  * runtime state and storing in a new state that gets updated
  * via the set interval
  */
-export const extractComponentValues = (stateId, flowKey) => {
+export const extractStateComponentValues = (stateId, flowKey) => {
     const components = manywho.state.getComponents(flowKey);
+    const modelComponents = manywho.model.getComponents(flowKey);
+    if (components) {
+        const clone = {};
+        for (const key of Object.keys(components)) {
+            if (modelComponents[key] && modelComponents[key].objectData) {
+                const selectedObjectData = modelComponents[key].objectData.filter(item => item.isSelected);
+                clone[key] = {
+                    contentValue: components[key].contentValue || null,
+                    objectData: selectedObjectData && selectedObjectData.length > 0 ? selectedObjectData : modelComponents[key].objectData,
+                };
+            } else {
+                clone[key] = {
+                    contentValue: components[key].contentValue || null,
+                    objectData: null,
+                };
+            }
+
+        }
+        const result = Object.assign(cachedComponents, clone);
+        return setOnlineData(stateId, result);
+    }
+};
+
+export const extractModelComponentValues = (stateId, flowKey) => {
+    const components = manywho.model.getComponents(flowKey);
     if (components) {
         const clone = {};
         for (const key of Object.keys(components)) {
             clone[key] = components[key];
         }
         const result = Object.assign(cachedComponents, clone);
-        setOnlineData(stateId, result);
+        return setOnlineData(stateId, result);
     }
 };
 
@@ -40,6 +65,13 @@ export const getCachedValues = (stateId) => {
     return getOnlineData(stateId);
 };
 
+export const foo = (stateId, flowKey) => {
+    extractModelComponentValues(stateId, flowKey)
+        .then(() => {
+            extractStateComponentValues(stateId, flowKey);
+        });
+};
+
 /**
  * @param flowKey
  * @description for updating the page component state
@@ -47,6 +79,6 @@ export const getCachedValues = (stateId) => {
  */
 export const setCachingInterval = (stateId, flowKey) => {
     interval = setInterval(
-        () => { extractComponentValues(stateId, flowKey); }, 5000,
+        () => { foo(stateId, flowKey); }, 5000,
     );
 };
