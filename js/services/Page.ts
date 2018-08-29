@@ -229,12 +229,16 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     }
                 }
 
+                const orderColumns = (a, b) => {
+                    return a.order - b.order;
+                };
+
                 if (typeElementId) {
                     const typeElement = snapshot.metadata.typeElements.find(element => element.id === typeElementId);
                     component.columns = component.columns.map((column) => {
                         column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
                         return column;
-                    });
+                    }).sort(orderColumns);
                 }
             }
 
