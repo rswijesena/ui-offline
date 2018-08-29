@@ -206,33 +206,41 @@ export const generatePage = function (
 
             let selectedValue = null;
             let sourceValue = null;
+            let cachedValue = null;
+
+            const snapShotValue = snapshot.getValue(
+                component.valueElementValueBindingReferenceId,
+            );
+
+            const stateValue = getStateValue(
+                component.valueElementValueBindingReferenceId,
+                snapShotValue.typeElementId,
+                snapShotValue.contentType,
+                '',
+            );
 
             if (component.valueElementValueBindingReferenceId) {
-                selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
-                value.contentType = snapshot.getContentTypeForValue(component.valueElementValueBindingReferenceId);
-
-                const stateValue = getStateValue(
+                selectedValue = snapShotValue;
+                value.contentType = snapshot.getContentTypeForValue(
                     component.valueElementValueBindingReferenceId,
-                    selectedValue.typeElementId,
-                    selectedValue.contentType,
-                    '',
                 );
 
-                if (stateValue) {
-                    selectedValue = stateValue;
-                } else {
-
-                    // If there is no component content value in the offline
-                    // state, then lets refer back to any values stored in
-                    // the online component cache and set that as the content value
-                    for (const key of Object.keys(cachedPageComponents)) {
-                        if (key === component.id) {
-                            const cachedComponent = cachedPageComponents[component.id];
-                            if (cachedComponent) {
-                                selectedValue = cachedComponent;
-                            }
+                // If there is no component content value in the offline
+                // state, then lets refer back to any values stored in
+                // the online component cache and set that as the content value
+                for (const key of Object.keys(cachedPageComponents)) {
+                    if (key === component.id) {
+                        const cachedComponent = cachedPageComponents[component.id];
+                        if (cachedComponent) {
+                            cachedValue = cachedComponent;
                         }
                     }
+                }
+
+                if (cachedValue) {
+                    selectedValue = cachedValue;
+                } else if (stateValue) {
+                    selectedValue = stateValue;
                 }
             }
 
@@ -241,16 +249,12 @@ export const generatePage = function (
                 if (component.objectDataRequest) {
                     typeElementId = component.objectDataRequest.typeElementId;
                 } else if (component.valueElementDataBindingReferenceId) {
-                    sourceValue = snapshot.getValue(component.valueElementDataBindingReferenceId);
+                    sourceValue = snapShotValue;
                     typeElementId = sourceValue.typeElementId;
 
-                    const stateValue = getStateValue(
-                        component.valueElementDataBindingReferenceId,
-                        sourceValue.typeElementId,
-                        sourceValue.contentType,
-                        '',
-                    );
-                    if (stateValue) {
+                    if (cachedValue) {
+                        sourceValue = cachedValue;
+                    } else if (stateValue) {
                         sourceValue = stateValue;
                     }
                 }
