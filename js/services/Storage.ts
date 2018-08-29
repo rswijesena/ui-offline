@@ -7,10 +7,6 @@ const offlineStore = localforage.createInstance({
     name: 'offline',
 });
 
-const onlineStore = localforage.createInstance({
-    name: 'online',
-});
-
 /**
  * Get the previously saved local version of the state from local storage.
  * If the `id` of the state isn't provided then iterate across all local storage
@@ -80,31 +76,4 @@ export const setOfflineData = (flow: any) => {
  */
 export const removeOfflineData = (id: string) => {
     return offlineStore.removeItem(`manywho:offline-${id}`);
-};
-
-/**
- * @param stateId
- * @description
- */
-export const getOnlineData = (stateId: string) => {
-    return onlineStore.getItem(`manywho:online-${stateId}`)
-        .then((value) => {
-            if (value) {
-                return value;
-            }
-        });
-};
-
-/**
- * @param flow
- * @param components page components
- * @description creating and updating indexDB cache store
- * holding page component content values that had been set whilst online
- */
-export const setOnlineData = (stateId: string, components: any) => {
-
-    return onlineStore.getItem(`manywho:online-${stateId}`)
-        .then(() => {
-            return onlineStore.setItem(`manywho:online-${stateId}`, components);
-        });
 };
