@@ -10,7 +10,6 @@ import { StateUpdate } from '../models/State';
 import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
 import { clone, flatten, guid } from '../services/Utils';
-import { getCachedValues } from './StateCaching';
 
 declare const manywho: any;
 declare const metaData: any;
@@ -413,62 +412,55 @@ const OfflineCore = {
 
     constructResponse(nextMapElement, request, snapshot, flow, context) {
 
-        // First we need to check the browser cache for any values
-        // stored that we need before construvting the response
-        // to send back to ui core
-        return getCachedValues(flow.state.id)
-            .then((cachedPageComponents) => {
-                let pageResponse = null;
-                if (nextMapElement.elementType === 'step') {
-                    pageResponse = Step.generate(nextMapElement, snapshot);
-                } else if (nextMapElement.elementType === 'input') {
-                    pageResponse = generatePage(
-                        request,
-                        nextMapElement,
-                        flow.state,
-                        snapshot,
-                        flow.tenantId,
-                        cachedPageComponents,
+        let pageResponse = null;
+        if (nextMapElement.elementType === 'step') {
+            pageResponse = Step.generate(nextMapElement, snapshot);
+        } else if (nextMapElement.elementType === 'input') {
+            pageResponse = generatePage(
+                request,
+                nextMapElement,
+                flow.state,
+                snapshot,
+                flow.tenantId,
+            );
+        } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
+            pageResponse = {
+                developerName: 'done',
+                mapElementId: nextMapElement.id,
+            };
+        }
+
+        if (nextMapElement.outcomes && !pageResponse) {
+            return setOfflineData(flow)
+                .then(() => {
+                    return OfflineCore.getResponse(
+                        context, null, null,
+                        {
+                            currentMapElementId: nextMapElement.id,
+                            mapElementInvokeRequest: {
+                                selectedOutcomeId: Rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id,
+                            },
+                            invokeType: 'FORWARD',
+                            stateId: request.stateId,
+                        },
+                        request.tenantId,
+                        request.stateId,
                     );
-                } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
-                    pageResponse = {
-                        developerName: 'done',
-                        mapElementId: nextMapElement.id,
-                    };
-                }
+                });
+        }
 
-                if (nextMapElement.outcomes && !pageResponse) {
-                    return setOfflineData(flow)
-                        .then(() => {
-                            return OfflineCore.getResponse(
-                                context, null, null,
-                                {
-                                    currentMapElementId: nextMapElement.id,
-                                    mapElementInvokeRequest: {
-                                        selectedOutcomeId: Rules.getOutcome(nextMapElement.outcomes, flow.state, snapshot).id,
-                                    },
-                                    invokeType: 'FORWARD',
-                                    stateId: request.stateId,
-                                },
-                                request.tenantId,
-                                request.stateId,
-                            );
-                        });
-                }
+        flow.state.currentMapElementId = nextMapElement.id;
+        setOfflineData(flow);
 
-                flow.state.currentMapElementId = nextMapElement.id;
-                setOfflineData(flow);
-
-                return {
-                    currentMapElementId: nextMapElement.id,
-                    invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
-                    mapElementInvokeResponses: [pageResponse],
-                    navigationElementReferences: snapshot.getNavigationElementReferences(),
-                    stateId: request.stateId,
-                    stateToken: request.stateToken,
-                    statusCode: '200',
-                };
-            });
+        return {
+            currentMapElementId: nextMapElement.id,
+            invokeType: nextMapElement.outcomes ? 'FORWARD' : 'DONE',
+            mapElementInvokeResponses: [pageResponse],
+            navigationElementReferences: snapshot.getNavigationElementReferences(),
+            stateId: request.stateId,
+            stateToken: request.stateToken,
+            statusCode: '200',
+        };
     },
 
     /**

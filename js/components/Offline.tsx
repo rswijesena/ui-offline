@@ -2,9 +2,7 @@ import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
-import { clone, flatten, guid } from '../services/Utils';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
-import { killCachingInterval, setCachingInterval } from '../services/StateCaching';
 
 import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';
@@ -33,11 +31,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOffline = () => {
-
-        // We do not want to keep caching
-        // whilst the flow is offline
-        killCachingInterval();
-
         this.setState({ view: null });
         OfflineCore.isOffline = true;
         this.forceUpdate();
@@ -51,21 +44,12 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOnline = (flow) => {
-
-        // Start caching again!
-        setCachingInterval(flow.state.id, this.props.flowKey);
-
         this.setState({ view: null });
         OfflineCore.isOffline = false;
 
         setOfflineData(flow)
-            .then(() => OfflineCore.rejoin(this.props.flowKey));
-
-            // I think we need to find a different way of clearing out stale
-            // cache as there are instances where we still need cached values,
-            // like when values are set whilst offline, then user returns online then back offline again
-
-            // .then(() => removeOfflineData(flow.state.id));
+            .then(() => OfflineCore.rejoin(this.props.flowKey))
+            .then(() => removeOfflineData(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -84,12 +68,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
-
-                // This is when we initiate caching component values in state,
-                // might not be the best time to initiate this, but cannot find
-                // another way of accessing the flowkey when the flow is initialising.
-                setCachingInterval(stateId, flowKey);
-
                 if (flow) {
                     this.onOffline();
                 }

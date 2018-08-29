@@ -1,4 +1,4 @@
-import { foo } from './StateCaching';
+import { pollForStateValues } from './StateCaching';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
@@ -71,7 +71,7 @@ export const onlineRequest = (
             stateId,
             'main',
         );
-        foo(stateId, flowKey);
+        // foo(stateId, flowKey);
     }
 
     let json = null;
@@ -94,7 +94,12 @@ export const onlineRequest = (
             }
         },
     })
-    .done(manywho.settings.event(event + '.done'))
+    .done(() => {
+        manywho.settings.event(event + '.done');
+        if (stateId && authenticationToken && tenantId) {
+            pollForStateValues(stateId, tenantId, authenticationToken);
+        }
+    })
     .fail(manywho.connection.onError)
     .fail(manywho.settings.event(event + '.fail'));
 };
@@ -147,19 +152,6 @@ export const request = (
     return isOnline()
         .then((response) => {
             if (response) {
-
-                if (stateId && authenticationToken) {
-                    const url = `${manywho.settings.global('platform.uri')}/api/admin/1/states/${stateId}`;
-                    const request = {
-                        headers: {
-                            Authorization: authenticationToken,
-                        },
-                    };
-                    return fetch(url, request)
-                        .then((response) => {
-                            console.log(response);
-                        });
-                }
 
                 // Device is connected to the internet
                 return onlineRequest(event, urlPart, methodType, tenantId, stateId, authenticationToken, request);

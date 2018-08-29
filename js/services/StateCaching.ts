@@ -1,84 +1,70 @@
-import { getOfflineData, getOnlineData, setOnlineData } from './Storage';
+import { setStateValue } from '../models/State';
+import Snapshot from './Snapshot';
+import OfflineCore from '../services/OfflineCore';
 
 declare const manywho: any;
+declare const metaData: any;
 
-let interval = null;
-const cachedComponents = {};
+let authenticationToken = undefined;
+let timer = undefined;
+
+const snapshot: any = Snapshot(metaData);
+
+// This needs to be set in the player manually
+// or injected in when generating a Cordova app
+const pollInterval = manywho.pollInterval;
 
 /**
- * @param flowKey
- * @description extracting page component properties from
- * runtime state and storing in a new state that gets updated
- * via the set interval
+ * @param values an array of values returned from state values endpoint
+ * @description refreshing the offline state with current state values
  */
-export const extractStateComponentValues = (stateId, flowKey) => {
-    const components = manywho.state.getComponents(flowKey);
-    const modelComponents = manywho.model.getComponents(flowKey);
-    if (components) {
-        const clone = {};
-        for (const key of Object.keys(components)) {
-            if (modelComponents[key] && modelComponents[key].objectData) {
-                const selectedObjectData = modelComponents[key].objectData.filter(item => item.isSelected);
-                clone[key] = {
-                    contentValue: components[key].contentValue || null,
-                    objectData: selectedObjectData && selectedObjectData.length > 0 ? selectedObjectData : modelComponents[key].objectData,
-                };
-            } else {
-                clone[key] = {
-                    contentValue: components[key].contentValue || null,
-                    objectData: null,
-                };
-            }
+const injectValuesIntoState = (values: any) => {
+    values.forEach((value) => {
+        const valueProps = {
+            contentValue: value.contentValue,
+            objectData: value.objectData,
+        };
+        setStateValue(
+            { id: value.valueElementId },
+            value.typeElementId,
+            snapshot,
+            valueProps,
+        );
+    });
+};
 
-        }
-        const result = Object.assign(cachedComponents, clone);
-        return setOnlineData(stateId, result);
+/**
+ * @param stateId
+ * @param tenantId
+ * @param token
+ * @description making a GET call to the states value endpoint
+ */
+export const pollForStateValues = (stateId: string, tenantId: string, token: string) => {
+    authenticationToken = token;
+
+    clearTimeout(timer);
+
+    if (!OfflineCore.isOffline) { // only poll api whilst online
+        const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values`;
+        const request = {
+            headers: {
+                ManyWhoTenant: tenantId,
+                Authorization: authenticationToken,
+            },
+        };
+        fetch(url, request)
+            .then((response) => {
+                return response.json();
+            })
+            .then((response) => {
+                injectValuesIntoState(response);
+
+                // This is so the flow can perioically poll for the latest values
+                // in case values have changed from a user joining the state
+                timer = setTimeout(
+                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, pollInterval,
+                );
+            })
+            .catch(response => console.error(response));
     }
-};
-
-export const extractModelComponentValues = (stateId, flowKey) => {
-    const components = manywho.model.getComponents(flowKey);
-    if (components) {
-        const clone = {};
-        for (const key of Object.keys(components)) {
-            clone[key] = components[key];
-        }
-        const result = Object.assign(cachedComponents, clone);
-        return setOnlineData(stateId, result);
-    }
-};
-
-/**
- * @description Stopping the set interval,
- * this happens when going offline
- */
-export const killCachingInterval = () => {
-    clearInterval(interval);
-};
-
-/**
- * @description returns an object containing page components,
- * whereby the key is the component id and the value describes
- * the component properties
- */
-export const getCachedValues = (stateId) => {
-    return getOnlineData(stateId);
-};
-
-export const foo = (stateId, flowKey) => {
-    extractModelComponentValues(stateId, flowKey)
-        .then(() => {
-            extractStateComponentValues(stateId, flowKey);
-        });
-};
-
-/**
- * @param flowKey
- * @description for updating the page component state
- * periodically based on a time set by the flow builder
- */
-export const setCachingInterval = (stateId, flowKey) => {
-    interval = setInterval(
-        () => { foo(stateId, flowKey); }, 5000,
-    );
 };

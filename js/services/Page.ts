@@ -1,6 +1,5 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
-import { getCachedValues } from './StateCaching';
 import PageConditions from './PageConditions';
 
 declare const manywho: any;
@@ -12,10 +11,6 @@ declare const manywho: any;
 export const getPageContainers = (container: any) => {
     if (container.pageContainers) {
         container.pageContainerResponses = container.pageContainers.map(getPageContainers);
-
-        // TODO: find out why this key is being deleted
-        // as doing so prevents containers from being flattened
-
         // delete container.pageContainers;
     }
     return container;
@@ -52,16 +47,8 @@ export const flattenContainers = (containers: any[], parent: any, result: any[],
  * @param state
  * @param snapshot
  * @param tenantId
- * @param cachedPageComponents properties for all page components stored in browser cache
  */
-export const generatePage = function (
-    request: any,
-    mapElement: any,
-    state: IState,
-    snapshot: any,
-    tenantId: String,
-    cachedPageComponents: any,
-) {
+export const generatePage = function (request: any, mapElement: any, state: IState, snapshot: any, tenantId: String) {
     const pageElement = snapshot.metadata.pageElements.find(page => mapElement.pageElementId === page.id);
 
     const flowKey = manywho.utils.getFlowKey(
@@ -206,40 +193,19 @@ export const generatePage = function (
 
             let selectedValue = null;
             let sourceValue = null;
-            let cachedValue = null;
-
-            const snapShotValue = snapshot.getValue(
-                component.valueElementValueBindingReferenceId,
-            );
-
-            const stateValue = getStateValue(
-                component.valueElementValueBindingReferenceId,
-                snapShotValue.typeElementId,
-                snapShotValue.contentType,
-                '',
-            );
 
             if (component.valueElementValueBindingReferenceId) {
-                selectedValue = snapShotValue;
-                value.contentType = snapshot.getContentTypeForValue(
+                selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
+                value.contentType = snapshot.getContentTypeForValue(component.valueElementValueBindingReferenceId);
+
+                const stateValue = getStateValue(
                     component.valueElementValueBindingReferenceId,
+                    selectedValue.typeElementId,
+                    selectedValue.contentType,
+                    '',
                 );
 
-                // If there is no component content value in the offline
-                // state, then lets refer back to any values stored in
-                // the online component cache and set that as the content value
-                for (const key of Object.keys(cachedPageComponents)) {
-                    if (key === component.id) {
-                        const cachedComponent = cachedPageComponents[component.id];
-                        if (cachedComponent) {
-                            cachedValue = cachedComponent;
-                        }
-                    }
-                }
-
-                if (cachedValue) {
-                    selectedValue = cachedValue;
-                } else if (stateValue) {
+                if (stateValue) {
                     selectedValue = stateValue;
                 }
             }
@@ -249,12 +215,16 @@ export const generatePage = function (
                 if (component.objectDataRequest) {
                     typeElementId = component.objectDataRequest.typeElementId;
                 } else if (component.valueElementDataBindingReferenceId) {
-                    sourceValue = snapShotValue;
+                    sourceValue = snapshot.getValue(component.valueElementDataBindingReferenceId);
                     typeElementId = sourceValue.typeElementId;
 
-                    if (cachedValue) {
-                        sourceValue = cachedValue;
-                    } else if (stateValue) {
+                    const stateValue = getStateValue(
+                        component.valueElementDataBindingReferenceId,
+                        sourceValue.typeElementId,
+                        sourceValue.contentType,
+                        '',
+                    );
+                    if (stateValue) {
                         sourceValue = stateValue;
                     }
                 }
