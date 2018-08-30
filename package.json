@@ -82,7 +82,8 @@
             "json"
         ],
         "moduleNameMapper": {
-            "\\.(css|less)$": "identity-obj-proxy"
+            "\\.(css|less)$": "identity-obj-proxy",
+            "worker.js":"<rootDir>/__mocks__/workerMock.js"
         },
         "testResultsProcessor": "./node_modules/jest-junit-reporter"
     },

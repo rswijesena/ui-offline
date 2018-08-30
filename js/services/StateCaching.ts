@@ -52,7 +52,7 @@ export const pollForStateValues = (stateId: string, tenantId: string, token: str
                 Authorization: authenticationToken,
             },
         };
-        fetch(url, request)
+        return fetch(url, request)
             .then((response) => {
                 return response.json();
             })

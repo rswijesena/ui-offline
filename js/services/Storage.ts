@@ -3,10 +3,6 @@ declare const localforage: any;
 
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
-const offlineStore = localforage.createInstance({
-    name: 'offline',
-});
-
 /**
  * Get the previously saved local version of the state from local storage.
  * If the `id` of the state isn't provided then iterate across all local storage
@@ -16,13 +12,13 @@ const offlineStore = localforage.createInstance({
  * @param flowVersionId
  */
 export const getOfflineData = (id: string, flowId: string = null, flowVersionId: string = null) => {
-    return offlineStore.getItem(`manywho:offline-${id}`)
+    return localforage.getItem(`manywho:offline-${id}`)
         .then((value) => {
             if (value) {
                 return value;
             }
 
-            return offlineStore.iterate((value, key) => {
+            return localforage.iterate((value, key) => {
                 if (value.id.id === flowId && value.id.versionId === flowVersionId) {
                     return value;
                 }
@@ -46,7 +42,7 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
 export const setOfflineData = (flow: any) => {
 
     // Checking if there is an existing cache for current state
-    return offlineStore.getItem(`manywho:offline-${flow.state.id}`)
+    return localforage.getItem(`manywho:offline-${flow.state.id}`)
         .then((value) => {
 
             // A cache store should only be created if one
@@ -60,13 +56,13 @@ export const setOfflineData = (flow: any) => {
                     // If the flow has a new state then we want to clear out
                     // stale cache from previous state/s. Any cache store which
                     // has the same associated flow id and version will be removed
-                    offlineStore.iterate((value, key) => {
+                    localforage.iterate((value, key) => {
                         if (value.id.id === flow.id.id && value.id.versionId === flow.id.versionId) {
                             removeOfflineData(value.state.id);
                         }
                     });
                 }
-                return offlineStore.setItem(`manywho:offline-${flow.state.id}`, flow);
+                return localforage.setItem(`manywho:offline-${flow.state.id}`, flow);
             }
         });
 };
@@ -75,5 +71,5 @@ export const setOfflineData = (flow: any) => {
  * @param id
  */
 export const removeOfflineData = (id: string) => {
-    return offlineStore.removeItem(`manywho:offline-${id}`);
+    return localforage.removeItem(`manywho:offline-${id}`);
 };

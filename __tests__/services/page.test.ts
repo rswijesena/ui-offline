@@ -1,17 +1,17 @@
-jest.mock('../../js/services/PageConditions', () => ({
-    checkForCondition: jest.fn(() => {
-        return { pageRules: ['test'] };
-    }),
-    checkForEvents:  jest.fn(() => {
-        return [];
-    }),
-    extractPageConditionValues: jest.fn(),
-    applyScalarCondition: jest.fn(),
-    applyBooleanCondition: jest.fn(),
-}));
-
 import { generatePage } from '../../js/services/Page';
 import PageConditions from '../../js/services/PageConditions';
+
+PageConditions.checkForCondition = jest.fn(() => {
+    return { pageRules: ['test'] };
+});
+
+PageConditions.checkForEvents = jest.fn(() => {
+    return [];
+});
+
+PageConditions.extractPageConditionValues = jest.fn();
+PageConditions.applyScalarCondition = jest.fn();
+PageConditions.applyBooleanCondition = jest.fn();
 
 // This is here as @types/jest does not type cast mockReturnValue
 const castPageConditions: any = PageConditions;
@@ -114,15 +114,13 @@ const mockTenantId = '';
 describe('Page service expected behaviour', () => {
 
     test('Check is made to determine if a component is listening for a page condition', () => {
-        const spy = jest.spyOn(PageConditions, 'checkForCondition');
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageConditions.checkForCondition).toHaveBeenCalled();
     });
 
     test('Check is made to determine if a component triggers a page condition', () => {
-        const spy = jest.spyOn(PageConditions, 'checkForEvents');
-        const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
+        expect(PageConditions.checkForEvents).toHaveBeenCalled();
     });
 
     test('If a page component triggers a page condition then its hasEvents prop must be true', () => {
@@ -134,31 +132,27 @@ describe('Page service expected behaviour', () => {
     });
 
     test('If a trigger components value is that of a boolean then call boolean page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyBooleanCondition');
         const resp = { leftValueElementContentValue: true };
         castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageConditions.applyBooleanCondition).toHaveBeenCalled();
     });
 
     test('If a comparable value (page rule right) is that of a string then call scalar page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: 'test' };
         castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageConditions.applyScalarCondition).toHaveBeenCalled();
     });
 
     test('If a comparable value (page rule right) is that of a number then call scalar page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: 10 };
         castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageConditions.applyScalarCondition).toHaveBeenCalled();
     });
 
     test('More complex page conditions throw an error', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
         const resp = { rightValueElementContentValue: [], leftValueElementContentValue: [] };
         castPageConditions.extractPageConditionValues.mockReturnValue(resp);
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId),
