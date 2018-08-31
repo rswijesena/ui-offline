@@ -216,8 +216,8 @@ describe('Macro value methods behaviour', () => {
             mockArrayProps,
         );
     });
-    test('Function for getting list values should return an object with property methods', () => {
+    test.skip('Function for getting list values should return an object with property methods', () => {
     });
-    test('Binding property methods should return an object with values mapping to property methods', () => {
+    test.skip('Binding property methods should return an object with values mapping to property methods', () => {
     });
 });
