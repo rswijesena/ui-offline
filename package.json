@@ -64,6 +64,7 @@
         "collectCoverageFrom": [
             "**/js/components/*.{ts,tsx}",
             "**/js/services/*.{ts,tsx}",
+            "**/js/services/macros/*.{ts,tsx}",
             "**/js/models/*.{ts,tsx}"
         ],
         "setupFiles": [

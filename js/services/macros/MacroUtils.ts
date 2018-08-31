@@ -49,6 +49,10 @@ export const getValueByName = (name: string, metadata: any) => {
     const MacroState = getMacroState();
     const value =  metadata.valueElements.find(element => element.developerName === name);
 
+    if (!value) {
+        throw new Error(`A value with name: ${name}, cannot be found in the flow snapshot`);
+    }
+
     // If the values content value has already been modified
     // whilst offline then we want to return this instaed of the default
     // content value found in the metadata object
