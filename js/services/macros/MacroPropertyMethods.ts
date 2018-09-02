@@ -49,31 +49,31 @@ const setPropertyStringValue = (typeElementPropertyId, contentValue) => {
 };
 
 const setPropertyContentValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, contentValue, value);
 };
 
 const setPropertyPasswordValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, contentValue, value);
 };
 
 const setPropertyNumberValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, contentValue, value);
 };
 
 const setPropertyDateTimeValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, contentValue, value);
 };
 
 const setPropertyBooleanValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, contentValue, value);
 };
 
 const setPropertyArray = (typeElementPropertyId, objectData) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, objectData, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.LIST, objectData, value);
 };
 
 const setPropertyObject = (typeElementPropertyId, objectData) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, objectData, value);
+    setProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, objectData, value);
 };
 
 export default {
