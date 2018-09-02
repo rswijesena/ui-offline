@@ -89,46 +89,108 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             if (pageElement.pageConditions) {
 
                 // PAGE CONDITIONS OVERHAUL
-                // Get the criteria type
-                // Get the metadata type
+                const CRITERIA = {
+                    isEmpty: 'IS_EMPTY',
+                    isEqual: 'EQUAL',
+                    isNotEqual: 'NOT_EQUAL',
+                };
 
                 // First check to see if this component is a component
                 // listening for a condition i.e. has an operation
                 // associated to it
-
-                // If it does then do the following:
-
-                // Find the value of the trigger component
-                // This is the value that we want to update in state
-                // First check if it alreasdy exists in state,
-                // if it doesnt retreive content value from snapshot
-
-                // We also want the value that we are comparing it too
-                // (the "right" property of the page rule)
-                // This is static so we always extract the content value
-                // from the snapshot
-
-                // Now compare the two values for equality
-                // Update the trigger components value in state
-                // Then send the result to the "page operation"
-
-                // PERFORM THE OPERATION
-                // We need the assignor value, this should be extracted from
-                // the snapshot
-                // Now we need to compare the equality of the result from the page
-                // rule equality check with the assignor value
-                // The result of which (true or false)
-                // we then apply to the assignee components relevant metadata property
-                // based on the metadata type e.g isVisible etc
-
-                // PAGE CONDITIONS OVERHAUL FINISH
-
-                // Check component is listening for page condition
-                // and return the page condition metadata if exists
                 const assocCondition = PageConditions.checkForCondition(
                     pageElement.pageConditions,
                     component.id,
                 );
+
+                // If it does then do the following:
+                if (assocCondition !== undefined && assocCondition.pageRules.length === 1 && assocCondition.pageOperations.length === 1) {
+                    const pageRule = assocCondition.pageRules[0];
+                    const pageOperation = assocCondition.pageOperations[0];
+
+                    // Get the criteria type
+                    const criteriaType = pageRule.criteriaType;
+
+                    // Get the metadata type
+                    const metaDataType = pageOperation.assignment.assignee.metadataType;
+
+                    if (!criteriaType || !metaDataType) {
+                        throw new Error('Check you have added a criteria and/or a metadata type value');
+                    }
+
+                    // Find the value of the trigger component
+                    // This is the value that we want to update in state
+                    // First check if it alreasdy exists in state,
+                    // if it doesnt retreive content value from snapshot
+                    const triggerComponentValueId = pageRule.left.valueElementToReferenceId.id;
+                    let triggerComponentValueObject = null;
+                    const triggerComponentValueFromState = getStateValue(
+                        triggerComponentValueId,
+                        null,
+                        null,
+                        null,
+                    );
+
+                    if (triggerComponentValueFromState) {
+                        triggerComponentValueObject = triggerComponentValueFromState.contentValue;
+                    } else {
+                        triggerComponentValueObject = snapshot.getValue(
+                            triggerComponentValueId,
+                        );
+                    }
+
+                    if (!triggerComponentValueObject) {
+                        throw new Error(`Cannot find a value for component - ${component.developerName}`);
+                    }
+
+                    // We also want the value that we are comparing it too
+                    // (the "right" property of the page rule)
+                    // This is static so we always extract the content value
+                    // from the snapshot
+                    const valueComparableId = pageRule.right.valueElementToReferenceId.id;
+                    const valueComparable = snapshot.getValue(
+                        valueComparableId,
+                    );
+
+                    if (!valueComparable) {
+                        throw new Error(`Cannot find a value to compare`);
+                    }
+
+                    // Now compare the two values for equality
+                    // Update the trigger components value in state
+                    // Then send the result to the "page operation"
+                    let pageRuleResult = undefined;
+
+                    switch (criteriaType) {
+
+                    case CRITERIA.isEqual:
+                        if (triggerComponentValueObject.contentValue === valueComparable.contentValue) {
+                            pageRuleResult = true;
+                        } else {
+                            pageRuleResult = false;
+                        }
+                        break;
+                    case CRITERIA.isNotEqual:
+                        if (triggerComponentValueObject.contentValue !== valueComparable.contentValue) {
+                            pageRuleResult = true;
+                        } else {
+                            pageRuleResult = false;
+                        }
+                        break;
+                    }
+
+                    // TODO - set value in state to new content value
+
+                    // PERFORM THE OPERATION
+                    // We need the assignor value, this should be extracted from
+                    // the snapshot
+                    // Now we need to compare the equality of the result from the page
+                    // rule equality check with the assignor value
+                    // The result of which (true or false)
+                    // we then apply to the assignee components relevant metadata property
+                    // based on the metadata type e.g isVisible etc
+                }
+                // PAGE CONDITIONS OVERHAUL FINISH
 
                 // Check component triggers a page condition
                 const hasEvents = PageConditions.checkForEvents(
