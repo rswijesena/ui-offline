@@ -68,9 +68,11 @@ export const getValueByName = (name: string, metadata: any) => {
  */
 export const setStateValue = (id: string, value: any) => {
     const MacroState = getMacroState();
-    const clonedMacroState = MacroState;
-    clonedMacroState.values[id] = cloneStateValue(value);
-    setMacroState(clonedMacroState);
+    const clonedMacroState: any = MacroState;
+    if (clonedMacroState.values) {
+        clonedMacroState.values[id] = cloneStateValue(value);
+        setMacroState(clonedMacroState);
+    }
 };
 
 /**

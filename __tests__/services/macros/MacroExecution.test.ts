@@ -37,7 +37,7 @@ describe('Macro execution behaviour', () => {
         const newContentValue = 'value0';
         const mockAdvancedMacro = 'function(state){state.setStringValue("{![' + valueName + ']}", "' + newContentValue + '");}';
 
-        const result = executeMacro(mockAdvancedMacro, mockMetaData, mockState);
+        const result: any = executeMacro(mockAdvancedMacro, mockMetaData, mockState);
         expect(result.values[valueId].contentValue).toEqual(newContentValue);
     });
 });

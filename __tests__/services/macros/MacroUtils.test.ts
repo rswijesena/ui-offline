@@ -1,5 +1,6 @@
-import { getProperty, setProperty } from '../../../js/services/macros/MacroUtils';
+import { getProperty, getValueByName, setStateValue, cloneStateValue } from '../../../js/services/macros/MacroUtils';
 import { CONTENT_TYPES } from '../../../js/constants';
+import { getMacroState, setMacroState } from '../../../js/services/macros/MacroState';
 
 describe('Macro utilities behaviour', () => {
     // getProperty tests
@@ -64,15 +65,124 @@ describe('Macro utilities behaviour', () => {
 
     // getValueByName tests
     test('If value is found in state then return values in state', () => {
+        const mockMetaData = {
+            valueElements: [
+                { id: 'test1', developerName: 'name1', contentValue: 'value1' },
+                { id: 'test2', developerName: 'name2', contentValue: 'value2' },
+                { id: 'test3', developerName: 'name3', contentValue: 'value3' },
+                { id: 'test4', developerName: 'name4', contentValue: 'value4' },
+            ],
+        };
+        const mockState = {
+            values: {
+                test1: { contentValue: 'value1', objectData: null },
+                test2: { contentValue: 'value2', objectData: null },
+                test3: { contentValue: 'value3', objectData: null },
+                test4: { contentValue: 'value4', objectData: null },
+            },
+        };
+
+        const mockValueName = 'name2';
+        const mockValueId = 'test2';
+
+        setMacroState(mockState);
+
+        const expectedResult = {
+            props: mockState.values[mockValueId],
+            id: mockValueId,
+        };
+        const result = getValueByName(mockValueName, mockMetaData);
+        expect(result).toEqual(expectedResult);
+    });
+    test('If value is not found in snapshot then throw an error', () => {
+        const mockMetaData = {
+            valueElements: [
+                { id: 'test1', developerName: 'name1', contentValue: 'value1' },
+                { id: 'test2', developerName: 'name2', contentValue: 'value2' },
+                { id: 'test3', developerName: 'name3', contentValue: 'value3' },
+                { id: 'test4', developerName: 'name4', contentValue: 'value4' },
+            ],
+        };
+        const mockState = {
+            values: {
+                test1: { contentValue: 'value1', objectData: null },
+                test2: { contentValue: 'value2', objectData: null },
+                test3: { contentValue: 'value3', objectData: null },
+                test4: { contentValue: 'value4', objectData: null },
+            },
+        };
+
+        const mockValueName = 'noname';
+        const mockValueId = 'test2';
+
+        setMacroState(mockState);
+
+        expect(() => {
+            getValueByName(mockValueName, mockMetaData);
+        }).toThrow(Error);
     });
     test('If value is not found in state then return values in snapshot', () => {
+        const mockMetaData = {
+            valueElements: [
+                { id: 'test1', developerName: 'name1', contentValue: 'value1' },
+                { id: 'test2', developerName: 'name2', contentValue: 'value2' },
+                { id: 'test3', developerName: 'name3', contentValue: 'value3' },
+                { id: 'test4', developerName: 'name4', contentValue: 'value4' },
+            ],
+        };
+        const mockState = {
+            values: {
+                test1: { contentValue: 'value1', objectData: null },
+                test3: { contentValue: 'value3', objectData: null },
+                test4: { contentValue: 'value4', objectData: null },
+            },
+        };
+
+        const mockValueName = 'name2';
+
+        setMacroState(mockState);
+
+        const expectedResult = {
+            id: 'test2',
+            developerName: 'name2',
+            contentValue: 'value2',
+        };
+        const result = getValueByName(mockValueName, mockMetaData);
+        expect(result).toEqual(expectedResult);
     });
 
     // setStateValue tests
     test('State should get modified with passed value', () => {
+        const mockValueId = 'new';
+        const mockState = {
+            values: {
+                test1: { contentValue: 'value1', objectData: null },
+                test2: { contentValue: 'value2', objectData: null },
+                test3: { contentValue: 'value3', objectData: null },
+                test4: { contentValue: 'value4', objectData: null },
+            },
+        };
+
+        const newStateValue = { contentValue: 'new', objectData: null };
+
+        const newMockState = {
+            values: {
+                test1: { contentValue: 'value1', objectData: null },
+                test2: { contentValue: 'value2', objectData: null },
+                test3: { contentValue: 'value3', objectData: null },
+                test4: { contentValue: 'value4', objectData: null },
+                new: { contentValue: 'new', objectData: null },
+            },
+        };
+
+        setMacroState(mockState);
+        setStateValue(mockValueId, newStateValue);
+        expect(getMacroState()).toEqual(newMockState);
     });
 
     // cloneStateValue tests
     test('Clone function returns argument', () => {
+        const newStateValue = { contentValue: 'new', objectData: null };
+        expect(cloneStateValue(newStateValue)).toEqual(newStateValue);
     });
 });
