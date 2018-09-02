@@ -88,6 +88,41 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
             if (pageElement.pageConditions) {
 
+                // PAGE CONDITIONS OVERHAUL
+                // Get the criteria type
+                // Get the metadata type
+
+                // First check to see if this component is a component
+                // listening for a condition i.e. has an operation
+                // associated to it
+
+                // If it does then do the following:
+
+                // Find the value of the trigger component
+                // This is the value that we want to update in state
+                // First check if it alreasdy exists in state,
+                // if it doesnt retreive content value from snapshot
+
+                // We also want the value that we are comparing it too
+                // (the "right" property of the page rule)
+                // This is static so we always extract the content value
+                // from the snapshot
+
+                // Now compare the two values for equality
+                // Update the trigger components value in state
+                // Then send the result to the "page operation"
+
+                // PERFORM THE OPERATION
+                // We need the assignor value, this should be extracted from
+                // the snapshot
+                // Now we need to compare the equality of the result from the page
+                // rule equality check with the assignor value
+                // The result of which (true or false)
+                // we then apply to the assignee components relevant metadata property
+                // based on the metadata type e.g isVisible etc
+
+                // PAGE CONDITIONS OVERHAUL FINISH
+
                 // Check component is listening for page condition
                 // and return the page condition metadata if exists
                 const assocCondition = PageConditions.checkForCondition(
