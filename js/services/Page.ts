@@ -11,7 +11,7 @@ declare const manywho: any;
 export const getPageContainers = (container: any) => {
     if (container.pageContainers) {
         container.pageContainerResponses = container.pageContainers.map(getPageContainers);
-        delete container.pageContainers;
+        // delete container.pageContainers;
     }
     return container;
 };
@@ -88,6 +88,10 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
             if (pageElement.pageConditions) {
 
+                let pageRuleResult = undefined;
+                let pageOperationResult = undefined;
+                let triggerComponentContentValue = undefined;
+
                 // PAGE CONDITIONS OVERHAUL
                 const CRITERIA = {
                     isEmpty: 'IS_EMPTY',
@@ -95,102 +99,11 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     isNotEqual: 'NOT_EQUAL',
                 };
 
-                // First check to see if this component is a component
-                // listening for a condition i.e. has an operation
-                // associated to it
-                const assocCondition = PageConditions.checkForCondition(
-                    pageElement.pageConditions,
-                    component.id,
-                );
-
-                // If it does then do the following:
-                if (assocCondition !== undefined && assocCondition.pageRules.length === 1 && assocCondition.pageOperations.length === 1) {
-                    const pageRule = assocCondition.pageRules[0];
-                    const pageOperation = assocCondition.pageOperations[0];
-
-                    // Get the criteria type
-                    const criteriaType = pageRule.criteriaType;
-
-                    // Get the metadata type
-                    const metaDataType = pageOperation.assignment.assignee.metadataType;
-
-                    if (!criteriaType || !metaDataType) {
-                        throw new Error('Check you have added a criteria and/or a metadata type value');
-                    }
-
-                    // Find the value of the trigger component
-                    // This is the value that we want to update in state
-                    // First check if it alreasdy exists in state,
-                    // if it doesnt retreive content value from snapshot
-                    const triggerComponentValueId = pageRule.left.valueElementToReferenceId.id;
-                    let triggerComponentValueObject = null;
-                    const triggerComponentValueFromState = getStateValue(
-                        triggerComponentValueId,
-                        null,
-                        null,
-                        null,
-                    );
-
-                    if (triggerComponentValueFromState) {
-                        triggerComponentValueObject = triggerComponentValueFromState.contentValue;
-                    } else {
-                        triggerComponentValueObject = snapshot.getValue(
-                            triggerComponentValueId,
-                        );
-                    }
-
-                    if (!triggerComponentValueObject) {
-                        throw new Error(`Cannot find a value for component - ${component.developerName}`);
-                    }
-
-                    // We also want the value that we are comparing it too
-                    // (the "right" property of the page rule)
-                    // This is static so we always extract the content value
-                    // from the snapshot
-                    const valueComparableId = pageRule.right.valueElementToReferenceId.id;
-                    const valueComparable = snapshot.getValue(
-                        valueComparableId,
-                    );
-
-                    if (!valueComparable) {
-                        throw new Error(`Cannot find a value to compare`);
-                    }
-
-                    // Now compare the two values for equality
-                    // Update the trigger components value in state
-                    // Then send the result to the "page operation"
-                    let pageRuleResult = undefined;
-
-                    switch (criteriaType) {
-
-                    case CRITERIA.isEqual:
-                        if (triggerComponentValueObject.contentValue === valueComparable.contentValue) {
-                            pageRuleResult = true;
-                        } else {
-                            pageRuleResult = false;
-                        }
-                        break;
-                    case CRITERIA.isNotEqual:
-                        if (triggerComponentValueObject.contentValue !== valueComparable.contentValue) {
-                            pageRuleResult = true;
-                        } else {
-                            pageRuleResult = false;
-                        }
-                        break;
-                    }
-
-                    // TODO - set value in state to new content value
-
-                    // PERFORM THE OPERATION
-                    // We need the assignor value, this should be extracted from
-                    // the snapshot
-                    // Now we need to compare the equality of the result from the page
-                    // rule equality check with the assignor value
-                    // The result of which (true or false)
-                    // we then apply to the assignee components relevant metadata property
-                    // based on the metadata type e.g isVisible etc
-                }
-                // PAGE CONDITIONS OVERHAUL FINISH
+                const METADATA_TYPES = {
+                    visible: 'METADATA.VISIBLE',
+                    required: 'METADATA.REQUIRED',
+                    enabled: 'METADATA.ENABLED',
+                };
 
                 // Check component triggers a page condition
                 const hasEvents = PageConditions.checkForEvents(
@@ -209,99 +122,162 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     component['hasEvents'] = false;
                 }
 
-                // It's possible to have multiple page rules,
-                // but offline will only support conditions
-                // with one rule to start with
-                if (assocCondition !== undefined && assocCondition.pageRules.length === 1) {
+                // First check to see if this component is a component
+                // listening for a condition i.e. has an operation
+                // associated to it
+                const assocCondition = PageConditions.checkForCondition(
+                    pageElement.pageConditions,
+                    component.id,
+                );
 
-                    // Theres a bunch of component/value ID's and metadata
-                    // that need to be extracted from the page condition metadata/flow snapshot/state,
-                    // we do this here and return everything needed as key value pairs
-                    const conditionMeta: any = PageConditions.extractPageConditionValues(
-                        assocCondition,
-                        pageElement,
-                        request,
-                        snapshot,
+                // If it does then do the following:
+                if (assocCondition !== undefined && assocCondition.pageRules.length === 1 && assocCondition.pageOperations.length === 1) {
+                    const pageRule = assocCondition.pageRules[0];
+                    const pageOperation = assocCondition.pageOperations[0];
+                    const criteriaType = pageRule.criteriaType;
+                    const metaDataType = pageOperation.assignment.assignee.metadataType;
+
+                    if (!criteriaType || !metaDataType) {
+                        throw new Error('Check you have added a criteria and/or a metadata type value');
+                    }
+
+                    // First check to see if the most upda to date contnent value for
+                    // the trigger component can be found in the offline state
+                    const triggerComponent = pageElement.pageComponents.find(component => component.id === pageRule.left.pageObjectReferenceId);
+                    const triggerComponentValueObject = getStateValue(
+                        { id: triggerComponent.valueElementValueBindingReferenceId.id },
+                        null,
+                        null,
+                        null,
                     );
 
-                    try {
+                    // If is in state then grab the content value property
+                    if (triggerComponentValueObject) {
+                        triggerComponentContentValue = triggerComponentValueObject.contentValue;
+                    }
 
-                        // Handling boolean page conditions
-                        if (
-                            typeof(conditionMeta.leftValueElementContentValue) === 'boolean' ||
-                            conditionMeta.leftValueElementContentValue === 'False' ||
-                            conditionMeta.leftValueElementContentValue === 'false' ||
-                            conditionMeta.leftValueElementContentValue === 'true' ||
-                            conditionMeta.leftValueElementContentValue === 'True'
-                        ) {
-                            value = PageConditions.applyBooleanCondition(
-                                assocCondition,
-                                conditionMeta.leftValueElementContentValue,
-                                snapshot,
-                                value,
-                                request.invokeType,
-                                conditionMeta.metaDataType,
-                                conditionMeta.pageOpAssigeeComponent,
-                                conditionMeta.pageOpAssigneeValue,
-                            );
+                    // If value was not found in state then extract the default
+                    // content value from the flow snapshot
+                    if (typeof triggerComponentContentValue === 'undefined' || triggerComponentContentValue === null) {
+                        const snapshotValue = snapshot.getValue(
+                            { id: triggerComponent.valueElementValueBindingReferenceId.id },
+                        );
+                        triggerComponentContentValue = snapshotValue.defaultContentValue;
+                    }
 
-                        // Handling scalar page conditions
-                        } else if (
-                            typeof(conditionMeta.rightValueElementContentValue) === 'string' ||
-                            typeof(conditionMeta.rightValueElementContentValue) === 'number'
-                        ) {
+                    // If the components value has object data then we want to extract
+                    // the appropriate propertiesw content value and use that for comparing
+                    if (
+                        triggerComponentValueObject &&
+                        triggerComponentValueObject.objectData &&
+                        triggerComponentValueObject.objectData.length > 0
+                    ) {
+                        triggerComponentContentValue = triggerComponentValueObject.objectData[0].properties.find(
+                            property => property.typeElementPropertyId ===
+                            pageRule.left.valueElementToReferenceId.typeElementPropertyId,
+                        ).contentValue;
+                    }
 
-                            value = PageConditions.applyScalarCondition(
-                                conditionMeta.leftpageObjectReferenceValue,
-                                conditionMeta.rightValueElementContentValue,
-                                value,
-                                request.invokeType,
-                                conditionMeta.metaDataType,
-                                conditionMeta.criteria,
-                                conditionMeta.pageOpAssigeeComponent,
-                                conditionMeta.pageOpAssigneeValue,
-                            );
+                    if (typeof triggerComponentContentValue === 'undefined') {
+                        throw new Error(`Cannot find a trigger component content value`);
+                    }
 
-                        // We will for now assume that any other content value type
-                        // represents a more complex page condition
-                        // TODO - perform further checks on page condition metadata
-                        // to determine if is more advanced
+                    // We also want the value that we are comparing it too
+                    // (the "right" property of the page rule)
+                    // This is static so we always extract the content value
+                    // from the snapshot
+                    const valueComparableId = pageRule.right.valueElementToReferenceId.id;
+                    const valueComparable = snapshot.getValue(
+                        { id: valueComparableId },
+                    );
+
+                    if (!valueComparable) {
+                        throw new Error(`Cannot find a value to compare`);
+                    }
+
+                    // Now compare the two values (so this is the left and the right values)
+                    switch (criteriaType) {
+
+                    case CRITERIA.isEqual:
+                        if (triggerComponentContentValue.toString().toUpperCase() ===
+                            valueComparable.defaultContentValue.toString().toUpperCase()) {
+                            pageRuleResult = true;
                         } else {
-                            const errorMsg = `${component.developerName} has an unsupported page condition`;
+                            pageRuleResult = false;
+                        }
+                        break;
+                    case CRITERIA.isNotEqual:
+                        if (triggerComponentContentValue.toString().toUpperCase() !==
+                            valueComparable.defaultContentValue.toString().toUpperCase()) {
+                            pageRuleResult = true;
+                        } else {
+                            pageRuleResult = false;
+                        }
+                        break;
+                    }
 
-                            console.error(errorMsg);
-                            if (manywho.settings.isDebugEnabled(flowKey)) {
-                                throw new Error(errorMsg);
-                            }
+                    // We need the assignor value, this should be
+                    // extracted from the snapshot
+                    const assignorValueId = pageOperation.assignment.assignor.valueElementToReferenceId.id;
+                    const assignorValue = snapshot.getValue(
+                        { id: assignorValueId },
+                    );
+
+                    if (!assignorValue) {
+                        throw new Error(`Cannot find an assignor value value for operation`);
+                    }
+
+                    // Now we need to compare the equality of the result from the page
+                    // rule equality check with the assignor value
+                    // The result of which should be a boolean
+                    if (typeof pageRuleResult !== 'undefined') {
+                        if (assignorValue.defaultContentValue.toUpperCase() === pageRuleResult.toString().toUpperCase()) {
+                            pageOperationResult = true;
+                        } else {
+                            pageOperationResult = false;
                         }
 
-                    } catch (error) {
-                        manywho.model.addNotification(flowKey, {
-                            message: error.message,
-                            position: 'center',
-                            type: 'warning',
-                            timeout: 0,
-                            dismissible: true,
-                        });
+                        const newProps = {
+                            isVisible: value.isVisible,
+                            isRequired: value.isRequired,
+                            isEnabled: value.isEnabled,
+                        };
+
+                        // Now the appropriate component key value can
+                        // be modified (this is based on the page conditions metadatatype)
+                        switch (metaDataType) {
+
+                        case METADATA_TYPES.visible:
+                            newProps.isVisible = pageOperationResult;
+                            value = Object.assign(value, newProps);
+
+                        case METADATA_TYPES.required:
+                            newProps.isRequired = pageOperationResult;
+                            value = Object.assign(value, newProps);
+
+                        case METADATA_TYPES.enabled:
+                            newProps.isEnabled = pageOperationResult;
+                            value = Object.assign(value, newProps);
+                        }
                     }
                 }
-
+                // PAGE CONDITIONS OVERHAUL FINISH
             }
 
             let selectedValue = null;
             let sourceValue = null;
+            let selectedSnapshotValue = undefined;
 
             if (component.valueElementValueBindingReferenceId) {
-                selectedValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
+                selectedSnapshotValue = snapshot.getValue(component.valueElementValueBindingReferenceId);
+                selectedValue = selectedSnapshotValue;
                 value.contentType = snapshot.getContentTypeForValue(component.valueElementValueBindingReferenceId);
-
                 const stateValue = getStateValue(
                     component.valueElementValueBindingReferenceId,
                     selectedValue.typeElementId,
                     selectedValue.contentType,
                     '',
                 );
-
                 if (stateValue) {
                     selectedValue = stateValue;
                 }
@@ -336,7 +312,11 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             }
 
             if (selectedValue) {
-                value.contentValue = selectedValue.contentValue || selectedValue.defaultContentValue;
+                if (typeof selectedValue.contentValue === undefined || selectedValue.contentValue === null) {
+                    value.contentValue = selectedSnapshotValue.defaultContentValue;
+                } else {
+                    value.contentValue = selectedValue.contentValue;
+                }
             }
 
             if (sourceValue) {
