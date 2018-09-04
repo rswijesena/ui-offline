@@ -199,16 +199,20 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     switch (criteriaType) {
 
                     case CRITERIA.isEqual:
-                        if (triggerComponentContentValue.toString().toUpperCase() ===
-                            valueComparable.defaultContentValue.toString().toUpperCase()) {
+                        if (
+                            String(triggerComponentContentValue).toUpperCase() ===
+                            String(valueComparable.defaultContentValue).toUpperCase()
+                        ) {
                             pageRuleResult = true;
                         } else {
                             pageRuleResult = false;
                         }
                         break;
                     case CRITERIA.isNotEqual:
-                        if (triggerComponentContentValue.toString().toUpperCase() !==
-                            valueComparable.defaultContentValue.toString().toUpperCase()) {
+                        if (
+                            String(triggerComponentContentValue).toUpperCase() !==
+                            String(valueComparable.defaultContentValue).toUpperCase()
+                        ) {
                             pageRuleResult = true;
                         } else {
                             pageRuleResult = false;
@@ -231,7 +235,10 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                     // rule equality check with the assignor value
                     // The result of which should be a boolean
                     if (typeof pageRuleResult !== 'undefined') {
-                        if (assignorValue.defaultContentValue.toUpperCase() === pageRuleResult.toString().toUpperCase()) {
+                        if (
+                            assignorValue.defaultContentValue.toUpperCase() ===
+                            String(pageRuleResult).toUpperCase()
+                        ) {
                             pageOperationResult = true;
                         } else {
                             pageOperationResult = false;
