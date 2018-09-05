@@ -1,6 +1,6 @@
 import { getStateValue } from '../models/State';
 import { IState } from '../interfaces/IModels';
-import PageConditions from './PageConditions';
+import PageCondition from './pageconditions/PageCondition';
 
 declare const manywho: any;
 
@@ -144,7 +144,11 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
         }
 
         if (pageElement.pageConditions) {
-            value = PageConditions(pageElement, snapshot, component, value);
+            try {
+                value = PageCondition(pageElement, snapshot, component, value);
+            } catch (error) {
+                console.error(error.message);
+            }
         }
 
         return Object.assign(component, value, { attributes: component.attributes || {} });
