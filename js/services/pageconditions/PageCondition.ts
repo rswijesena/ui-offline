@@ -37,6 +37,55 @@ export const checkForEvents = (pageConditions, componentId: String) => {
 };
 
 /**
+ * @param triggerComponent
+ * @param snapshot
+ * @param pageRule
+ */
+export const getTriggerComponentContentValue = (triggerComponent, snapshot, pageRule) => {
+    let triggerComponentContentValue = undefined;
+
+    const triggerComponentValueObject = getStateValue(
+        { id: triggerComponent.valueElementValueBindingReferenceId.id },
+        null,
+        null,
+        null,
+    );
+
+    // If is in state then grab the content value property
+    if (triggerComponentValueObject) {
+        triggerComponentContentValue = triggerComponentValueObject.contentValue;
+    }
+
+    // If value was not found in state then extract the default
+    // content value from the flow snapshot
+    if (typeof triggerComponentContentValue === 'undefined' || triggerComponentContentValue === null) {
+        const snapshotValue = snapshot.getValue(
+            { id: triggerComponent.valueElementValueBindingReferenceId.id },
+        );
+        triggerComponentContentValue = snapshotValue.defaultContentValue;
+    }
+
+    // If the components value has object data then we want to extract
+    // the appropriate propertiesw content value and use that for comparing
+    if (
+        triggerComponentValueObject &&
+        triggerComponentValueObject.objectData &&
+        triggerComponentValueObject.objectData.length > 0
+    ) {
+        triggerComponentContentValue = triggerComponentValueObject.objectData[0].properties.find(
+            property => property.typeElementPropertyId ===
+            pageRule.left.valueElementToReferenceId.typeElementPropertyId,
+        ).contentValue;
+    }
+
+    if (typeof triggerComponentContentValue === 'undefined') {
+        throw new Error(`Cannot find a trigger component content value`);
+    }
+
+    return triggerComponentContentValue;
+};
+
+/**
  * @param pageElement
  * @param snapshot
  * @param component
@@ -46,7 +95,6 @@ export const checkForEvents = (pageConditions, componentId: String) => {
  * eventually get returned to the UI as a mock http response
  */
 const PageCondition = (pageElement, snapshot, component, value) => {
-    let triggerComponentContentValue = undefined;
 
     // Check component triggers a page condition
     const hasEvents = checkForEvents(
@@ -91,43 +139,11 @@ const PageCondition = (pageElement, snapshot, component, value) => {
             throw new Error('Could not find a trigger component');
         }
 
-        const triggerComponentValueObject = getStateValue(
-            { id: triggerComponent.valueElementValueBindingReferenceId.id },
-            null,
-            null,
-            null,
+        const triggerComponentContentValue = getTriggerComponentContentValue(
+            triggerComponent,
+            snapshot,
+            pageRule,
         );
-
-        // If is in state then grab the content value property
-        if (triggerComponentValueObject) {
-            triggerComponentContentValue = triggerComponentValueObject.contentValue;
-        }
-
-        // If value was not found in state then extract the default
-        // content value from the flow snapshot
-        if (typeof triggerComponentContentValue === 'undefined' || triggerComponentContentValue === null) {
-            const snapshotValue = snapshot.getValue(
-                { id: triggerComponent.valueElementValueBindingReferenceId.id },
-            );
-            triggerComponentContentValue = snapshotValue.defaultContentValue;
-        }
-
-        // If the components value has object data then we want to extract
-        // the appropriate propertiesw content value and use that for comparing
-        if (
-            triggerComponentValueObject &&
-            triggerComponentValueObject.objectData &&
-            triggerComponentValueObject.objectData.length > 0
-        ) {
-            triggerComponentContentValue = triggerComponentValueObject.objectData[0].properties.find(
-                property => property.typeElementPropertyId ===
-                pageRule.left.valueElementToReferenceId.typeElementPropertyId,
-            ).contentValue;
-        }
-
-        if (typeof triggerComponentContentValue === 'undefined') {
-            throw new Error(`Cannot find a trigger component content value`);
-        }
 
         // We also want the value that we are comparing it too
         // (the "right" property of the page rule)
