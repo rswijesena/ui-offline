@@ -20,8 +20,6 @@ const PageOperation = (
 
     let pageOperationResult = undefined;
 
-    // We need the assignor value, this should be
-    // extracted from the snapshot
     if (pageOperation.assignment.assignee.pageObjectReferenceId === component.id) {
         const metaDataType = pageOperation.assignment.assignee.metadataType;
         const assignorValueId = pageOperation.assignment.assignor.valueElementToReferenceId.id;
