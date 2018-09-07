@@ -49,9 +49,11 @@ export const pollForStateValues = (stateId: string, tenantId: string, token: str
         const request = {
             headers: {
                 ManyWhoTenant: tenantId,
-                Authorization: authenticationToken,
             },
         };
+        if (authenticationToken) {
+            request.headers['Authorization'] = authenticationToken;
+        }
         return fetch(url, request)
             .then((response) => {
                 return response.json();

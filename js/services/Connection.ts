@@ -96,7 +96,7 @@ export const onlineRequest = (
     })
     .done(() => {
         manywho.settings.event(event + '.done');
-        if (stateId && authenticationToken && tenantId) {
+        if (stateId && tenantId) {
             pollForStateValues(stateId, tenantId, authenticationToken);
         }
     })
