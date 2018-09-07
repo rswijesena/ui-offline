@@ -2,6 +2,7 @@ export interface IRequestState {
     isCollapsed: boolean;
     isReplaying: boolean;
     response: any;
+    progress: number;
 }
 
 export interface IRequestProps {

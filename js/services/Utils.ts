@@ -37,3 +37,11 @@ export const guid = () => {
     };
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 };
+
+export const humanFileSize = (size: number) => {
+    const units = ['B', 'kB', 'MB', 'GB', 'TB'];
+    const index = Math.floor(Math.log(size) / Math.log(1024));
+    const value = size / Math.pow(1024, index);
+    const valueFixed = value.toFixed(1);
+    return `${valueFixed} ${units[index]}`;
+};

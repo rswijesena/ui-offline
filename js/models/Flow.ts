@@ -6,12 +6,13 @@ declare var manywho: any;
 let authenticationToken = null;
 let id = null;
 let objectData = null;
-let requests = null;
+let requests = [];
 let state = null;
 let tenantId = null;
 
 /**
- * Returns an object referencing the current flow.
+ * Updates the private flow properties that represent the current flow
+ * Returns an object referencing the current flow properties.
  * @param flow
  */
 
@@ -38,10 +39,15 @@ export const FlowInit = (flow: IFlow) => {
  * @param snapshot
  */
 export const addRequest = (request: any, snapshot: any) => {
-    request.key = requests.length;
-    request.currentMapElementDeveloperName = snapshot.metadata.mapElements.find(
+
+    const currentMapElement = snapshot.metadata.mapElements.find(
         element => element.id === request.currentMapElementId,
-    ).developerName;
+    );
+    const currentMapElementDeveloperName = currentMapElement ? currentMapElement.developerName : '';
+
+    request.key = requests.length;
+    request.currentMapElementDeveloperName = currentMapElementDeveloperName;
+
     requests.push(request);
 };
 
@@ -58,6 +64,10 @@ export const removeRequest = (request: any) => {
  */
 export const removeRequests = () => {
     requests = [];
+};
+
+export const getRequests = () => {
+    return requests;
 };
 
 /**

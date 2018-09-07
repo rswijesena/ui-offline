@@ -1,4 +1,4 @@
-import { addRequest, FlowInit, getObjectData, cacheObjectData } from '../models/Flow';
+import { addRequest, FlowInit, getObjectData, cacheObjectData, getRequests } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import { executeOperation } from './Operation';
@@ -12,6 +12,7 @@ import { IFlow } from '../interfaces/IModels';
 import { clone, flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
+// This is the gloabl metaData object generated when building offline project
 declare const metaData: any;
 declare const localforage: any;
 declare const $: any;
@@ -21,6 +22,7 @@ enum EventTypes {
     join = 'join',
     navigation = 'navigation',
     initialization = 'initialization',
+    file = 'fileData',
 }
 
 const OfflineCore = {
@@ -274,6 +276,34 @@ const OfflineCore = {
                 }
                 return this.getObjectDataResponse(request, flow, context);
             });
+    },
+
+    getUploadResponse(files, request, stateId) {
+
+        const snapshot = Snapshot(metaData);
+
+        request.type = EventTypes.file;
+        request.files = files;
+
+        // Add request to Flow repository
+        addRequest(request, snapshot);
+
+        // Pull the current offline data from local storage
+        getOfflineData(stateId)
+        .then(
+            (offlineData) => {
+                // Add the requests from the Flow repository
+                // to the offline data object
+                offlineData.requests = getRequests();
+
+                // Push the updated offline data back into local storage
+                setOfflineData(offlineData);
+            },
+        );
+
+        return {
+            objectData: [],
+        };
     },
 
     /**
