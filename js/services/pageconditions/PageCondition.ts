@@ -40,10 +40,14 @@ export const checkForEvents = (pageConditions, componentId: String) => {
  * @param triggerComponent
  * @param snapshot
  * @param pageRule
+ * @description finding the page component (that triggers the page condition) associated
+ * value, and returning its content value
+ * TODO: create interfaces and typecasting
  */
 export const getTriggerComponentContentValue = (triggerComponent, snapshot, pageRule) => {
     let triggerComponentContentValue = undefined;
 
+    // First check if the value is in the offline state
     const triggerComponentValueObject = getStateValue(
         { id: triggerComponent.valueElementValueBindingReferenceId.id },
         null,
@@ -66,7 +70,7 @@ export const getTriggerComponentContentValue = (triggerComponent, snapshot, page
     }
 
     // If the components value has object data then we want to extract
-    // the appropriate propertiesw content value and use that for comparing
+    // the appropriate properties content value and use that for comparing
     if (
         triggerComponentValueObject &&
         triggerComponentValueObject.objectData &&
@@ -93,6 +97,7 @@ export const getTriggerComponentContentValue = (triggerComponent, snapshot, page
  * @description Performs page condition logic by excuting page rules
  * and page operations and modifying a components properties that
  * eventually get returned to the UI as a mock http response
+ * TODO: create interfaces and typecasting
  */
 const PageCondition = (pageElement, snapshot, component, value) => {
 
@@ -121,18 +126,20 @@ const PageCondition = (pageElement, snapshot, component, value) => {
         component.id,
     );
 
-    // If it does then do the following:
+    // The page condition is only performed if there is one page rule at the most
+    // as currently multiple page rules are not supported offline. There also needs
+    // to be some page operations
     if (assocCondition !== undefined && assocCondition.pageRules.length === 1 && assocCondition.pageOperations) {
         const pageRule = assocCondition.pageRules[0];
         const pageOperations = assocCondition.pageOperations;
+
+        // e.g. equal, not equal etc
         const criteriaType = pageRule.criteriaType;
 
         if (!criteriaType) {
             throw new Error('Check you have added a criteria value');
         }
 
-        // First check to see if the most upda to date contnent value for
-        // the trigger component can be found in the offline state
         const triggerComponent = pageElement.pageComponents.find(component => component.id === pageRule.left.pageObjectReferenceId);
 
         if (!triggerComponent) {
@@ -147,8 +154,7 @@ const PageCondition = (pageElement, snapshot, component, value) => {
 
         // We also want the value that we are comparing it too
         // (the "right" property of the page rule)
-        // This is static so we always extract the content value
-        // from the snapshot
+        // This is static so we always extract the content value from the snapshot
         const valueComparableId = pageRule.right.valueElementToReferenceId.id;
         const valueComparable = snapshot.getValue(
             { id: valueComparableId },

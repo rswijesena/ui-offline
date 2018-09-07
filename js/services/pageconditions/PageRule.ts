@@ -7,6 +7,7 @@ import { CRITERIA } from '../../constants';
  * @param value
  * @description Determines the result of a page rule by
  * comparing string values. Will return a boolean.
+ * TODO: create interfaces and typecasting
  */
 const PageRule = (
     criteriaType,
@@ -17,6 +18,8 @@ const PageRule = (
 
     let pageRuleResult = undefined;
 
+    // Currently, offline only supports - equal, not_equal
+    // and is_empty criteria types
     switch (criteriaType) {
 
     case CRITERIA.isEqual:
