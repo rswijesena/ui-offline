@@ -1,14 +1,13 @@
-/**
- * Getting and setting state values
- * in the context of a macro execution
- */
+import { clone } from '../../services/Utils';
 
-let currentState = null;
+const currentState: any = {};
 
 export const getMacroState = () => {
-    return currentState;
+    return clone(currentState);
 };
 
 export const setMacroState = (state) => {
-    currentState = state;
+    for (const key of Object.keys(state)) {
+        currentState[key] = state[key];
+    }
 };

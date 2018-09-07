@@ -12,6 +12,10 @@ const initPropertyMethods = (val) => {
     value = val;
 };
 
+const getPropertyValue = (typeElementPropertyId) => {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, value);
+};
+
 const getPropertyStringValue = (typeElementPropertyId) => {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, value);
 };
@@ -78,6 +82,7 @@ const setPropertyObject = (typeElementPropertyId, objectData) => {
 
 export default {
     initPropertyMethods,
+    getPropertyValue,
     getPropertyStringValue,
     getPropertyContentValue,
     getPropertyPasswordValue,

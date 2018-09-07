@@ -1,44 +1,56 @@
 import { CONTENT_TYPES } from '../../constants';
 import { getMacroState, setMacroState } from './MacroState';
 
-// Extract a specific property value from object data
+/**
+ * @param typeElementPropertyId
+ * @param contentType
+ * @param value the value from which the object data property is to be extracted from
+ * @description extracting a specific properties content value from some objectdata
+ */
 export const getProperty = (typeElementPropertyId, contentType, value) => {
-    if (value.properties || value.properties !== null) {
-        const specifiedProperty = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
-        if (specifiedProperty.contentType !== contentType) {
-            throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
+    if (value.props.objectData && value.props.objectData.length > 0) {
+        const objectData = value.props.objectData[0];
+        if (objectData.properties || objectData.properties !== null) {
+            const specifiedProperty = objectData.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
+            if (specifiedProperty.contentType !== contentType) {
+                throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
+            }
+            return specifiedProperty.contentValue;
+        } else {
+            throw new Error(`${value.developerName} has no object data properties`);
         }
-        return specifiedProperty.contentValue;
-    } else {
-        throw new Error(`${value.developerName} has no object data properties`);
     }
 };
 
-// TODO
-export const setProperty = (typeElementPropertyId, contentType, contentValue, value) => {
-    if (value.properties || value.properties !== null) {
-        const specifiedProperty = value.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
-        if (specifiedProperty.contentType !== contentType) {
-            throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
-        }
+/**
+ * @param typeElementPropertyId
+ * @param contentType
+ * @param newValue the new value to set to the objects property
+ * @param value the value metadata that is to be modified
+ * @description setting a specific properties content value from some objectdata
+ */
+export const setProperty = (typeElementPropertyId, contentType, newValue, value) => {
+    if (value.props.objectData && value.props.objectData.length > 0) {
+        const objectData = value.props.objectData[0];
+        if (objectData.properties || objectData.properties !== null) {
+            const specifiedProperty = objectData.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
+            if (specifiedProperty.contentType !== contentType) {
+                throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
+            }
 
-        if (contentType === CONTENT_TYPES.LIST || contentType === CONTENT_TYPES.OBJECT) {
-            specifiedProperty.objectData = contentValue;
+            // This is to account for setPropertyObject and setPropertyArray
+            // both of which I am unsure as to how they work
+            if (contentType === CONTENT_TYPES.LIST || contentType === CONTENT_TYPES.OBJECT) {
+                specifiedProperty.objectData = newValue;
+            } else {
+                specifiedProperty.contentValue = newValue;
+            }
+
         } else {
-            specifiedProperty.contentValue = contentValue;
+            throw new Error(`${value.developerName} has no object data properties`);
         }
-
-        const valueProperties = {
-            objectData: value,
-            contentValue: null,
-            pageComponentId: null,
-        };
-
-        setStateValue(value.id, valueProperties);
-
-    } else {
-        throw new Error(`${value.developerName} has no object data properties`);
     }
+
 };
 
 /**
@@ -59,7 +71,8 @@ export const getValueByName = (name: string, metadata: any) => {
     if (MacroState.values[value.id]) {
         return { props: MacroState.values[value.id], id: value.id };
     }
-    return value;
+
+    throw new Error(`A value with name: ${name}, has not been set in state`);
 };
 
 /**

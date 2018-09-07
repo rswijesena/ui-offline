@@ -31,78 +31,60 @@ const createObject = (type) => {
 
 const getArray = (value) => {
     const listValue = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    listValue.defaultObjectData.forEach((value) => {
-        const macroFunctions: any = bindValuePropertyFunctions(value);
+    listValue.props.objectData.forEach((value) => {
+        const macroFunctions: any = bindValuePropertyFunctions(listValue);
         for (const key of Object.keys(macroFunctions)) {
             value[key] = macroFunctions[key];
         }
     });
-
-    return listValue.defaultObjectData;
+    return listValue.props.objectData;
 };
 
 const getBooleanValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getContentValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getDateTimeValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getNumberValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getObject = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+
     if (valueObj.props) {
-        return valueObj.props.objectData;
+        const macroFunctions: any = bindValuePropertyFunctions(valueObj);
+        for (const key of Object.keys(macroFunctions)) {
+            valueObj.props[key] = macroFunctions[key];
+        }
+        return valueObj.props;
     }
-    return valueObj.defaultObjectData;
 };
 
 const getPasswordValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getStringValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const getValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    if (valueObj.props) {
-        return valueObj.props.contentValue;
-    }
-    return valueObj.defaultContentValue;
+    return valueObj.props.contentValue;
 };
 
 const setArray = (value, objectData) => {
@@ -157,7 +139,7 @@ const setObject = (value, objectData) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
-        objectData,
+        objectData: objectData.objectData,
         contentValue: null,
         pageComponentId: null,
     };
@@ -234,6 +216,7 @@ export const bindValuePropertyFunctions = (value) => {
     MacroPropertyMethods.initPropertyMethods(value);
 
     return {
+        getPropertyValue: MacroPropertyMethods.getPropertyValue,
         getPropertyStringValue: MacroPropertyMethods.getPropertyStringValue,
         getPropertyContentValue: MacroPropertyMethods.getPropertyContentValue,
         getPropertyPasswordValue: MacroPropertyMethods.getPropertyPasswordValue,
