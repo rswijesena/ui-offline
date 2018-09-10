@@ -1,22 +1,11 @@
-jest.mock('../../js/services/PageConditions', () => ({
-    checkForCondition: jest.fn(() => {
-        return { pageRules: ['test'] };
-    }),
-    checkForEvents:  jest.fn(() => {
-        return [];
-    }),
-    extractPageConditionValues: jest.fn(),
-    applyScalarCondition: jest.fn(),
-    applyBooleanCondition: jest.fn(),
-}));
-
 import { generatePage } from '../../js/services/Page';
-import PageConditions from '../../js/services/PageConditions';
+import PageCondition from '../../js/services/pageconditions/PageCondition';
 
-// This is here as @types/jest does not type cast mockReturnValue
-const castPageConditions: any = PageConditions;
+jest.mock('../../js/services/pageconditions/PageCondition');
 
-const globalAny:any = global;
+const pageConditionMock: any = PageCondition;
+
+console.error = jest.fn();
 
 const mockRequest = {
     annotations: null,
@@ -45,54 +34,6 @@ const mockRequest = {
     stateToken: '',
 };
 
-const mockSnapshot = {
-    metadata: {
-        pageElements: [
-            {
-                id: 'test',
-                pageContainers: [],
-                pageComponents: [
-                    { id: 'test' },
-                ],
-                pageConditions: [
-                    {
-                        pageRules: [
-                            {
-                                left: {
-                                    pageObjectReferenceId: 'test',
-                                    valueElementToReferenceId: {
-                                        id: 'test',
-                                    },
-                                },
-                                right: {
-                                    valueElementToReferenceId: 'test',
-                                },
-                            },
-                        ],
-                        pageOperations: [
-                            {
-                                assignment: {
-                                    assignee: {
-                                        pageObjectReferenceId: 'test',
-                                        metadataType: 'METADATA.VISIBLE',
-                                    },
-                                },
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-        id: {
-            id: '',
-            versionId: '',
-        },
-    },
-    getSystemValue: jest.fn(() => {
-        return { defaultContentValue: 'False' };
-    }),
-};
-
 const mockState = {
     currentMapElementId: '',
     id: '',
@@ -113,56 +54,94 @@ const mockTenantId = '';
 
 describe('Page service expected behaviour', () => {
 
-    test('Check is made to determine if a component is listening for a page condition', () => {
-        const spy = jest.spyOn(PageConditions, 'checkForCondition');
+    beforeEach(() => {
+        pageConditionMock.mockClear();
+    });
+
+    test('If the page element has page conditions then call the page condition service', () => {
+        pageConditionMock.mockImplementation(() => {
+            return;
+        });
+        const mockSnapshot = {
+            metadata: {
+                pageElements: [
+                    {
+                        id: 'test',
+                        pageContainers: [],
+                        pageComponents: [
+                            { id: 'test' },
+                        ],
+                        pageConditions: [],
+                    },
+                ],
+                id: {
+                    id: '',
+                    versionId: '',
+                },
+            },
+            getSystemValue: jest.fn(() => {
+                return { defaultContentValue: 'False' };
+            }),
+        };
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageCondition).toHaveBeenCalled();
     });
 
-    test('Check is made to determine if a component triggers a page condition', () => {
-        const spy = jest.spyOn(PageConditions, 'checkForEvents');
-        const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    test('If a page component triggers a page condition then its hasEvents prop must be true', () => {
-        const page = generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        const pageComponentDataResponses = page.pageResponse.pageComponentDataResponses.filter(
-            response => response.hasEvents === true,
-        );
-        expect(pageComponentDataResponses.length).toEqual(1);
-    });
-
-    test('If a trigger components value is that of a boolean then call boolean page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyBooleanCondition');
-        const resp = { leftValueElementContentValue: true };
-        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+    test('If the page element does not have page conditions then page condition service is not called', () => {
+        pageConditionMock.mockImplementation(() => {
+            return;
+        });
+        const mockSnapshot = {
+            metadata: {
+                pageElements: [
+                    {
+                        id: 'test',
+                        pageContainers: [],
+                        pageComponents: [
+                            { id: 'test' },
+                        ],
+                        pageConditions: null,
+                    },
+                ],
+                id: {
+                    id: '',
+                    versionId: '',
+                },
+            },
+            getSystemValue: jest.fn(() => {
+                return { defaultContentValue: 'False' };
+            }),
+        };
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(PageCondition).not.toHaveBeenCalled();
     });
 
-    test('If a comparable value (page rule right) is that of a string then call scalar page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
-        const resp = { rightValueElementContentValue: 'test' };
-        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
+    test('If page condition service throws an error then console error is called', () => {
+        pageConditionMock.mockImplementation(() => {
+            throw new Error();
+        });
+        const mockSnapshot = {
+            metadata: {
+                pageElements: [
+                    {
+                        id: 'test',
+                        pageContainers: [],
+                        pageComponents: [
+                            { id: 'test' },
+                        ],
+                        pageConditions: [],
+                    },
+                ],
+                id: {
+                    id: '',
+                    versionId: '',
+                },
+            },
+            getSystemValue: jest.fn(() => {
+                return { defaultContentValue: 'False' };
+            }),
+        };
         generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
+        expect(console.error).toHaveBeenCalled();
     });
-
-    test('If a comparable value (page rule right) is that of a number then call scalar page condition function', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
-        const resp = { rightValueElementContentValue: 10 };
-        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
-        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId);
-        expect(spy).toHaveBeenCalled();
-    });
-
-    test('More complex page conditions throw an error', () => {
-        const spy = jest.spyOn(PageConditions, 'applyScalarCondition');
-        const resp = { rightValueElementContentValue: [], leftValueElementContentValue: [] };
-        castPageConditions.extractPageConditionValues.mockReturnValue(resp);
-        generatePage(mockRequest, mockMapElement, mockState, mockSnapshot, mockTenantId),
-        expect(globalAny.window.manywho.model.addNotification).toHaveBeenCalled();
-    });
-
 });
