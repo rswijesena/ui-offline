@@ -8,15 +8,21 @@ describe('Macro utilities behaviour', () => {
         const testTypeId = 'test id';
         const testContentValue = 'test content value';
         const value = {
-            properties: [
-                {
-                    contentType: 'ContentString',
-                    contentValue: testContentValue,
-                    developerName: 'test name',
-                    typeElementPropertyId: testTypeId,
-                },
-            ],
-            developerName: 'test',
+            props: {
+                objectData: [
+                    {
+                        properties: [
+                            {
+                                contentType: 'ContentString',
+                                contentValue: testContentValue,
+                                developerName: 'test name',
+                                typeElementPropertyId: testTypeId,
+                            },
+                        ],
+                    },
+                ],
+                developerName: 'test',
+            },
         };
 
         const result = getProperty(testTypeId, CONTENT_TYPES.STRING, value);
@@ -121,7 +127,7 @@ describe('Macro utilities behaviour', () => {
             getValueByName(mockValueName, mockMetaData);
         }).toThrow(Error);
     });
-    test('If value is not found in state then return values in snapshot', () => {
+    test('If value is not found in state then throw an error', () => {
         const mockMetaData = {
             valueElements: [
                 { id: 'test1', developerName: 'name1', contentValue: 'value1' },
@@ -147,8 +153,10 @@ describe('Macro utilities behaviour', () => {
             developerName: 'name2',
             contentValue: 'value2',
         };
-        const result = getValueByName(mockValueName, mockMetaData);
-        expect(result).toEqual(expectedResult);
+
+        expect(() => {
+            getValueByName(mockValueName, mockMetaData);
+        }).toThrow('A value with name: ' + expectedResult.developerName + ', has not been set in state');
     });
 
     // setStateValue tests
