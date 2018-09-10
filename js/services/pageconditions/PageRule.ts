@@ -16,8 +16,6 @@ const PageRule = (
     value,
 ) => {
 
-    let pageRuleResult = undefined;
-
     // Currently, offline only supports - equal, not_equal
     // and is_empty criteria types
     switch (criteriaType) {
@@ -27,22 +25,18 @@ const PageRule = (
             String(triggerComponentContentValue).toUpperCase() ===
             String(valueComparable.defaultContentValue).toUpperCase()
         ) {
-            pageRuleResult = true;
-        } else {
-            pageRuleResult = false;
+            return true;
         }
-        break;
+        return false;
 
     case CRITERIA.isNotEqual:
         if (
             String(triggerComponentContentValue).toUpperCase() !==
             String(valueComparable.defaultContentValue).toUpperCase()
         ) {
-            pageRuleResult = true;
-        } else {
-            pageRuleResult = false;
+            return true;
         }
-        break;
+        return false;
 
     case CRITERIA.isEmpty:
 
@@ -53,12 +47,9 @@ const PageRule = (
                 triggerComponentContentValue === '') &&
                 value.objectData === null
             ) {
-                pageRuleResult = true;
-            } else {
-                pageRuleResult = false;
+                return true;
             }
-
-            break;
+            return false;
         }
 
         // Is not empty
@@ -68,16 +59,11 @@ const PageRule = (
                 triggerComponentContentValue === '') &&
                 value.objectData === null
             ) {
-                pageRuleResult = false;
-            } else {
-                pageRuleResult = true;
+                return false;
             }
-
-            break;
+            return true;
         }
     }
-
-    return pageRuleResult;
 };
 
 export default PageRule;

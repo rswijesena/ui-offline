@@ -8,15 +8,11 @@ import PageOperation from './PageOperation';
  * @description To check if a component is listening for a page condition to be triggered
  */
 export const checkForCondition = (pageConditions, componentId: String) => {
-    let result = undefined;
-    pageConditions.forEach((pageCondition) => {
-        pageCondition.pageOperations.forEach((operation) => {
-            if (operation.assignment.assignee.pageObjectReferenceId === componentId) {
-                result = pageCondition;
-            }
+    return pageConditions.find((pageCondition) => {
+        return pageCondition.pageOperations.some((operation) => {
+            return operation.assignment.assignee.pageObjectReferenceId === componentId;
         });
     });
-    return result;
 };
 
 /**
@@ -25,15 +21,16 @@ export const checkForCondition = (pageConditions, componentId: String) => {
  * @description To check if a component triggers a page condition
  */
 export const checkForEvents = (pageConditions, componentId: String) => {
-    let result = undefined;
-    pageConditions.forEach((pageCondition) => {
-        pageCondition.pageRules.forEach((pageRule) => {
-            if (pageRule.left.pageObjectReferenceId === componentId) {
-                result = pageRule;
-            }
-        });
-    });
-    return result;
+    const condition = pageConditions.find(
+        (pageCondition) => {
+            return pageCondition.pageRules.find((pageRule) => {
+                return pageRule.left.pageObjectReferenceId === componentId;
+            });
+        },
+    );
+    if (condition) {
+        return condition.pageRule;
+    }
 };
 
 /**
