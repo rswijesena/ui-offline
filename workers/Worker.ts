@@ -4,10 +4,16 @@ const ctx: Worker = self as any;
 
 ctx.onmessage = (e) => {
     const parsedResponse = JSON.parse(e.data);
-    const macroResult = executeMacro(
-        'function(state){ ' + parsedResponse.macro + '}',
-        parsedResponse.metadata,
-        parsedResponse.state,
-    );
+    let macroResult;
+    try {
+        macroResult = executeMacro(
+            'function(state){ ' + parsedResponse.macro + '}',
+            parsedResponse.metadata,
+            parsedResponse.state,
+        );
+    } catch (error) {
+        ctx.postMessage('error');
+    }
+
     ctx.postMessage(macroResult);
 };

@@ -1,4 +1,5 @@
 import { CONTENT_TYPES } from '../../constants';
+import { clone } from '../../services/Utils';
 import { getMacroState, setMacroState } from './MacroState';
 
 /**
@@ -30,8 +31,8 @@ export const getProperty = (typeElementPropertyId, contentType, value) => {
  * @description setting a specific properties content value from some objectdata
  */
 export const setProperty = (typeElementPropertyId, contentType, newValue, value) => {
-    if (value.props.objectData && value.props.objectData.length > 0) {
-        const objectData = value.props.objectData[0];
+    if (value.objectData && value.objectData.length > 0) {
+        const objectData = value.objectData[0];
         if (objectData.properties || objectData.properties !== null) {
             const specifiedProperty = objectData.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
             if (specifiedProperty.contentType !== contentType) {
@@ -73,6 +74,25 @@ export const getValueByName = (name: string, metadata: any) => {
     }
 
     throw new Error(`A value with name: ${name}, has not been set in state`);
+};
+
+/**
+ * @param typeId
+ * @param metadata
+ * @description return object data based on type properties
+ */
+export const generateNewObjectData = (typeId: string, metadata: any) => {
+    const typeElement = clone(metadata.typeElements.find(type => type.id === typeId));
+
+    typeElement.properties = typeElement.properties.map((property) => {
+        property.typeElementPropertyId = property.id;
+        delete property.id;
+        return property;
+    });
+
+    return {
+        objectData: [typeElement],
+    };
 };
 
 /**

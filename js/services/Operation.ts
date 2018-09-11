@@ -39,20 +39,24 @@ export const invokeMacroWorker = (operation: any, state: any, snapshot: any) => 
             );
 
             worker.onmessage = (workerResponse) => {
+                if (workerResponse.data === 'error') {
+                    worker.terminate();
+                    resolve();
+                } else {
+                    const updatedValues = workerResponse.data.values;
 
-                const updatedValues = workerResponse.data.values;
+                    for (const key of Object.keys(updatedValues)) {
+                        setStateValue(
+                            { id: key },
+                            '',
+                            null,
+                            updatedValues[key],
+                        );
+                    }
 
-                for (const key of Object.keys(updatedValues)) {
-                    setStateValue(
-                        { id: key },
-                        '',
-                        null,
-                        updatedValues[key],
-                    );
+                    worker.terminate();
+                    resolve();
                 }
-
-                worker.terminate();
-                resolve();
             };
         }
     });

@@ -21,7 +21,7 @@ const Step = {
         const checkContentForValues = (content) => {
             let contentCopy = content;
             const valueNames = content.match(/{([^}]*)}/g);
-            if (valueNames.length > 0) {
+            if (valueNames && valueNames.length > 0) {
                 valueNames.forEach((valueName) => {
                     const valueObject = snapshot.getValueByName(
                         valueName.split('.')[0].replace(/[^a-zA-Z0-9 ]/g, ''),
@@ -40,6 +40,9 @@ const Step = {
                     }
                     contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
                 });
+                if (contentCopy.indexOf('undefined') !== -1) {
+                    return '';
+                }
                 return contentCopy;
             }
 

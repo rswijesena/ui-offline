@@ -3,7 +3,7 @@
  * functions for getting and setting values
  */
 
-import { getValueByName, setStateValue } from './MacroUtils';
+import { getValueByName, setStateValue, generateNewObjectData } from './MacroUtils';
 import MacroPropertyMethods from './MacroPropertyMethods';
 
 let metadata = null;
@@ -13,11 +13,11 @@ const initMethods = (snapshot) => {
     metadata = snapshot;
 };
 
-const setDateTimeValue = (value, operation) => {
+const setDateTimeValue = (value, dateValue) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z ]/g, ''), metadata);
 
     const valueProperties = {
-        contentValue: operation,
+        contentValue: dateValue,
         objectData: null,
         pageComponentId: null,
     };
@@ -26,7 +26,20 @@ const setDateTimeValue = (value, operation) => {
 };
 
 const createObject = (type) => {
-    return;
+    const result = generateNewObjectData(type, metadata);
+
+    function generateResponse() {
+        this.objectData = result.objectData;
+    }
+
+    const macroFunctions: any = bindValuePropertyFunctions(result);
+    for (const key of Object.keys(macroFunctions)) {
+        generateResponse.prototype[key] = macroFunctions[key];
+    }
+
+    const response = new generateResponse();
+    console.log(response);
+    return response;
 };
 
 const getArray = (value) => {
@@ -52,23 +65,30 @@ const getContentValue = (value) => {
 
 const getDateTimeValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return new Date(valueObj.props.contentValue);
 };
 
 const getNumberValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return parseInt(valueObj.props.contentValue, 10);
 };
 
 const getObject = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
+    function generateResponse() {
+        this.objectData = valueObj.props.objectData;
+        this.contentValue = valueObj.props.contentValue;
+    }
+
     if (valueObj.props) {
         const macroFunctions: any = bindValuePropertyFunctions(valueObj);
         for (const key of Object.keys(macroFunctions)) {
-            valueObj.props[key] = macroFunctions[key];
+            generateResponse.prototype[key] = macroFunctions[key];
         }
-        return valueObj.props;
+
+        const response = new generateResponse();
+        return response;
     }
 };
 
@@ -225,6 +245,7 @@ export const bindValuePropertyFunctions = (value) => {
         getPropertyBooleanValue: MacroPropertyMethods.getPropertyBooleanValue,
         getPropertyArray: MacroPropertyMethods.getPropertyArray,
         getPropertyObject: MacroPropertyMethods.getPropertyObject,
+        setPropertyValue: MacroPropertyMethods.setPropertyValue,
         setPropertyStringValue: MacroPropertyMethods.setPropertyStringValue,
         setPropertyContentValue: MacroPropertyMethods.setPropertyContentValue,
         setPropertyPasswordValue: MacroPropertyMethods.setPropertyPasswordValue,

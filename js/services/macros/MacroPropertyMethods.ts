@@ -6,82 +6,79 @@
 import { CONTENT_TYPES } from '../../constants';
 import { getProperty, setProperty } from './MacroUtils';
 
-let value = null;
+function getPropertyValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, this);
+}
 
-const initPropertyMethods = (val) => {
-    value = val;
-};
+function getPropertyStringValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, this);
+}
 
-const getPropertyValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, value);
-};
+function getPropertyContentValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, this);
+}
 
-const getPropertyStringValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, value);
-};
+function getPropertyPasswordValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, this);
+}
 
-const getPropertyContentValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, value);
-};
+function getPropertyNumberValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, this);
+}
 
-const getPropertyPasswordValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, value);
-};
+function getPropertyDateTimeValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, this);
+}
 
-const getPropertyNumberValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, value);
-};
+function getPropertyBooleanValue(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, this);
+}
 
-const getPropertyDateTimeValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, value);
-};
+function getPropertyArray(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.LIST, this);
+}
 
-const getPropertyBooleanValue = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, value);
-};
+function getPropertyObject(typeElementPropertyId) {
+    return getProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, this);
+}
 
-const getPropertyArray = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.LIST, value);
-};
+function setPropertyValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, this);
+}
 
-const getPropertyObject = (typeElementPropertyId) => {
-    return getProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, value);
-};
+function setPropertyStringValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, this);
+}
 
-const setPropertyStringValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, value);
-};
+function setPropertyContentValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, contentValue, this);
+}
 
-const setPropertyContentValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, contentValue, value);
-};
+function setPropertyPasswordValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, contentValue, this);
+}
 
-const setPropertyPasswordValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, contentValue, value);
-};
+function setPropertyNumberValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, contentValue, this);
+}
 
-const setPropertyNumberValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, contentValue, value);
-};
+function setPropertyDateTimeValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, contentValue, this);
+}
 
-const setPropertyDateTimeValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, contentValue, value);
-};
+function setPropertyBooleanValue(typeElementPropertyId, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, contentValue, this);
+}
 
-const setPropertyBooleanValue = (typeElementPropertyId, contentValue) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, contentValue, value);
-};
+function setPropertyArray(typeElementPropertyId, objectData) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.LIST, objectData, this);
+}
 
-const setPropertyArray = (typeElementPropertyId, objectData) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.LIST, objectData, value);
-};
-
-const setPropertyObject = (typeElementPropertyId, objectData) => {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, objectData, value);
-};
+function setPropertyObject(typeElementPropertyId, objectData) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, objectData, this);
+}
 
 export default {
-    initPropertyMethods,
     getPropertyValue,
     getPropertyStringValue,
     getPropertyContentValue,
@@ -91,6 +88,7 @@ export default {
     getPropertyBooleanValue,
     getPropertyArray,
     getPropertyObject,
+    setPropertyValue,
     setPropertyStringValue,
     setPropertyContentValue,
     setPropertyPasswordValue,
