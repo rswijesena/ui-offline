@@ -8,21 +8,15 @@ describe('Macro utilities behaviour', () => {
         const testTypeId = 'test id';
         const testContentValue = 'test content value';
         const value = {
-            props: {
-                objectData: [
-                    {
-                        properties: [
-                            {
-                                contentType: 'ContentString',
-                                contentValue: testContentValue,
-                                developerName: 'test name',
-                                typeElementPropertyId: testTypeId,
-                            },
-                        ],
-                    },
-                ],
-                developerName: 'test',
-            },
+            properties: [
+                {
+                    contentType: 'ContentString',
+                    contentValue: testContentValue,
+                    developerName: 'test name',
+                    typeElementPropertyId: testTypeId,
+                },
+            ],
+            developerName: 'test',
         };
 
         const result = getProperty(testTypeId, CONTENT_TYPES.STRING, value);

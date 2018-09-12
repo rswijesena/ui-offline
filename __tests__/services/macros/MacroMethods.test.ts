@@ -3,11 +3,14 @@ import { setMacroState } from '../../../js/services/macros/MacroState';
 import MacroPropertyMethods from '../../../js/services/macros/MacroPropertyMethods';
 import * as utils from '../../../js/services/macros/MacroUtils';
 
+const datetimeMock = new Date();
+const datetimeFormattedMock = utils.toEngineIsoStringFormat(datetimeMock);
+
 const mockMetaData = {
     valueElements: [
         { id: 'test1', developerName: 'booleanTest', defaultContentValue: false },
         { id: 'test2', developerName: 'contentTest', defaultContentValue: 'content' },
-        { id: 'test3', developerName: 'dateTimeTest', defaultContentValue: '00-00-0000Z00:00:00' },
+        { id: 'test3', developerName: 'dateTimeTest', defaultContentValue: datetimeMock },
         { id: 'test4', developerName: 'numberTest', defaultContentValue: '0' },
         { id: 'test5', developerName: 'objectTest', defaultObjectData: [] },
         { id: 'test6', developerName: 'passwordTest', defaultContentValue: 'password' },
@@ -16,103 +19,70 @@ const mockMetaData = {
     ],
 };
 
+const mockState = {
+    values: {
+        test1: { id: 'test1', developerName: 'booleanTest', contentValue: false },
+        test2: { id: 'test2', developerName: 'contentTest', contentValue: 'content' },
+        test3: { id: 'test3', developerName: 'dateTimeTest', contentValue: datetimeMock },
+        test4: { id: 'test4', developerName: 'numberTest', contentValue: 0 },
+        test5: { id: 'test5', developerName: 'objectTest', objectData: [{ properties: [] }] },
+        test6: { id: 'test6', developerName: 'passwordTest', contentValue: 'password' },
+        test7: { id: 'test7', developerName: 'valueTest', contentValue: 'value' },
+        test8: { id: 'test8', developerName: 'arrayTest', objectData: [] },
+    },
+};
+
+const macroFunctions: any = bindValuePropertyFunctions();
+for (const key of Object.keys(macroFunctions)) {
+    mockState.values.test5[key] = macroFunctions[key];
+}
+
+setMacroState(mockState);
+MacroMethods.initMethods(mockMetaData);
+
 describe('Macro value methods behaviour', () => {
-    test('Getter functions throw an error if the value does not exist in state', () => {
 
-        const mockState = {
-            values: {},
-        };
-
-        setMacroState(mockState);
-        MacroMethods.initMethods(mockMetaData);
-
-        expect(() => {
-            MacroMethods.getBooleanValue('{![' + mockMetaData.valueElements[0].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[0].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getContentValue('{![' + mockMetaData.valueElements[1].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[1].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getDateTimeValue('{![' + mockMetaData.valueElements[2].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[2].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getNumberValue('{![' + mockMetaData.valueElements[3].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[3].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getObject('{![' + mockMetaData.valueElements[4].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[4].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getPasswordValue('{![' + mockMetaData.valueElements[5].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[5].developerName + ', has not been set in state');
-
-        expect(() => {
-            MacroMethods.getValue('{![' + mockMetaData.valueElements[6].developerName + ']}');
-        }).toThrow('A value with name: ' + mockMetaData.valueElements[6].developerName + ', has not been set in state');
+    test('get boolean value returns a boolean', () => {
+        const result = MacroMethods.getBooleanValue('{![' + mockMetaData.valueElements[0].developerName + ']}');
+        expect(result).toEqual(mockState.values['test1'].contentValue);
     });
 
-    test('Getter functions return a values content value if the value does exist in state', () => {
-
-        const mockState = {
-            values: {
-                test1: { id: 'test1', developerName: 'booleanTest', contentValue: false },
-                test2: { id: 'test2', developerName: 'contentTest', contentValue: 'content' },
-                test3: { id: 'test3', developerName: 'dateTimeTest', contentValue: '00-00-0000Z00:00:00' },
-                test4: { id: 'test4', developerName: 'numberTest', contentValue: '0' },
-                test5: { id: 'test5', developerName: 'objectTest', objectData: [] },
-                test6: { id: 'test6', developerName: 'passwordTest', contentValue: 'password' },
-                test7: { id: 'test7', developerName: 'valueTest', contentValue: 'value' },
-                test8: { id: 'test8', developerName: 'arrayTest', objectData: [] },
-            },
-        };
-
-        const macroFunctions: any = bindValuePropertyFunctions(mockState.values.test5);
-        for (const key of Object.keys(macroFunctions)) {
-            mockState.values.test5[key] = macroFunctions[key];
-        }
-
-        setMacroState(mockState);
-        MacroMethods.initMethods(mockMetaData);
-
-        const booleanResult = MacroMethods.getBooleanValue('{![' + mockMetaData.valueElements[0].developerName + ']}');
-        expect(booleanResult).toEqual(mockState.values['test1'].contentValue);
-
-        const contentResult = MacroMethods.getContentValue('{![' + mockMetaData.valueElements[1].developerName + ']}');
-        expect(contentResult).toEqual(mockState.values['test2'].contentValue);
-
-        const dateResult = MacroMethods.getDateTimeValue('{![' + mockMetaData.valueElements[2].developerName + ']}');
-        expect(dateResult).toEqual(mockState.values['test3'].contentValue);
-
-        const numberResult = MacroMethods.getNumberValue('{![' + mockMetaData.valueElements[3].developerName + ']}');
-        expect(numberResult).toEqual(mockState.values['test4'].contentValue);
-
-        const objectResult = MacroMethods.getObject('{![' + mockMetaData.valueElements[4].developerName + ']}');
-        expect(objectResult).toEqual(mockState.values['test5']);
-
-        const passwordResult = MacroMethods.getPasswordValue('{![' + mockMetaData.valueElements[5].developerName + ']}');
-        expect(passwordResult).toEqual(mockState.values['test6'].contentValue);
-
-        const valueResult = MacroMethods.getValue('{![' + mockMetaData.valueElements[6].developerName + ']}');
-        expect(valueResult).toEqual(mockState.values['test7'].contentValue);
+    test('get content value returns a content string', () => {
+        const result = MacroMethods.getContentValue('{![' + mockMetaData.valueElements[1].developerName + ']}');
+        expect(result).toEqual(mockState.values['test2'].contentValue);
     });
+
+    test('get datetime value returns a datetime string', () => {
+        const result = MacroMethods.getDateTimeValue('{![' + mockMetaData.valueElements[2].developerName + ']}');
+        expect(result).toEqual(datetimeFormattedMock);
+    });
+
+    test('get number value returns a number', () => {
+        const result = MacroMethods.getNumberValue('{![' + mockMetaData.valueElements[3].developerName + ']}');
+        expect(result).toEqual(mockState.values['test4'].contentValue);
+    });
+
+    test('get object value returns an object', () => {
+        const result = MacroMethods.getObject('{![' + mockMetaData.valueElements[4].developerName + ']}');
+        expect(result).toEqual(mockState.values['test5'].objectData[0]);
+    });
+
+    test('get password value returns a password string', () => {
+        const result = MacroMethods.getPasswordValue('{![' + mockMetaData.valueElements[5].developerName + ']}');
+        expect(result).toEqual(mockState.values['test6'].contentValue);
+    });
+
+    test('get value returns a value', () => {
+        const result = MacroMethods.getValue('{![' + mockMetaData.valueElements[6].developerName + ']}');
+        expect(result).toEqual(mockState.values['test7'].contentValue);
+    });
+
+    test('get array value returns an array', () => {
+        const result = MacroMethods.getArray('{![' + mockMetaData.valueElements[7].developerName + ']}');
+        expect(result).toEqual(mockState.values['test8'].objectData);
+    });
+
     test('Setter functions insert passed value into macro state', () => {
-
-        const mockState = {
-            values: {
-                test1: { id: 'test1', developerName: 'booleanTest', contentValue: false },
-                test2: { id: 'test2', developerName: 'contentTest', contentValue: 'content' },
-                test3: { id: 'test3', developerName: 'dateTimeTest', contentValue: '00-00-0000Z00:00:00' },
-                test4: { id: 'test4', developerName: 'numberTest', contentValue: '0' },
-                test5: { id: 'test5', developerName: 'objectTest', objectData: [] },
-                test6: { id: 'test6', developerName: 'passwordTest', contentValue: 'password' },
-                test7: { id: 'test7', developerName: 'valueTest', contentValue: 'value' },
-                test8: { id: 'test8', developerName: 'arrayTest', objectData: [] },
-            },
-        };
 
         const spy = jest.spyOn(utils, 'setStateValue');
 
@@ -149,13 +119,12 @@ describe('Macro value methods behaviour', () => {
             mockContentProps,
         );
 
-        const mockDateTimeContentValue = 'date';
         MacroMethods.setDateTimeValue(
             '{![' + mockState.values.test3.developerName + ']}',
-            mockDateTimeContentValue,
+            datetimeMock,
         );
         const mockDateTimeProps = {
-            contentValue: mockDateTimeContentValue,
+            contentValue: datetimeFormattedMock,
             objectData: null,
             pageComponentId: null,
         };
@@ -179,14 +148,14 @@ describe('Macro value methods behaviour', () => {
             mockNumberProps,
         );
 
-        const mockObjectContentValue = { objectData: [] };
+        const mockObjectContentValue = { properties: [] };
         MacroMethods.setObject(
             '{![' + mockState.values.test5.developerName + ']}',
             mockObjectContentValue,
         );
         const mockObjectProps = {
             contentValue: null,
-            objectData: mockObjectContentValue.objectData,
+            objectData: [mockObjectContentValue],
             pageComponentId: null,
         };
         expect(spy).toHaveBeenCalledWith(
@@ -239,34 +208,13 @@ describe('Macro value methods behaviour', () => {
             mockArrayProps,
         );
     });
-    test.skip('Function for getting list values should return an object with property methods', () => {
-    });
-    test('Function for getting object values should return an object with property methods', () => {
-        const mockState = {
-            values: {
-                test5: { id: 'test5', developerName: 'objectTest', objectData: [] },
-            },
-        };
-        setMacroState(mockState);
-        MacroMethods.initMethods(mockMetaData);
-        const objectResult = MacroMethods.getObject('{![' + mockMetaData.valueElements[4].developerName + ']}');
-        for (const key in MacroPropertyMethods) {
-            if (MacroPropertyMethods.hasOwnProperty(key)) {
-                const func = MacroPropertyMethods[key];
-                if (func.name !== 'initPropertyMethods') {
-                    expect(objectResult[func.name]).toEqual(MacroPropertyMethods[key]);
-                }
-            }
-        }
-    });
+
     test('Binding property methods should return an object with values mapping to property methods', () => {
-        const result = bindValuePropertyFunctions({});
+        const result = bindValuePropertyFunctions();
         for (const key in MacroPropertyMethods) {
             if (MacroPropertyMethods.hasOwnProperty(key)) {
                 const func = MacroPropertyMethods[key];
-                if (func.name !== 'initPropertyMethods') {
-                    expect(result[func.name]).toEqual(MacroPropertyMethods[key]);
-                }
+                expect(result[func.name]).toEqual(MacroPropertyMethods[key]);
             }
         }
     });

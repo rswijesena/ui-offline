@@ -73,7 +73,7 @@ const getContentValue = (value) => {
 
 const getDateTimeValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return toEngineIsoStringFormat(valueObj.props.contentValue);
+    return toEngineIsoStringFormat(new Date(valueObj.props.contentValue));
 };
 
 const getNumberValue = (value) => {

@@ -1,4 +1,4 @@
-import MacroPropertyMethods from '../../../js/services/macros/MacroPropertyMethods';
+import { bindValuePropertyFunctions } from '../../../js/services/macros/MacroMethods';
 import { CONTENT_TYPES } from '../../../js/constants';
 import { getProperty, setProperty } from '../../../js/services/macros/MacroUtils';
 
@@ -13,68 +13,103 @@ jest.mock('../../../js/services/macros/MacroUtils', () => ({
 
 describe('Macro value property methods behaviour', () => {
     const mockTypeId = 'test id';
-    const mockValue = 'test value';
+    let response;
 
-    MacroPropertyMethods.initPropertyMethods(mockValue);
+    beforeAll(() => {
+        function generateResponse() {}
 
-    test('Getter methods call getProperty', () => {
-        let result = null;
+        const macroFunctions: any = bindValuePropertyFunctions();
+        for (const key of Object.keys(macroFunctions)) {
+            generateResponse.prototype[key] = macroFunctions[key];
+        }
+        response = new generateResponse();
+    });
 
-        result = MacroPropertyMethods.getPropertyStringValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.STRING, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyContentValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.CONTENT, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyPasswordValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.PASSWORD, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyNumberValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.NUMBER, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyDateTimeValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.DATETIME, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyBooleanValue(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.BOOLEAN, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyArray(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.LIST, mockValue);
-        expect(result).toEqual(mockContentValue);
-
-        result = MacroPropertyMethods.getPropertyObject(mockTypeId);
-        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.OBJECT, mockValue);
+    test('get string property calls getProperty', () => {
+        const result = response.getPropertyStringValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.STRING, response);
         expect(result).toEqual(mockContentValue);
     });
-    test('Setter methods call setProperty', () => {
-        MacroPropertyMethods.setPropertyStringValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.STRING, mockContentValue, mockValue);
 
-        MacroPropertyMethods.setPropertyContentValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.CONTENT, mockContentValue, mockValue);
+    test('get content property calls getProperty', () => {
+        const result = response.getPropertyContentValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.CONTENT, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyPasswordValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.PASSWORD, mockContentValue, mockValue);
+    test('get password property calls getProperty', () => {
+        const result = response.getPropertyPasswordValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.PASSWORD, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyNumberValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.NUMBER, mockContentValue, mockValue);
+    test('get number property calls getProperty', () => {
+        const result = response.getPropertyNumberValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.NUMBER, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyDateTimeValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.DATETIME, mockContentValue, mockValue);
+    test('get date time property calls getProperty', () => {
+        const result = response.getPropertyDateTimeValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.DATETIME, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyBooleanValue(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.BOOLEAN, mockContentValue, mockValue);
+    test('get boolean property calls getProperty', () => {
+        const result = response.getPropertyBooleanValue(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.BOOLEAN, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyArray(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.LIST, mockContentValue, mockValue);
+    test('get array property calls getProperty', () => {
+        const result = response.getPropertyArray(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.LIST, response);
+        expect(result).toEqual(mockContentValue);
+    });
 
-        MacroPropertyMethods.setPropertyObject(mockTypeId, mockContentValue);
-        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.OBJECT, mockContentValue, mockValue);
+    test('get object property calls getProperty', () => {
+        const result = response.getPropertyObject(mockTypeId);
+        expect(getProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.OBJECT, response);
+        expect(result).toEqual(mockContentValue);
+    });
+
+    test('set string property calls setProperty', () => {
+        response.setPropertyStringValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.STRING, mockContentValue, response);
+    });
+
+    test('set content property calls setProperty', () => {
+        response.setPropertyContentValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.CONTENT, mockContentValue, response);
+    });
+
+    test('set password property calls setProperty', () => {
+        response.setPropertyPasswordValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.PASSWORD, mockContentValue, response);
+    });
+
+    test('set number property calls setProperty', () => {
+        response.setPropertyNumberValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.NUMBER, mockContentValue, response);
+    });
+
+    test('set date time property calls setProperty', () => {
+        response.setPropertyDateTimeValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.DATETIME, mockContentValue, response);
+    });
+
+    test('set boolean property calls setProperty', () => {
+        response.setPropertyBooleanValue(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.BOOLEAN, mockContentValue, response);
+    });
+
+    test('set array property calls setProperty', () => {
+        response.setPropertyArray(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.LIST, mockContentValue, response);
+    });
+
+    test('set object property calls setProperty', () => {
+        response.setPropertyObject(mockTypeId, mockContentValue);
+        expect(setProperty).toHaveBeenCalledWith(mockTypeId, CONTENT_TYPES.OBJECT, mockContentValue, response);
     });
 });
