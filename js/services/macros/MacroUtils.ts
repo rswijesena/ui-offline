@@ -109,3 +109,23 @@ export const setStateValue = (id: string, value: any) => {
 export const cloneStateValue = (object: any) => {
     return object;
 };
+
+/**
+ * @param dateValue a date time object
+ */
+export const toEngineIsoStringFormat = (dateValue) => {
+    // Partially stolen from https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+    const pad = (num) => {
+        const norm = Math.floor(Math.abs(num));
+        return (norm < 10 ? '0' : '') + norm;
+    };
+    return dateValue.getUTCFullYear() +
+        '-' + pad(dateValue.getUTCMonth() + 1) +
+        '-' + pad(dateValue.getUTCDate()) +
+        'T' + pad(dateValue.getUTCHours()) +
+        ':' + pad(dateValue.getUTCMinutes()) +
+        ':' + pad(dateValue.getUTCSeconds()) +
+        ':' + (pad(dateValue.getUTCMilliseconds()) + '0000') +
+        '+' + '00' +
+        ':' + '00';
+};

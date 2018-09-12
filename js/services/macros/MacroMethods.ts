@@ -3,7 +3,7 @@
  * functions for getting and setting values
  */
 
-import { getValueByName, setStateValue, generateNewObjectData } from './MacroUtils';
+import { getValueByName, setStateValue, generateNewObjectData, toEngineIsoStringFormat } from './MacroUtils';
 import MacroPropertyMethods from './MacroPropertyMethods';
 
 let metadata = null;
@@ -17,7 +17,7 @@ const setDateTimeValue = (value, dateValue) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z ]/g, ''), metadata);
 
     const valueProperties = {
-        contentValue: dateValue,
+        contentValue: toEngineIsoStringFormat(dateValue),
         objectData: null,
         pageComponentId: null,
     };
@@ -73,7 +73,7 @@ const getContentValue = (value) => {
 
 const getDateTimeValue = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return new Date(valueObj.props.contentValue);
+    return toEngineIsoStringFormat(valueObj.props.contentValue);
 };
 
 const getNumberValue = (value) => {
