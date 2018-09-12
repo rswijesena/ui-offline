@@ -8,9 +8,8 @@ import { getMacroState, setMacroState } from './MacroState';
  * @param value the value from which the object data property is to be extracted from
  * @description extracting a specific properties content value from some objectdata
  */
-export const getProperty = (typeElementPropertyId, contentType, value) => {
-    if (value.props.objectData && value.props.objectData.length > 0) {
-        const objectData = value.props.objectData[0];
+export const getProperty = (typeElementPropertyId, contentType, objectData) => {
+    if (objectData) {
         if (objectData.properties || objectData.properties !== null) {
             const specifiedProperty = objectData.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
             if (specifiedProperty.contentType !== contentType) {
@@ -18,7 +17,7 @@ export const getProperty = (typeElementPropertyId, contentType, value) => {
             }
             return specifiedProperty.contentValue;
         } else {
-            throw new Error(`${value.developerName} has no object data properties`);
+            throw new Error(`${objectData.developerName} has no object data properties`);
         }
     }
 };
@@ -30,9 +29,8 @@ export const getProperty = (typeElementPropertyId, contentType, value) => {
  * @param value the value metadata that is to be modified
  * @description setting a specific properties content value from some objectdata
  */
-export const setProperty = (typeElementPropertyId, contentType, newValue, value) => {
-    if (value.objectData && value.objectData.length > 0) {
-        const objectData = value.objectData[0];
+export const setProperty = (typeElementPropertyId, contentType, newValue, objectData) => {
+    if (objectData) {
         if (objectData.properties || objectData.properties !== null) {
             const specifiedProperty = objectData.properties.find(property => property.typeElementPropertyId === typeElementPropertyId);
             if (specifiedProperty.contentType !== contentType) {
@@ -48,10 +46,9 @@ export const setProperty = (typeElementPropertyId, contentType, newValue, value)
             }
 
         } else {
-            throw new Error(`${value.developerName} has no object data properties`);
+            throw new Error(`${objectData.developerName} has no object data properties`);
         }
     }
-
 };
 
 /**
@@ -90,9 +87,7 @@ export const generateNewObjectData = (typeId: string, metadata: any) => {
         return property;
     });
 
-    return {
-        objectData: [typeElement],
-    };
+    return typeElement;
 };
 
 /**

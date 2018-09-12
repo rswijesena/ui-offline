@@ -28,29 +28,37 @@ const setDateTimeValue = (value, dateValue) => {
 const createObject = (type) => {
     const result = generateNewObjectData(type, metadata);
 
-    function generateResponse() {
-        this.objectData = result.objectData;
-    }
+    function generateResponse() {}
 
-    const macroFunctions: any = bindValuePropertyFunctions(result);
+    const macroFunctions: any = bindValuePropertyFunctions();
     for (const key of Object.keys(macroFunctions)) {
         generateResponse.prototype[key] = macroFunctions[key];
     }
 
     const response = new generateResponse();
-    console.log(response);
+    for (const key of Object.keys(result)) {
+        response[key] = result[key];
+    }
     return response;
 };
 
 const getArray = (value) => {
     const listValue = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    listValue.props.objectData.forEach((value) => {
-        const macroFunctions: any = bindValuePropertyFunctions(listValue);
+    const list = listValue.props.objectData;
+    const objectData = [];
+    list.forEach((obj) => {
+        function generateResponse() {}
+        const macroFunctions: any = bindValuePropertyFunctions();
         for (const key of Object.keys(macroFunctions)) {
-            value[key] = macroFunctions[key];
+            generateResponse.prototype[key] = macroFunctions[key];
         }
+        const response = new generateResponse();
+        for (const key of Object.keys(obj)) {
+            response[key] = obj[key];
+        }
+        objectData.push(response);
     });
-    return listValue.props.objectData;
+    return objectData;
 };
 
 const getBooleanValue = (value) => {
@@ -75,21 +83,20 @@ const getNumberValue = (value) => {
 
 const getObject = (value) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const objectData = valueObj.props.objectData[0];
 
-    function generateResponse() {
-        this.objectData = valueObj.props.objectData;
-        this.contentValue = valueObj.props.contentValue;
+    function generateResponse() {}
+
+    const macroFunctions: any = bindValuePropertyFunctions();
+    for (const key of Object.keys(macroFunctions)) {
+        generateResponse.prototype[key] = macroFunctions[key];
     }
 
-    if (valueObj.props) {
-        const macroFunctions: any = bindValuePropertyFunctions(valueObj);
-        for (const key of Object.keys(macroFunctions)) {
-            generateResponse.prototype[key] = macroFunctions[key];
-        }
-
-        const response = new generateResponse();
-        return response;
+    const response = new generateResponse();
+    for (const key of Object.keys(objectData)) {
+        response[key] = objectData[key];
     }
+    return response;
 };
 
 const getPasswordValue = (value) => {
@@ -159,7 +166,7 @@ const setObject = (value, objectData) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
-        objectData: objectData.objectData,
+        objectData: [objectData],
         contentValue: null,
         pageComponentId: null,
     };
@@ -231,9 +238,7 @@ export default {
  * @description macros use a defined set of functions that are called on list value items
  * to perform operations such as extgetPropertyStringValueratacting certain item properties.
  */
-export const bindValuePropertyFunctions = (value) => {
-
-    MacroPropertyMethods.initPropertyMethods(value);
+export const bindValuePropertyFunctions = () => {
 
     return {
         getPropertyValue: MacroPropertyMethods.getPropertyValue,
