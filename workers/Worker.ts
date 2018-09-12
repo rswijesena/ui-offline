@@ -12,7 +12,7 @@ ctx.onmessage = (e) => {
             parsedResponse.state,
         );
     } catch (error) {
-        ctx.postMessage('error');
+        ctx.postMessage({ error: error.message });
     }
 
     ctx.postMessage(macroResult);

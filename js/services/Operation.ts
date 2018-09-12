@@ -39,7 +39,8 @@ export const invokeMacroWorker = (operation: any, state: any, snapshot: any) => 
             );
 
             worker.onmessage = (workerResponse) => {
-                if (workerResponse.data === 'error') {
+                if (workerResponse.data.error) {
+                    console.error(workerResponse.data.error);
                     worker.terminate();
                     resolve();
                 } else {
