@@ -61,19 +61,6 @@ export const onlineRequest = (
     authenticationToken: string,
     request: any) => {
 
-    // We want to cache page component values
-    // as the user moves through the flow
-    if (stateId && event === 'invoke') {
-        const flowKey = manywho.utils.getFlowKey(
-            tenantId,
-            metaData.id.id,
-            metaData.id.versionId,
-            stateId,
-            'main',
-        );
-        // foo(stateId, flowKey);
-    }
-
     let json = null;
 
     if (request != null) {
