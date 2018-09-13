@@ -391,6 +391,7 @@ const OfflineCore = {
                     }
                 });
 
+            // Operations that execute macros inside a web worker are asyncronous
             return Promise.all(asyncOperations).then(() => {
                 return this.constructResponse(
                     nextMapElement,

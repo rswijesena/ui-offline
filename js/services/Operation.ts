@@ -46,6 +46,9 @@ export const invokeMacroWorker = (operation: any, state: any, snapshot: any) => 
                 } else {
                     const updatedValues = workerResponse.data.values;
 
+                    // When the web worker posts back the state values
+                    // that have been modified by a macro we want to push these new
+                    // values into the offline state
                     for (const key of Object.keys(updatedValues)) {
                         setStateValue(
                             { id: key },
