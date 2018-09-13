@@ -15,6 +15,9 @@ export const getProperty = (typeElementPropertyId, contentType, objectData) => {
             if (specifiedProperty.contentType !== contentType) {
                 throw new Error(`${specifiedProperty.developerName} does not have a content type of ${contentType}`);
             }
+            if (contentType === CONTENT_TYPES.LIST || contentType === CONTENT_TYPES.OBJECT) {
+                return specifiedProperty.objectData;
+            }
             return specifiedProperty.contentValue;
         } else {
             throw new Error(`${objectData.developerName} has no object data properties`);
@@ -54,6 +57,7 @@ export const setProperty = (typeElementPropertyId, contentType, newValue, object
 /**
  * @param name the value name
  * @param metadata the flow snapshot
+ * @description returns a specific values properties and ID
  */
 export const getValueByName = (name: string, metadata: any) => {
     const MacroState = getMacroState();
@@ -98,22 +102,16 @@ export const setStateValue = (id: string, value: any) => {
     const MacroState = getMacroState();
     const clonedMacroState: any = MacroState;
     if (clonedMacroState.values) {
-        clonedMacroState.values[id] = cloneStateValue(value);
+        clonedMacroState.values[id] = value;
         setMacroState(clonedMacroState);
     }
 };
 
 /**
- * @param object the modifed contentValue/object data for the value
- */
-export const cloneStateValue = (object: any) => {
-    return object;
-};
-
-/**
  * @param dateValue a date time object
+ * @description returns a UTC formatted datetime with timezone offset
  */
-export const toEngineIsoStringFormat = (dateValue) => {
+export const toEngineUTCStringFormat = (dateValue) => {
     // Partially stolen from https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
     const pad = (num) => {
         const norm = Math.floor(Math.abs(num));

@@ -9,6 +9,9 @@ jest.mock('../../../js/services/macros/MacroUtils', () => ({
         return mockContentValue;
     }),
     setProperty: jest.fn(),
+    toEngineUTCStringFormat: jest.fn(() => {
+        return mockContentValue;
+    }),
 }));
 
 describe('Macro value property methods behaviour', () => {

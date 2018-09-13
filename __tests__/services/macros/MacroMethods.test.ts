@@ -4,7 +4,7 @@ import MacroPropertyMethods from '../../../js/services/macros/MacroPropertyMetho
 import * as utils from '../../../js/services/macros/MacroUtils';
 
 const datetimeMock = new Date();
-const datetimeFormattedMock = utils.toEngineIsoStringFormat(datetimeMock);
+const datetimeFormattedMock = utils.toEngineUTCStringFormat(datetimeMock);
 
 const mockMetaData = {
     valueElements: [

@@ -1,80 +1,173 @@
-/**
- * @description simulating the engines macro getter
- * and setter functions for value properties
- */
-
 import { CONTENT_TYPES } from '../../constants';
-import { getProperty, setProperty } from './MacroUtils';
+import { getProperty, setProperty, toEngineUTCStringFormat } from './MacroUtils';
 
-function getPropertyValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ */
+function getPropertyValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, this);
 }
 
-function getPropertyStringValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - string
+ */
+function getPropertyStringValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.STRING, this);
 }
 
-function getPropertyContentValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - content
+ */
+function getPropertyContentValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, this);
 }
 
-function getPropertyPasswordValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - password
+ */
+function getPropertyPasswordValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, this);
 }
 
-function getPropertyNumberValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - number
+ */
+function getPropertyNumberValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, this);
 }
 
-function getPropertyDateTimeValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - datetime
+ */
+function getPropertyDateTimeValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, this);
 }
 
-function getPropertyBooleanValue(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties content value
+ * for a property of content type - boolean
+ */
+function getPropertyBooleanValue(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, this);
 }
 
-function getPropertyArray(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties object data
+ * for a property of content type - list
+ */
+function getPropertyArray(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.LIST, this);
 }
 
-function getPropertyObject(typeElementPropertyId) {
+/**
+ * @param typeElementPropertyId
+ * @description returns the type element properties object data
+ * for a property of content type - object
+ */
+function getPropertyObject(typeElementPropertyId: string) {
     return getProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, this);
 }
 
-function setPropertyValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - string, to the passed in value
+ */
+function setPropertyValue(typeElementPropertyId: string, contentValue: string) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, this);
 }
 
-function setPropertyStringValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - string, to the passed in value
+ */
+function setPropertyStringValue(typeElementPropertyId: string, contentValue: string) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.STRING, contentValue, this);
 }
 
-function setPropertyContentValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - content, to the passed in value
+ */
+function setPropertyContentValue(typeElementPropertyId: string, contentValue: string) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.CONTENT, contentValue, this);
 }
 
-function setPropertyPasswordValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - password, to the passed in value
+ */
+function setPropertyPasswordValue(typeElementPropertyId: string, contentValue: string) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.PASSWORD, contentValue, this);
 }
 
-function setPropertyNumberValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - number, to the passed in value
+ */
+function setPropertyNumberValue(typeElementPropertyId: string, contentValue: string | number) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.NUMBER, contentValue, this);
 }
 
-function setPropertyDateTimeValue(typeElementPropertyId, contentValue) {
-    setProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, contentValue, this);
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - datetime, to the passed in value converted to UTC datetime
+ */
+function setPropertyDateTimeValue(typeElementPropertyId: string, contentValue) {
+    setProperty(typeElementPropertyId, CONTENT_TYPES.DATETIME, toEngineUTCStringFormat(contentValue), this);
 }
 
-function setPropertyBooleanValue(typeElementPropertyId, contentValue) {
+/**
+ * @param typeElementPropertyId
+ * @param contentValue the new content value for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - boolean, to the passed in value
+ */
+function setPropertyBooleanValue(typeElementPropertyId: string, contentValue: string | boolean) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.BOOLEAN, contentValue, this);
 }
 
-function setPropertyArray(typeElementPropertyId, objectData) {
+/**
+ * @param typeElementPropertyId
+ * @param objectData the new object data for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - list, to the passed in value
+ */
+function setPropertyArray(typeElementPropertyId: string, objectData: object) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.LIST, objectData, this);
 }
 
-function setPropertyObject(typeElementPropertyId, objectData) {
+/**
+ * @param typeElementPropertyId
+ * @param objectData the new object data for the type property
+ * @description sets the type element properties content value
+ * for a property of content type - object, to the passed in value
+ */
+function setPropertyObject(typeElementPropertyId: string, objectData: object) {
     setProperty(typeElementPropertyId, CONTENT_TYPES.OBJECT, objectData, this);
 }
 

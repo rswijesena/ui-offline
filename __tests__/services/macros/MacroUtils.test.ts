@@ -1,4 +1,4 @@
-import { getProperty, getValueByName, setStateValue, cloneStateValue } from '../../../js/services/macros/MacroUtils';
+import { getProperty, getValueByName, setStateValue } from '../../../js/services/macros/MacroUtils';
 import { CONTENT_TYPES } from '../../../js/constants';
 import { getMacroState, setMacroState } from '../../../js/services/macros/MacroState';
 
@@ -180,11 +180,5 @@ describe('Macro utilities behaviour', () => {
         setMacroState(mockState);
         setStateValue(mockValueId, newStateValue);
         expect(getMacroState()).toEqual(newMockState);
-    });
-
-    // cloneStateValue tests
-    test('Clone function returns argument', () => {
-        const newStateValue = { contentValue: 'new', objectData: null };
-        expect(cloneStateValue(newStateValue)).toEqual(newStateValue);
     });
 });

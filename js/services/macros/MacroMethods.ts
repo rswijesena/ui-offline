@@ -1,23 +1,26 @@
-/**
- * @description Simulating the engines macro
- * functions for getting and setting values
- */
-
-import { getValueByName, setStateValue, generateNewObjectData, toEngineIsoStringFormat } from './MacroUtils';
+import { getValueByName, setStateValue, generateNewObjectData, toEngineUTCStringFormat } from './MacroUtils';
 import MacroPropertyMethods from './MacroPropertyMethods';
 
 let metadata = null;
 
-// Setting flow snapshot to module scope
-const initMethods = (snapshot) => {
+/**
+ * @param snapshot the flow metadata
+ * @description defines the flow metatdat object into module scope
+ */
+const initMethods = (snapshot: any) => {
     metadata = snapshot;
 };
 
-const setDateTimeValue = (value, dateValue) => {
+/**
+ * @param value the value name tag
+ * @param dateValue a date time object
+ * @description sets a new UTC datetime for a datatime value
+ */
+const setDateTimeValue = (value: string, dateValue) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z ]/g, ''), metadata);
 
     const valueProperties = {
-        contentValue: toEngineIsoStringFormat(dateValue),
+        contentValue: toEngineUTCStringFormat(dateValue),
         objectData: null,
         pageComponentId: null,
     };
@@ -25,11 +28,16 @@ const setDateTimeValue = (value, dateValue) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const createObject = (type) => {
+/**
+ * @param type type element ID
+ * @description returns a single object based on a type
+ */
+const createObject = (type: string) => {
     const result = generateNewObjectData(type, metadata);
 
     function generateResponse() {}
 
+    // Enables calling value property methods on the object data returned
     const macroFunctions: any = bindValuePropertyFunctions();
     for (const key of Object.keys(macroFunctions)) {
         generateResponse.prototype[key] = macroFunctions[key];
@@ -42,12 +50,18 @@ const createObject = (type) => {
     return response;
 };
 
-const getArray = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a list values array of object data
+ */
+const getArray = (value: string) => {
     const listValue = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     const list = listValue.props.objectData;
     const objectData = [];
     list.forEach((obj) => {
         function generateResponse() {}
+
+        // Enables calling value property methods on the object data returned
         const macroFunctions: any = bindValuePropertyFunctions();
         for (const key of Object.keys(macroFunctions)) {
             generateResponse.prototype[key] = macroFunctions[key];
@@ -61,32 +75,53 @@ const getArray = (value) => {
     return objectData;
 };
 
-const getBooleanValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a boolean values content value
+ */
+const getBooleanValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const getContentValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a content values content value
+ */
+const getContentValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const getDateTimeValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a datetime values content value in UTC format
+ */
+const getDateTimeValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return toEngineIsoStringFormat(new Date(valueObj.props.contentValue));
+    return toEngineUTCStringFormat(new Date(valueObj.props.contentValue));
 };
 
-const getNumberValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a number values content value as an integer
+ */
+const getNumberValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return parseInt(valueObj.props.contentValue, 10);
 };
 
-const getObject = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns an object values object data
+ */
+const getObject = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     const objectData = valueObj.props.objectData[0];
 
     function generateResponse() {}
 
+    // Enables calling value property methods on the object data returned
     const macroFunctions: any = bindValuePropertyFunctions();
     for (const key of Object.keys(macroFunctions)) {
         generateResponse.prototype[key] = macroFunctions[key];
@@ -99,22 +134,39 @@ const getObject = (value) => {
     return response;
 };
 
-const getPasswordValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a password values content value
+ */
+const getPasswordValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const getStringValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns a string values content value
+ */
+const getStringValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const getValue = (value) => {
+/**
+ * @param value the value name tag
+ * @description returns any values content value
+ */
+const getValue = (value: string) => {
     const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const setArray = (value, objectData) => {
+/**
+ * @param value the value name tag
+ * @param objectData object data to set in state
+ * @description sets an array of object data to a list value
+ */
+const setArray = (value: string, objectData: object) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -126,7 +178,12 @@ const setArray = (value, objectData) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setBooleanValue = (value, boolean) => {
+/**
+ * @param value the value name tag
+ * @param boolean true/false
+ * @description sets a boolean to a boolean values content value
+ */
+const setBooleanValue = (value: string, boolean: string | boolean) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -138,7 +195,12 @@ const setBooleanValue = (value, boolean) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setContentValue = (value, content) => {
+/**
+ * @param value the value name tag
+ * @param content text content
+ * @description sets a string to a content values content value
+ */
+const setContentValue = (value: string, content: string) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -150,7 +212,12 @@ const setContentValue = (value, content) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setNumberValue = (value, number) => {
+/**
+ * @param value the value name tag
+ * @param number
+ * @description sets a number to a number values content value
+ */
+const setNumberValue = (value: string, number: string | number) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -162,7 +229,12 @@ const setNumberValue = (value, number) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setObject = (value, objectData) => {
+/**
+ * @param value the value name tag
+ * @param objectData
+ * @description sets an array of object data to an object value
+ */
+const setObject = (value: string, objectData: object) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -174,7 +246,12 @@ const setObject = (value, objectData) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setPasswordValue = (value, password) => {
+/**
+ * @param value the value name tag
+ * @param password
+ * @description sets a string to a password values content value
+ */
+const setPasswordValue = (value: string, password: string) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -186,7 +263,12 @@ const setPasswordValue = (value, password) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-const setStringValue = (value, string) => {
+/**
+ * @param value the value name tag
+ * @param string
+ * @description sets a string to a string values content value
+ */
+const setStringValue = (value: string, string: string) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
     const valueProperties = {
@@ -198,6 +280,11 @@ const setStringValue = (value, string) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
+/**
+ * @param value the value name tag
+ * @param string
+ * @description sets a string to any values content value
+ */
 const setValue = (value, string) => {
     const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
 
@@ -234,9 +321,7 @@ export default {
 };
 
 /**
- * @param value
- * @description macros use a defined set of functions that are called on list value items
- * to perform operations such as extgetPropertyStringValueratacting certain item properties.
+ * @description returns an object where the key values are value property methods
  */
 export const bindValuePropertyFunctions = () => {
 
