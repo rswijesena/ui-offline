@@ -21,16 +21,11 @@ export const checkForCondition = (pageConditions, componentId: String) => {
  * @description To check if a component triggers a page condition
  */
 export const checkForEvents = (pageConditions, componentId: String) => {
-    const condition = pageConditions.find(
-        (pageCondition) => {
-            return pageCondition.pageRules.find((pageRule) => {
-                return pageRule.left.pageObjectReferenceId === componentId;
-            });
-        },
-    );
-    if (condition) {
-        return condition.pageRule;
-    }
+    return pageConditions.find((pageCondition) => {
+        return pageCondition.pageRules.find((pageRule) => {
+            return pageRule.left.pageObjectReferenceId === componentId;
+        });
+    });
 };
 
 /**
