@@ -124,9 +124,9 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
         if (selectedValue) {
             if (typeof selectedValue.contentValue === undefined || selectedValue.contentValue === null) {
-                value.contentValue = selectedSnapshotValue.defaultContentValue;
+                value.contentValue = String(selectedSnapshotValue.defaultContentValue);
             } else {
-                value.contentValue = selectedValue.contentValue;
+                value.contentValue = String(selectedValue.contentValue);
             }
         }
 
