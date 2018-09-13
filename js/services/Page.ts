@@ -123,10 +123,15 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
         }
 
         if (selectedValue) {
-            if (typeof selectedValue.contentValue === undefined || selectedValue.contentValue === null) {
-                value.contentValue = String(selectedSnapshotValue.defaultContentValue);
+            if (!selectedValue.hasOwnProperty('contentValue') ||
+            typeof (selectedValue.contentValue) === undefined || selectedValue.contentValue === null) {
+                value.contentValue = selectedSnapshotValue.defaultContentValue === null ?
+                selectedSnapshotValue.defaultContentValue :
+                String(selectedSnapshotValue.defaultContentValue);
             } else {
-                value.contentValue = String(selectedValue.contentValue);
+                value.contentValue = selectedValue.contentValue === null ?
+                selectedValue.contentValue :
+                String(selectedValue.contentValue);
             }
         }
 
