@@ -1,3 +1,5 @@
+export const DEFAULT_POLL_INTERVAL = 7000;
+
 export const CONTENT_TYPES = {
     OBJECT: 'ContentObject',
     BOOLEAN: 'ContentBoolean',

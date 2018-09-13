@@ -1,4 +1,5 @@
 import { setStateValue } from '../models/State';
+import { DEFAULT_POLL_INTERVAL } from '../constants';
 import Snapshot from './Snapshot';
 import OfflineCore from '../services/OfflineCore';
 
@@ -12,7 +13,10 @@ const snapshot: any = Snapshot(metaData);
 
 // This needs to be set in the player manually
 // or injected in when generating a Cordova app
-const pollInterval = manywho.pollInterval;
+let pollInterval = manywho.pollInterval;
+if (!pollInterval || pollInterval < DEFAULT_POLL_INTERVAL) {
+    pollInterval = DEFAULT_POLL_INTERVAL;
+}
 
 /**
  * @param values an array of values returned from state values endpoint
