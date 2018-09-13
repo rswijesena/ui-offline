@@ -1,4 +1,4 @@
-export const DEFAULT_POLL_INTERVAL = 7000;
+export const DEFAULT_POLL_INTERVAL = 30000;
 
 export const CONTENT_TYPES = {
     OBJECT: 'ContentObject',
