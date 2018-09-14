@@ -234,8 +234,12 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 };
 
                 if (typeElementId) {
-                    const typeElement = snapshot.metadata.typeElements.find(element => element.id === typeElementId);
                     component.columns = component.columns.map((column) => {
+                        const typeElement = snapshot.metadata.typeElements.find((element) => {
+                            return element.properties.find((property) => {
+                                return property.id === column.typeElementPropertyId;
+                            });
+                        });
                         column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
                         return column;
                     }).sort(orderColumns);
@@ -248,16 +252,16 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
             if (sourceValue) {
                 value.objectData = sourceValue.objectData || sourceValue.defaultObjectData;
-
-                if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
-                    value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
-                        objectData.isSelected = !!selectedValue.objectData.find(
-                            item => item.externalId === objectData.externalId && item.isSelected,
-                        );
-                        return objectData;
-                    });
+                if (selectedValue) {
+                    if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
+                        value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
+                            objectData.isSelected = !!selectedValue.objectData.find(
+                                item => item.externalId === objectData.externalId && item.isSelected,
+                            );
+                            return objectData;
+                        });
+                    }
                 }
-
             }
 
             return Object.assign(component, value, { attributes: component.attributes || {} });
