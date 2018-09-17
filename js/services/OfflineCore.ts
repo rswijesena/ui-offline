@@ -1,7 +1,7 @@
 import { addRequest, FlowInit, getObjectData, cacheObjectData } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
-import { executeOperation } from './Operation';
+import { executeOperation, invokeMacroWorker } from './Operation';
 import { getPageContainers, flattenContainers, generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
@@ -77,8 +77,7 @@ const OfflineCore = {
             id: metaData.id,
         };
 
-        return removeOfflineData(stateId)
-            .then(() => setOfflineData(flow))
+        return setOfflineData(flow)
             .then(() => FlowInit(flow));
     },
 
@@ -349,7 +348,6 @@ const OfflineCore = {
         }
 
         const snapshot: any = Snapshot(metaData);
-        let pageResponse = null;
 
         if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
             addRequest(request, snapshot);
@@ -371,18 +369,61 @@ const OfflineCore = {
                 });
         }
 
+        const asyncOperations = [];
+
         if (nextMapElement.operations) {
+
+            // Execute operations
             nextMapElement.operations
+                .filter(operation => !operation.macroElementToExecuteId)
                 .sort((a, b) => a.order - b.order)
                 .forEach((operation) => {
                     executeOperation(operation, flow.state, snapshot);
                 });
-        }
 
+            // Execute macros
+            nextMapElement.operations
+            .filter(operation => operation.macroElementToExecuteId)
+                .sort((a, b) => a.order - b.order)
+                .forEach((operation) => {
+                    asyncOperations.push(
+                        invokeMacroWorker(operation, flow.state, snapshot),
+                    );
+                });
+
+            // Operations that execute macros inside a web worker are asyncronous
+            return Promise.all(asyncOperations).then(() => {
+                return this.constructResponse(
+                    nextMapElement,
+                    request,
+                    snapshot,
+                    flow,
+                    context,
+                );
+            });
+        }
+        return this.constructResponse(
+            nextMapElement,
+            request,
+            snapshot,
+            flow,
+            context,
+        );
+    },
+
+    constructResponse(nextMapElement, request, snapshot, flow, context) {
+
+        let pageResponse = null;
         if (nextMapElement.elementType === 'step') {
-            pageResponse = Step.generate(nextMapElement);
+            pageResponse = Step.generate(nextMapElement, snapshot);
         } else if (nextMapElement.elementType === 'input') {
-            pageResponse = generatePage(request, nextMapElement, flow.state, snapshot, flow.tenantId);
+            pageResponse = generatePage(
+                request,
+                nextMapElement,
+                flow.state,
+                snapshot,
+                flow.tenantId,
+            );
         } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
             pageResponse = {
                 developerName: 'done',

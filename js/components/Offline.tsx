@@ -2,7 +2,6 @@ import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
-import { clone, flatten, guid } from '../services/Utils';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 
 import GoOffline from './GoOffline';
@@ -62,9 +61,10 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     componentDidMount() {
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
+        const flowKey = this.props.flowKey;
+        const stateId = manywho.utils.extractStateId(flowKey);
+        const id = manywho.utils.extractFlowId(flowKey);
+        const versionId = manywho.utils.extractFlowVersionId(flowKey);
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {

@@ -1,6 +1,8 @@
+import { pollForStateValues } from './StateCaching';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
+declare const metaData: any;
 declare const jQuery: any;
 declare const $: any;
 
@@ -79,7 +81,12 @@ export const onlineRequest = (
             }
         },
     })
-    .done(manywho.settings.event(event + '.done'))
+    .done(() => {
+        manywho.settings.event(event + '.done');
+        if (stateId && tenantId) {
+            pollForStateValues(stateId, tenantId, authenticationToken);
+        }
+    })
     .fail(manywho.connection.onError)
     .fail(manywho.settings.event(event + '.fail'));
 };

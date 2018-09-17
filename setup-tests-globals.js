@@ -16,12 +16,18 @@ window.localforage = {
         return new Promise((resolve, reject) => {
             resolve(true);
         });
+    }),
+    createInstance: jest.fn(() => {
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        });       
     })
 }
 
 window.manywho = {
     settings: {
         initialize: jest.fn(),
+        global: jest.fn(() => 'https://example.com')
     },
     utils: {
         extractFlowId: jest.fn(),
@@ -43,5 +49,6 @@ window.manywho = {
     },
     model: {
         addNotification: jest.fn()
-    }
-} 
+    },
+    pollInterval: 1000,
+}

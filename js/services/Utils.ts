@@ -28,7 +28,7 @@ export const flatten = (items: any[], parent: any, result: any[], childKey: stri
  * @param object
  */
 export const clone = (object: Object) => {
-    return !manywho.utils.isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
+    return !isNullOrUndefined(object) ? JSON.parse(JSON.stringify(object)) : object;
 };
 
 export const guid = () => {
@@ -36,4 +36,8 @@ export const guid = () => {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     };
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
+
+const isNullOrUndefined = (value: any): boolean => {
+    return typeof value === 'undefined' || value === null;
 };

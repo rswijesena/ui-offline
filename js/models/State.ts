@@ -6,7 +6,7 @@ declare var manywho: any;
 let currentMapElementId = null;
 let id = null;
 let token = null;
-let values = null;
+const values = {};
 
 /**
  * Returns an object referencing the current state
@@ -16,7 +16,6 @@ export const StateInit = (state: IState) => {
     currentMapElementId = state.currentMapElementId;
     id = state.id;
     token = state.token;
-    values = state.values || {};
 
     return {
         currentMapElementId,

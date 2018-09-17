@@ -1,0 +1,76 @@
+import { setStateValue } from '../models/State';
+import { DEFAULT_POLL_INTERVAL } from '../constants';
+import Snapshot from './Snapshot';
+import OfflineCore from '../services/OfflineCore';
+
+declare const manywho: any;
+declare const metaData: any;
+
+let authenticationToken = undefined;
+let timer = undefined;
+
+const snapshot: any = Snapshot(metaData);
+
+// This needs to be set in the player manually
+// or injected in when generating a Cordova app
+let pollInterval = manywho.pollInterval;
+if (!pollInterval || pollInterval < DEFAULT_POLL_INTERVAL) {
+    pollInterval = DEFAULT_POLL_INTERVAL;
+}
+
+/**
+ * @param values an array of values returned from state values endpoint
+ * @description refreshing the offline state with current state values
+ */
+const injectValuesIntoState = (values: any) => {
+    values.forEach((value) => {
+        const valueProps = {
+            contentValue: value.contentValue,
+            objectData: value.objectData,
+        };
+        setStateValue(
+            { id: value.valueElementId },
+            value.typeElementId,
+            snapshot,
+            valueProps,
+        );
+    });
+};
+
+/**
+ * @param stateId
+ * @param tenantId
+ * @param token
+ * @description making a GET call to the states value endpoint
+ */
+export const pollForStateValues = (stateId: string, tenantId: string, token: string) => {
+    authenticationToken = token;
+
+    clearTimeout(timer);
+
+    if (!OfflineCore.isOffline) { // only poll api whilst online
+        const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values`;
+        const request = {
+            headers: {
+                ManyWhoTenant: tenantId,
+            },
+        };
+        if (authenticationToken) {
+            request.headers['Authorization'] = authenticationToken;
+        }
+        return fetch(url, request)
+            .then((response) => {
+                return response.json();
+            })
+            .then((response) => {
+                injectValuesIntoState(response);
+
+                // This is so the flow can perioically poll for the latest values
+                // in case values have changed from a user joining the state
+                timer = setTimeout(
+                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, pollInterval,
+                );
+            })
+            .catch(response => console.error(response));
+    }
+};

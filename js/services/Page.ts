@@ -113,12 +113,40 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 }
             }
 
-            if (typeElementId) {
-                const typeElement = snapshot.metadata.typeElements.find(element => element.id === typeElementId);
-                component.columns = component.columns.map((column) => {
-                    column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
-                    return column;
-                });
+            if (component.columns) {
+                let typeElementId = null;
+                if (component.objectDataRequest) {
+                    typeElementId = component.objectDataRequest.typeElementId;
+                } else if (component.valueElementDataBindingReferenceId) {
+                    sourceValue = snapshot.getValue(component.valueElementDataBindingReferenceId);
+                    typeElementId = sourceValue.typeElementId;
+
+                    const stateValue = getStateValue(
+                        component.valueElementDataBindingReferenceId,
+                        sourceValue.typeElementId,
+                        sourceValue.contentType,
+                        '',
+                    );
+                    if (stateValue) {
+                        sourceValue = stateValue;
+                    }
+                }
+
+                const orderColumns = (a, b) => {
+                    return a.order - b.order;
+                };
+
+                if (typeElementId) {
+                    component.columns = component.columns.map((column) => {
+                        const typeElement = snapshot.metadata.typeElements.find((element) => {
+                            return element.properties.find((property) => {
+                                return property.id === column.typeElementPropertyId;
+                            });
+                        });
+                        column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
+                        return column;
+                    }).sort(orderColumns);
+                }
             }
         }
 
@@ -137,14 +165,15 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
         if (sourceValue) {
             value.objectData = sourceValue.objectData || sourceValue.defaultObjectData;
-
-            if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
-                value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
-                    objectData.isSelected = !!selectedValue.objectData.find(
-                        item => item.externalId === objectData.externalId && item.isSelected,
-                    );
-                    return objectData;
-                });
+            if (selectedValue) {
+                if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
+                    value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
+                        objectData.isSelected = !!selectedValue.objectData.find(
+                            item => item.externalId === objectData.externalId && item.isSelected,
+                        );
+                        return objectData;
+                    });
+                }
             }
         }
 

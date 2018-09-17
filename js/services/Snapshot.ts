@@ -65,7 +65,8 @@ const Snapshot = (meta: any) => {
                         { typeElementPropertyId: '5582D6D3-B673-4972-A65F-9E915C0C10AA', developerName: 'Role Id', contentValue: null },
                         { typeElementPropertyId: 'D9904FDD-8F19-4f26-96C1-83EC2f58A540', developerName: 'Role Name', contentValue: null },
                         { typeElementPropertyId: 'CE98CE03-41EE-405D-B849-509974610D7F', developerName: 'Primary Group Id', contentValue: null },
-                        { typeElementPropertyId: 'F26BA831-B013-4654-8AE3-8EB3AB5E6C1E', developerName: 'Primary Group Name', contentValue: null },
+                        { typeElementPropertyIvalueElementsd: 'F26BA831-B013-4654-8AE3-8EB3AB5E6C1E', developerName: 'Primary Group Name',
+                            contentValue: null },
                         { typeElementPropertyId: '4FA61B46-A370-455E-85ED-D9A0A8723A43', developerName: 'Status', contentValue: null },
                         { typeElementPropertyId: '4FA61B47-A370-455E-85ED-D9A0A8723A43', developerName: 'AuthenticationType', contentValue: null },
                         { typeElementPropertyId: '4FA61B48-A370-455E-85ED-D9A0A8723A43', developerName: 'LoginUrl', contentValue: null },
@@ -195,10 +196,20 @@ const Snapshot = (meta: any) => {
         return null;
     };
 
+    const getMacro = (id: string) => {
+        return meta.macroElements.find(macro => macro.id === id);
+    };
+
+    const getValueByName = (name: string) => {
+        return meta.valueElements.find(element => element.developerName === name);
+    };
+
     return {
         getContentTypeForValue,
         getNavigationElementReferences,
         getValue,
+        getValueByName,
+        getMacro,
         getSystemValue,
         metadata: meta,
     };
