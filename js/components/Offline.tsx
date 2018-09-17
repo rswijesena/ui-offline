@@ -22,7 +22,12 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            view: null,
+            view: 0,
+            status: 'Caching Data',
+            progress: 0,
+            isProgressVisible: false,
+            isDismissEnabled: false,
+            hasInit: false,
         };
     }
 
@@ -31,9 +36,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOffline = () => {
-        this.setState({ view: null });
-        OfflineCore.isOffline = true;
-        this.forceUpdate();
+        this.setState({ isProgressVisible: false });
     }
 
     onOnlineClick = (e) => {
@@ -52,12 +55,41 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             .then(() => removeOfflineData(flow.state.id));
     }
 
+    onProgress = (current, total) => {
+        this.setState({ progress: Math.min((current / total) * 100, 100) });
+    }
+
+    onCached = () => {
+        this.setState({ progress: 100, isDismissEnabled: true });
+    }
+
+    onDismiss = () => {
+        this.onOffline();
+    }
+
     onCloseOnline = () => {
         this.setState({ view: null });
     }
 
     onCloseNoNetwork: () => void = () => {
         this.setState({ view: null });
+    }
+
+    init = () => {
+        this.setState({ hasInit: true });
+        const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
+        const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
+        const stateToken = manywho.state.getState(this.props.flowKey).token;
+
+        OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
+            .then((flow) => {
+                if (OfflineCore.cacheObjectData(flow, this.onProgress, this.onCached)) {
+                    this.setState({ isProgressVisible: true });
+                } else {
+                    // is offline
+                }
+            });
     }
 
     componentDidMount() {
@@ -75,35 +107,28 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     render() {
-        const button = OfflineCore.isOffline ?
-            <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>
-                Go Online
-            </button> :
-            <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>
-                Go Offline
-            </button>;
-
-        let view = null;
-
-        switch (this.state.view) {
-        case OfflineView.cache:
-            view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
-            break;
-
-        case OfflineView.replay:
-            view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
-            break;
-
-        case OfflineView.noNetwork:
-            view = <NoNetwork onClose={this.onCloseNoNetwork} />;
+        const stateToken = manywho.state.getState(this.props.flowKey).token;
+        if (stateToken && this.state.hasInit === false) {
+            this.init();
         }
 
-        if (metaData) {
-            return <div className="offline">
-                <div className="offline-options">
-                    {button}
+        const style = {
+            width: `${this.state.progress}%`,
+        };
+
+        if (this.state.isProgressVisible) {
+            return <div className="offline-status">
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <h4>{this.state.status}</h4>
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-striped active" style={style} />
+                        </div>
+                        <button className="btn btn-success continue-offline" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>
+                            Continue Offline
+                        </button>
+                    </div>
                 </div>
-                {view}
             </div>;
         }
 
