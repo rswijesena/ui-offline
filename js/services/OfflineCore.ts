@@ -377,18 +377,23 @@ const OfflineCore = {
         const asyncOperations = [];
 
         if (nextMapElement.operations) {
+
+            // Execute operations
             nextMapElement.operations
+                .filter(operation => !operation.macroElementToExecuteId)
                 .sort((a, b) => a.order - b.order)
                 .forEach((operation) => {
-                    if (operation.macroElementToExecuteId) {
-                        asyncOperations.push(
-                            invokeMacroWorker(operation, flow.state, snapshot),
-                        );
-                    } else {
-                        asyncOperations.push(
-                            executeOperation(operation, flow.state, snapshot),
-                        );
-                    }
+                    executeOperation(operation, flow.state, snapshot);
+                });
+
+            // Execute macros
+            nextMapElement.operations
+            .filter(operation => operation.macroElementToExecuteId)
+                .sort((a, b) => a.order - b.order)
+                .forEach((operation) => {
+                    asyncOperations.push(
+                        invokeMacroWorker(operation, flow.state, snapshot),
+                    );
                 });
 
             // Operations that execute macros inside a web worker are asyncronous
