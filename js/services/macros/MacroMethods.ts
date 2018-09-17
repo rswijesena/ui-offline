@@ -1,4 +1,5 @@
 import { getValueByName, setStateValue, generateNewObjectData, toEngineUTCStringFormat } from './MacroUtils';
+import { STRIP_VALUE_TAGS_REGEX } from '../../constants';
 import MacroPropertyMethods from './MacroPropertyMethods';
 
 let metadata = null;
@@ -11,13 +12,30 @@ const initMethods = (snapshot: any) => {
     metadata = snapshot;
 };
 
+const extractContentValue = (value: string) => {
+    const valueObj = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
+    return valueObj.props.contentValue;
+};
+
+const settingContentValue = (value: string, contentValue: string | boolean | number) => {
+    const valueObject = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
+
+    const valueProperties = {
+        contentValue,
+        objectData: null,
+        pageComponentId: null,
+    };
+
+    setStateValue(valueObject.id, valueProperties);
+};
+
 /**
  * @param value the value name tag
  * @param dateValue a date time object
  * @description sets a new UTC datetime for a datatime value
  */
 const setDateTimeValue = (value: string, dateValue) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z ]/g, ''), metadata);
+    const valueObject = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
 
     const valueProperties = {
         contentValue: toEngineUTCStringFormat(dateValue),
@@ -55,7 +73,7 @@ const createObject = (type: string) => {
  * @description returns a list values array of object data
  */
 const getArray = (value: string) => {
-    const listValue = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const listValue = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
     const list = listValue.props.objectData;
     const objectData = [];
     list.forEach((obj) => {
@@ -80,8 +98,7 @@ const getArray = (value: string) => {
  * @description returns a boolean values content value
  */
 const getBooleanValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return extractContentValue(value);
 };
 
 /**
@@ -89,8 +106,7 @@ const getBooleanValue = (value: string) => {
  * @description returns a content values content value
  */
 const getContentValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return extractContentValue(value);
 };
 
 /**
@@ -98,7 +114,7 @@ const getContentValue = (value: string) => {
  * @description returns a datetime values content value in UTC format
  */
 const getDateTimeValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const valueObj = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
     return toEngineUTCStringFormat(new Date(valueObj.props.contentValue));
 };
 
@@ -107,7 +123,7 @@ const getDateTimeValue = (value: string) => {
  * @description returns a number values content value as an integer
  */
 const getNumberValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const valueObj = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
     return parseInt(valueObj.props.contentValue, 10);
 };
 
@@ -116,7 +132,7 @@ const getNumberValue = (value: string) => {
  * @description returns an object values object data
  */
 const getObject = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const valueObj = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
     const objectData = valueObj.props.objectData[0];
 
     function generateResponse() {}
@@ -139,8 +155,7 @@ const getObject = (value: string) => {
  * @description returns a password values content value
  */
 const getPasswordValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return extractContentValue(value);
 };
 
 /**
@@ -148,8 +163,7 @@ const getPasswordValue = (value: string) => {
  * @description returns a string values content value
  */
 const getStringValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return extractContentValue(value);
 };
 
 /**
@@ -157,8 +171,7 @@ const getStringValue = (value: string) => {
  * @description returns any values content value
  */
 const getValue = (value: string) => {
-    const valueObj = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-    return valueObj.props.contentValue;
+    return extractContentValue(value);
 };
 
 /**
@@ -167,7 +180,7 @@ const getValue = (value: string) => {
  * @description sets an array of object data to a list value
  */
 const setArray = (value: string, objectData: object) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const valueObject = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
 
     const valueProperties = {
         objectData,
@@ -184,15 +197,7 @@ const setArray = (value: string, objectData: object) => {
  * @description sets a boolean to a boolean values content value
  */
 const setBooleanValue = (value: string, boolean: string | boolean) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: boolean,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, boolean);
 };
 
 /**
@@ -201,15 +206,7 @@ const setBooleanValue = (value: string, boolean: string | boolean) => {
  * @description sets a string to a content values content value
  */
 const setContentValue = (value: string, content: string) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: content,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, content);
 };
 
 /**
@@ -218,15 +215,7 @@ const setContentValue = (value: string, content: string) => {
  * @description sets a number to a number values content value
  */
 const setNumberValue = (value: string, number: string | number) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: number,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, number);
 };
 
 /**
@@ -235,7 +224,7 @@ const setNumberValue = (value: string, number: string | number) => {
  * @description sets an array of object data to an object value
  */
 const setObject = (value: string, objectData: object) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
+    const valueObject = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
 
     const valueProperties = {
         objectData: [objectData],
@@ -252,15 +241,7 @@ const setObject = (value: string, objectData: object) => {
  * @description sets a string to a password values content value
  */
 const setPasswordValue = (value: string, password: string) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: password,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, password);
 };
 
 /**
@@ -269,15 +250,7 @@ const setPasswordValue = (value: string, password: string) => {
  * @description sets a string to a string values content value
  */
 const setStringValue = (value: string, string: string) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: string,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, string);
 };
 
 /**
@@ -286,15 +259,7 @@ const setStringValue = (value: string, string: string) => {
  * @description sets a string to any values content value
  */
 const setValue = (value, string) => {
-    const valueObject = getValueByName(value.replace(/[^a-zA-Z0-9 ]/g, ''), metadata);
-
-    const valueProperties = {
-        contentValue: string,
-        objectData: null,
-        pageComponentId: null,
-    };
-
-    setStateValue(valueObject.id, valueProperties);
+    settingContentValue(value, string);
 };
 
 export default {
