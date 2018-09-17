@@ -12,12 +12,12 @@ const initMethods = (snapshot: any) => {
     metadata = snapshot;
 };
 
-const extractContentValue = (value: string) => {
+export const extractContentValue = (value: string) => {
     const valueObj = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
     return valueObj.props.contentValue;
 };
 
-const settingContentValue = (value: string, contentValue: string | boolean | number) => {
+export const settingContentValue = (value: string, contentValue: string | boolean | number) => {
     const valueObject = getValueByName(value.replace(STRIP_VALUE_TAGS_REGEX, ''), metadata);
 
     const valueProperties = {
@@ -95,22 +95,6 @@ const getArray = (value: string) => {
 
 /**
  * @param value the value name tag
- * @description returns a boolean values content value
- */
-const getBooleanValue = (value: string) => {
-    return extractContentValue(value);
-};
-
-/**
- * @param value the value name tag
- * @description returns a content values content value
- */
-const getContentValue = (value: string) => {
-    return extractContentValue(value);
-};
-
-/**
- * @param value the value name tag
  * @description returns a datetime values content value in UTC format
  */
 const getDateTimeValue = (value: string) => {
@@ -152,30 +136,6 @@ const getObject = (value: string) => {
 
 /**
  * @param value the value name tag
- * @description returns a password values content value
- */
-const getPasswordValue = (value: string) => {
-    return extractContentValue(value);
-};
-
-/**
- * @param value the value name tag
- * @description returns a string values content value
- */
-const getStringValue = (value: string) => {
-    return extractContentValue(value);
-};
-
-/**
- * @param value the value name tag
- * @description returns any values content value
- */
-const getValue = (value: string) => {
-    return extractContentValue(value);
-};
-
-/**
- * @param value the value name tag
  * @param objectData object data to set in state
  * @description sets an array of object data to a list value
  */
@@ -189,33 +149,6 @@ const setArray = (value: string, objectData: object) => {
     };
 
     setStateValue(valueObject.id, valueProperties);
-};
-
-/**
- * @param value the value name tag
- * @param boolean true/false
- * @description sets a boolean to a boolean values content value
- */
-const setBooleanValue = (value: string, boolean: string | boolean) => {
-    settingContentValue(value, boolean);
-};
-
-/**
- * @param value the value name tag
- * @param content text content
- * @description sets a string to a content values content value
- */
-const setContentValue = (value: string, content: string) => {
-    settingContentValue(value, content);
-};
-
-/**
- * @param value the value name tag
- * @param number
- * @description sets a number to a number values content value
- */
-const setNumberValue = (value: string, number: string | number) => {
-    settingContentValue(value, number);
 };
 
 /**
@@ -235,54 +168,16 @@ const setObject = (value: string, objectData: object) => {
     setStateValue(valueObject.id, valueProperties);
 };
 
-/**
- * @param value the value name tag
- * @param password
- * @description sets a string to a password values content value
- */
-const setPasswordValue = (value: string, password: string) => {
-    settingContentValue(value, password);
-};
-
-/**
- * @param value the value name tag
- * @param string
- * @description sets a string to a string values content value
- */
-const setStringValue = (value: string, string: string) => {
-    settingContentValue(value, string);
-};
-
-/**
- * @param value the value name tag
- * @param string
- * @description sets a string to any values content value
- */
-const setValue = (value, string) => {
-    settingContentValue(value, string);
-};
-
 export default {
     initMethods,
     setDateTimeValue,
     createObject,
     getArray,
-    getBooleanValue,
-    getContentValue,
     getDateTimeValue,
     getNumberValue,
     getObject,
-    getPasswordValue,
-    getStringValue,
-    getValue,
     setArray,
-    setBooleanValue,
-    setContentValue,
-    setNumberValue,
     setObject,
-    setPasswordValue,
-    setStringValue,
-    setValue,
 };
 
 /**

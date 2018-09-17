@@ -1,5 +1,5 @@
 import { getMacroState, setMacroState } from './MacroState';
-import MacroMethods from './MacroMethods';
+import { default as MacroMethods, extractContentValue, settingContentValue } from './MacroMethods';
 
 /**
  * @param macro the stringified macro
@@ -20,22 +20,22 @@ export const executeMacro = (macro: string, metadata: any, macroState: any) => {
         setDateTimeValue: MacroMethods.setDateTimeValue,
         createObject: MacroMethods.createObject,
         getArray: MacroMethods.getArray,
-        getBooleanValue: MacroMethods.getBooleanValue,
-        getContentValue: MacroMethods.getContentValue,
+        getBooleanValue: extractContentValue,
+        getContentValue: extractContentValue,
         getDateTimeValue: MacroMethods.getDateTimeValue,
         getNumberValue: MacroMethods.getNumberValue,
         getObject: MacroMethods.getObject,
-        getPasswordValue: MacroMethods.getPasswordValue,
-        getStringValue: MacroMethods.getStringValue,
-        getValue: MacroMethods.getValue,
+        getPasswordValue: extractContentValue,
+        getStringValue: extractContentValue,
+        getValue: extractContentValue,
         setArray: MacroMethods.setArray,
-        setBooleanValue: MacroMethods.setBooleanValue,
-        setContentValue: MacroMethods.setContentValue,
-        setNumberValue: MacroMethods.setNumberValue,
+        setBooleanValue: settingContentValue,
+        setContentValue: settingContentValue,
+        setNumberValue: settingContentValue,
         setObject: MacroMethods.setObject,
-        setPasswordValue: MacroMethods.setPasswordValue,
-        setStringValue: MacroMethods.setStringValue,
-        setValue: MacroMethods.setValue,
+        setPasswordValue: settingContentValue,
+        setStringValue: settingContentValue,
+        setValue: settingContentValue,
     };
 
     Function('"use strict";return (' + macro + ')')()(
