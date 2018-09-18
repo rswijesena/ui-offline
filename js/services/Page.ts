@@ -113,40 +113,20 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 }
             }
 
-            if (component.columns) {
-                let typeElementId = null;
-                if (component.objectDataRequest) {
-                    typeElementId = component.objectDataRequest.typeElementId;
-                } else if (component.valueElementDataBindingReferenceId) {
-                    sourceValue = snapshot.getValue(component.valueElementDataBindingReferenceId);
-                    typeElementId = sourceValue.typeElementId;
+            const orderColumns = (a, b) => {
+                return a.order - b.order;
+            };
 
-                    const stateValue = getStateValue(
-                        component.valueElementDataBindingReferenceId,
-                        sourceValue.typeElementId,
-                        sourceValue.contentType,
-                        '',
-                    );
-                    if (stateValue) {
-                        sourceValue = stateValue;
-                    }
-                }
-
-                const orderColumns = (a, b) => {
-                    return a.order - b.order;
-                };
-
-                if (typeElementId) {
-                    component.columns = component.columns.map((column) => {
-                        const typeElement = snapshot.metadata.typeElements.find((element) => {
-                            return element.properties.find((property) => {
-                                return property.id === column.typeElementPropertyId;
-                            });
+            if (typeElementId) {
+                component.columns = component.columns.map((column) => {
+                    const typeElement = snapshot.metadata.typeElements.find((element) => {
+                        return element.properties.find((property) => {
+                            return property.id === column.typeElementPropertyId;
                         });
-                        column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
-                        return column;
-                    }).sort(orderColumns);
-                }
+                    });
+                    column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
+                    return column;
+                }).sort(orderColumns);
             }
         }
 
