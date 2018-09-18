@@ -1,4 +1,4 @@
-import { pollForStateValues } from './StateCaching';
+import { pollForStateValues } from './cache/StateCaching';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
@@ -13,6 +13,7 @@ enum EventTypes {
     join = 'join',
     navigation = 'navigation',
     initialization = 'initialization',
+    objectData = 'objectData',
 }
 
 /**
@@ -83,7 +84,7 @@ export const onlineRequest = (
     })
     .done(() => {
         manywho.settings.event(event + '.done');
-        if (stateId && tenantId) {
+        if (stateId && tenantId && event !== 'objectData') {
             pollForStateValues(stateId, tenantId, authenticationToken);
         }
     })

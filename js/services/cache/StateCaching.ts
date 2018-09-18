@@ -1,7 +1,7 @@
-import { setStateValue } from '../models/State';
-import { DEFAULT_POLL_INTERVAL } from '../constants';
-import Snapshot from './Snapshot';
-import OfflineCore from '../services/OfflineCore';
+import { setStateValue } from '../../models/State';
+import { DEFAULT_POLL_INTERVAL } from '../../constants';
+import Snapshot from '../Snapshot';
+import OfflineCore from '../OfflineCore';
 
 declare const manywho: any;
 declare const metaData: any;
@@ -68,7 +68,7 @@ export const pollForStateValues = (stateId: string, tenantId: string, token: str
                 // This is so the flow can perioically poll for the latest values
                 // in case values have changed from a user joining the state
                 timer = setTimeout(
-                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, pollInterval,
+                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, 10000,
                 );
             })
             .catch(response => console.error(response));

@@ -3,13 +3,15 @@ import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
-
-import GoOffline from './GoOffline';
-import GoOnline from './GoOnline';
-import NoNetwork from './NoNetwork';
+import { DEFAULT_POLL_INTERVAL } from '../constants';
+import ObjectDataCaching from '../services/cache/ObjectDataCaching';
 
 declare const manywho: any;
-declare const metaData: any;
+
+let pollInterval = manywho.pollInterval;
+if (!pollInterval || pollInterval < DEFAULT_POLL_INTERVAL) {
+    pollInterval = DEFAULT_POLL_INTERVAL;
+}
 
 enum OfflineView {
     cache = 0,
@@ -19,15 +21,16 @@ enum OfflineView {
 
 class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
+    flow = null;
+    objectDataCachingTimer = null;
+
     constructor(props: any) {
         super(props);
         this.state = {
             view: 0,
-            status: 'Caching Data',
             progress: 0,
-            isProgressVisible: false,
-            isDismissEnabled: false,
-            hasInit: false,
+            isCachingObjectData: false,
+            hasInitialized: false,
         };
     }
 
@@ -36,7 +39,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     onOffline = () => {
-        this.setState({ isProgressVisible: false });
+        this.setState({ isCachingObjectData: false, progress: 0 });
     }
 
     onOnlineClick = (e) => {
@@ -55,18 +58,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             .then(() => removeOfflineData(flow.state.id));
     }
 
-    onProgress = (current, total) => {
-        this.setState({ progress: Math.min((current / total) * 100, 100) });
-    }
-
-    onCached = () => {
-        this.setState({ progress: 100, isDismissEnabled: true });
-    }
-
-    onDismiss = () => {
-        this.onOffline();
-    }
-
     onCloseOnline = () => {
         this.setState({ view: null });
     }
@@ -75,28 +66,45 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         this.setState({ view: null });
     }
 
-    init = () => {
-        this.setState({ hasInit: true });
+    initialize = () => {
         const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
+        this.setState({ hasInitialized: true });
         OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
             .then((flow) => {
-                if (OfflineCore.cacheObjectData(flow, this.onProgress, this.onCached)) {
-                    this.setState({ isProgressVisible: true });
-                } else {
-                    // is offline
-                }
+                this.flow = flow;
+                this.cacheObjectData();
             });
     }
 
+    cacheObjectData = () => {
+        clearTimeout(this.objectDataCachingTimer);
+        if (this.flow) {
+            this.setState({ isCachingObjectData: true });
+            ObjectDataCaching(this.flow)
+                .then((response) => {
+                    this.flow = response;
+                    this.setState({ isCachingObjectData: false });
+                    this.objectDataCachingTimer = setTimeout(
+                        () => { this.cacheObjectData(); }, pollInterval,
+                    );
+                })
+                .catch(() => {
+                    this.setState({ isCachingObjectData: false });
+                });
+        }
+    }
+
     componentDidMount() {
+
+        // TODO - this needs looking at
         const flowKey = this.props.flowKey;
-        const stateId = manywho.utils.extractStateId(flowKey);
         const id = manywho.utils.extractFlowId(flowKey);
         const versionId = manywho.utils.extractFlowVersionId(flowKey);
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
@@ -108,26 +116,18 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
     render() {
         const stateToken = manywho.state.getState(this.props.flowKey).token;
-        if (stateToken && this.state.hasInit === false) {
-            this.init();
+
+        // We need the state token to initialize the offline functionality,
+        // which is not set in state when the component initially is mounted
+        if (stateToken && this.state.hasInitialized === false) {
+            this.initialize();
         }
 
-        const style = {
-            width: `${this.state.progress}%`,
-        };
-
-        if (this.state.isProgressVisible) {
-            return <div className="offline-status">
-                <div className="panel panel-default">
-                    <div className="panel-body">
-                        <h4>{this.state.status}</h4>
-                        <div className="progress">
-                            <div className="progress-bar progress-bar-striped active" style={style} />
-                        </div>
-                        <button className="btn btn-success continue-offline" disabled={!this.state.isDismissEnabled} onClick={this.onDismiss}>
-                            Continue Offline
-                        </button>
-                    </div>
+        if (this.state.isCachingObjectData) {
+            return <div className="caching-spinner">
+                <div className="wait-container">
+                    <div className="wait-spinner-small wait-spinner"></div>
+                    <span className="wait-message">Caching</span>
                 </div>
             </div>;
         }
