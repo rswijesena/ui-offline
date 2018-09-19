@@ -11,44 +11,48 @@ declare const metaData: any;
  * @description retrieve object data request responses from the engine
  * and set them in the flow model and insert them update indexdb
  */
-const ObjectDataCaching = (flow: IFlow) => {
+const ObjectDataCaching = (flow: IFlow, onDone) => {
 
-    const requests = generateObjectData();
+    const initRequests = generateObjectData();
 
-    if (!requests || requests.length === 0) {
-        return Promise.reject(0);
+    if (!initRequests || initRequests.length === 0) {
+        return false;
     }
 
-    const asyncOperations = [];
+    const executeRequest = function (
+        req: any,
+        reqIndex: number,
+        flow: IFlow,
+        currentTypeElementId: null,
+        onDone: Function) {
 
-    requests.forEach((request: any) => {
+        let requests = req;
+
+        if (reqIndex >= requests.length) {
+            return setOfflineData(flow)
+                .then(onDone);
+        }
+
+        const request = requests[reqIndex];
         request.stateId = flow.state.id;
-        asyncOperations.push(
-            manywho.ajax.dispatchObjectDataRequest(
-                request,
-                flow.tenantId,
-                flow.state.id,
-                flow.authenticationToken,
-                request.listFilter.limit,
-            )
-                .then((response) => {
-                    if (response.objectData) {
 
-                        // Setting responses into the flow model
-                        cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    }
-                }),
-        );
-    });
+        return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
+            .then((response) => {
+                if (response.objectData) {
+                    cacheObjectData(response.objectData, request.objectDataType.typeElementId);
+                } else {
+                    requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
+                }
 
-    return Promise.all(asyncOperations).then(() => {
-
-        // Updating indexDB with responses
-        return setOfflineData(flow)
+                return response;
+            })
             .then(() => {
-                return flow;
+                const indy = reqIndex + 1;
+                executeRequest(requests, indy, flow, currentTypeElementId, onDone);
             });
-    });
+    };
+    executeRequest(initRequests, 0, flow, null, onDone);
+    return true;
 };
 
 /**
