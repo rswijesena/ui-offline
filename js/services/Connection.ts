@@ -59,7 +59,8 @@ export const onlineRequest = (
     tenantId: string,
     stateId: string,
     authenticationToken: string,
-    request: any) => {
+    request: any,
+) => {
 
     let json = null;
 
@@ -101,7 +102,14 @@ export const onlineRequest = (
  * @param tenantId
  * @param stateId
  */
-export const offlineRequest = (resolveContext: any, event: EventTypes, urlPart: string, request: string, tenantId: string, stateId: string) => {
+export const offlineRequest = (
+    resolveContext: any,
+    event: EventTypes,
+    urlPart: string,
+    request: string,
+    tenantId: string,
+    stateId: string,
+) => {
     const deferred = jQuery.Deferred();
 
     OfflineCore.getResponse(resolveContext, event, urlPart, request, tenantId, stateId)
@@ -135,7 +143,9 @@ export const request = (
     methodType: string,
     tenantId: string,
     stateId: string,
-    authenticationToken: string, request: any) => {
+    authenticationToken: string,
+    request: any,
+) => {
     return isOnline()
         .then((response) => {
             if (response) {
@@ -146,5 +156,114 @@ export const request = (
 
             // Device is not connected to the internet
             return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
+        });
+};
+
+/**
+ * Perform an upload request to the API in a normal online environment
+ * @param event Type of event, `Settings.event(event + '.done')` will be called when the request completes
+ * @param url The path to make the request against, excluding the host which is fetched from `Settings.global('platform.uri')`
+ * @param files A list of files
+ * @param request The request payload data
+ * @param tenantId The GUID of the tenant to make the request against
+ * @param authenticationToken Current running users authentication token
+ * @param onProgress Callback to recieve progress event info
+ * @returns JQuery deferred from the $.ajax request
+ */
+export const onlineUploadFiles = (
+    event: string,
+    url: string,
+    files: File[],
+    request: any,
+    tenantId: string,
+    authenticationToken: string,
+    onProgress: EventListenerOrEventListenerObject,
+) => {
+
+    const formData = new FormData();
+
+    files.forEach((file) => {
+        formData.append('FileData', file);
+    });
+
+    formData.append('FileDataRequest', JSON.stringify(request));
+
+    return $.ajax({
+        url: manywho.settings.global('platform.uri') + url,
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        xhr: () => {
+            const xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener('progress', onProgress, false);
+            return xhr;
+        },
+        beforeSend: (xhr) => {
+            manywho.connection.beforeSend.call(this, xhr, tenantId, authenticationToken, event);
+        },
+    })
+    .done(manywho.settings.event(event + '.done'))
+    .fail(manywho.connection.onError)
+    .fail(manywho.settings.event(event + '.fail'));
+};
+
+/**
+ * Passing the request back to the offline engine
+ * to generate the appropriate response.
+ * @param event
+ * @param files
+ * @param request
+ * @param stateId
+ */
+export const offlineUploadFiles = (
+    event: string,
+    files: File[],
+    request: any,
+    stateId: string,
+) => {
+    const deferred = jQuery.Deferred();
+
+    const response = OfflineCore.getUploadResponse(files, request, stateId);
+
+    deferred.resolve(response);
+
+    return deferred.done(manywho.settings.event(event + '.done'));
+};
+
+/**
+ * Perform an upload request to the API in a normal online environment
+ * @param resolveContext TODO
+ * @param event Type of event, `Settings.event(event + '.done')` will be called when the request completes
+ * @param url The path to make the request against, excluding the host which is fetched from `Settings.global('platform.uri')`
+ * @param files Files to upload
+ * @param request Request payload data
+ * @param tenantId The GUID of the tenant to make the request against
+ * @param authenticationToken Current running users authentication token
+ * @param onProgress Callback to recieve progress event info
+ * @param stateId
+ * @returns JQuery deferred from the $.ajax request
+ */
+export const uploadFiles = (
+    resolveContext,
+    event: string,
+    url: string,
+    files: File[],
+    request: any,
+    tenantId: string,
+    authenticationToken: string,
+    onProgress: EventListenerOrEventListenerObject,
+    stateId: string,
+) => {
+    return isOnline()
+        .then((response) => {
+            if (response) {
+
+                // Device is connected to the internet
+                return onlineUploadFiles(event, url, files, request, tenantId, authenticationToken, onProgress);
+            }
+
+            // Device is not connected to the internet
+            return offlineUploadFiles(event, files, request, stateId);
         });
 };

@@ -5,14 +5,14 @@ localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
 /**
  * Get the previously saved local version of the state from local storage.
- * If the `id` of the state isn't provided then iterate across all local storage
+ * If `stateId` isn't provided then iterate across all local storage
  * to find data with a matching `flowId` and `flowVersionId`
- * @param id
+ * @param stateId
  * @param flowId
  * @param flowVersionId
  */
-export const getOfflineData = (id: string, flowId: string = null, flowVersionId: string = null) => {
-    return localforage.getItem(`manywho:offline-${id}`)
+export const getOfflineData = (stateId: string, flowId: string = null, flowVersionId: string = null) => {
+    return localforage.getItem(`manywho:offline-${stateId}`)
         .then((value) => {
             if (value) {
                 return value;
@@ -27,7 +27,7 @@ export const getOfflineData = (id: string, flowId: string = null, flowVersionId:
                 if (flow) {
                     return removeOfflineData(flow.state.id)
                         .then(() => {
-                            flow.state.id = id;
+                            flow.state.id = stateId;
                             return setOfflineData(flow);
                         });
                 }
