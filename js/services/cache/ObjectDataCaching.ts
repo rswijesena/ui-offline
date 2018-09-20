@@ -46,8 +46,8 @@ const ObjectDataCaching = (flow: IFlow, onDone) => {
                 return response;
             })
             .then(() => {
-                const indy = reqIndex + 1;
-                executeRequest(requests, indy, flow, currentTypeElementId, onDone);
+                const ind = reqIndex + 1;
+                executeRequest(requests, ind, flow, currentTypeElementId, onDone);
             });
     };
     executeRequest(initRequests, 0, flow, null, onDone);

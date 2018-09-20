@@ -26,17 +26,15 @@ enum EventTypes {
 
 const OfflineCore = {
 
-    requests: null,
     isOffline: false,
 
     /**
-     * Called when the flow is toggled to offline mode.
-     * Metadata elements are iterated over to generate an array of request objects (objectDataRequests).
-     * We finish by instantiating a flow object.
      * @param tenantId
      * @param stateId
      * @param stateToken
      * @param authenticationToken
+     * @description initialzing a model in state. This occurs when
+     * a flow is first initialized and is not yet in offline mode
      */
     initialize(tenantId: string, stateId: string, stateToken: string, authenticationToken: string) {
         if (!metaData) {
