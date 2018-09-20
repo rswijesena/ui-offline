@@ -29,8 +29,7 @@ const ObjectDataCaching = (flow: IFlow, onDone) => {
         let requests = req;
 
         if (reqIndex >= requests.length) {
-            return setOfflineData(flow)
-                .then(onDone);
+            return onDone();
         }
 
         const request = requests[reqIndex];

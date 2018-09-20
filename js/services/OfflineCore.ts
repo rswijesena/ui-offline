@@ -53,8 +53,7 @@ const OfflineCore = {
             id: metaData.id,
         };
 
-        return setOfflineData(flow)
-            .then(() => FlowInit(flow));
+        return FlowInit(flow);
     },
 
     /**

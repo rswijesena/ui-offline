@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
+import { getFlowModel } from '../models/Flow';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 import { DEFAULT_POLL_INTERVAL } from '../constants';
@@ -38,20 +39,26 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         };
     }
 
-    onOfflineClick = (e) => {
+    onOfflineClick = () => {
         this.setState({ view: 0 });
     }
 
     onOffline = () => {
         this.setState({ isCachingObjectData: false, view: null });
         OfflineCore.isOffline = true;
-        this.forceUpdate();
+
+        // Indexdb is initially popolated with data
+        // when the user explicitly goes into offline mode
+        setOfflineData(getFlowModel())
+            .then(() => this.forceUpdate());
     }
 
-    onOnlineClick = (e) => {
+    onOnlineClick = () => {
         hasNetwork()
             .then((response) => {
-                response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
+                response ?
+                this.setState({ view: OfflineView.replay }) :
+                this.setState({ view: OfflineView.noNetwork });
             });
     }
 
@@ -67,7 +74,11 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         OfflineCore.isOffline = false;
 
         setOfflineData(flow)
-            .then(() => OfflineCore.rejoin(this.props.flowKey));
+            .then(() => OfflineCore.rejoin(this.props.flowKey))
+
+            // Indexdb is cleared out when rejoining the flow
+            // this indicates the flow is no longer in offline mode
+            .then(() => removeOfflineData(flow.state.id));
     }
 
     onCloseOnline = () => {
@@ -85,19 +96,39 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         const stateToken = manywho.state.getState(this.props.flowKey).token;
 
         this.setState({ hasInitialized: true });
-        OfflineCore.initialize(tenantId, stateId, stateToken, authenticationToken)
-            .then((flow) => {
-                this.flow = flow;
-                this.cacheObjectData();
-            });
+        this.flow = OfflineCore.initialize(
+            tenantId,
+            stateId,
+            stateToken,
+            authenticationToken,
+        );
+        this.cacheObjectData();
     }
 
     cacheObjectData = () => {
         clearTimeout(this.objectDataCachingTimer);
         if (this.flow && OfflineCore.isOffline === false) {
             this.setState({ isCachingObjectData: true });
-            ObjectDataCaching(this.flow, this.onCached);
+            if (!ObjectDataCaching(this.flow, this.onCached)) {
+                this.setState({ isCachingObjectData: false });
+            }
         }
+    }
+
+    componentDidMount() {
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
+        const id = manywho.utils.extractFlowId(this.props.flowKey);
+        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
+
+        // When component mounts we assume the flow should be
+        // running in offline mode if there is an entry for the
+        // current state in indexdb
+        getOfflineData(stateId, id, versionId)
+            .then((flow) => {
+                if (flow) {
+                    this.onOffline();
+                }
+            });
     }
 
     render() {

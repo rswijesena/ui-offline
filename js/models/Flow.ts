@@ -35,6 +35,20 @@ export const FlowInit = (flow: IFlow) => {
 
 /**
  * @param request
+ */
+export const getFlowModel = () => {
+    return {
+        authenticationToken,
+        id,
+        objectData,
+        requests,
+        tenantId,
+        state,
+    };
+};
+
+/**
+ * @param request
  * @param snapshot
  */
 export const addRequest = (request: any, snapshot: any) => {
