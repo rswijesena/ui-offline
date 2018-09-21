@@ -25,9 +25,22 @@ window.localforage = {
 }
 
 window.manywho = {
+    ajax: {
+        dispatchObjectDataRequest: jest.fn(() => Promise.resolve({objectData: []})),
+    },
     settings: {
         initialize: jest.fn(),
-        global: jest.fn(() => 'https://example.com')
+        global: jest.fn((a) => {
+            if (a === 'offline.cache.requests.limit') {
+                return 250;
+            }
+
+            if (a === 'offline.cache.requests.pageSize') {
+                return 10;
+            }
+
+            return 'https://example.com';
+        })
     },
     utils: {
         extractFlowId: jest.fn(),
