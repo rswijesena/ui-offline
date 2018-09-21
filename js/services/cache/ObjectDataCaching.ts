@@ -1,6 +1,5 @@
 import { IFlow } from '../../interfaces/IModels';
 import { cacheObjectData } from '../../models/Flow';
-import { setOfflineData } from '../Storage';
 import { clone } from '../Utils';
 
 declare const manywho: any;

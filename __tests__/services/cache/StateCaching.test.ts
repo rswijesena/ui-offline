@@ -1,11 +1,11 @@
-import { pollForStateValues } from '../../js/services/StateCaching';
-import { setStateValue } from '../../js/models/State';
-import OfflineCore from '../../js/services/OfflineCore';
+import { pollForStateValues } from '../../../js/services/cache/StateCaching';
+import { setStateValue } from '../../../js/models/State';
+import OfflineCore from '../../../js/services/OfflineCore';
 
 const globalAny:any = global;
 const castSetStateValue: any = setStateValue;
 
-jest.mock('../../js/models/State', () => ({
+jest.mock('../../../js/models/State', () => ({
     setStateValue: jest.fn(),
 }));
 
