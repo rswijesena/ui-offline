@@ -4,7 +4,7 @@ import OfflineCore from '../services/OfflineCore';
 import { getFlowModel } from '../models/Flow';
 import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
-import { DEFAULT_POLL_INTERVAL } from '../constants';
+import { DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
 import ObjectDataCaching from '../services/cache/ObjectDataCaching';
 
 import GoOffline from './GoOffline';
@@ -14,9 +14,9 @@ import NoNetwork from './NoNetwork';
 declare const manywho: any;
 declare const metaData: any;
 
-let pollInterval = manywho.pollInterval;
-if (!pollInterval || pollInterval < DEFAULT_POLL_INTERVAL) {
-    pollInterval = DEFAULT_POLL_INTERVAL;
+let pollInterval = manywho.objectDataCachingInterval;
+if (!pollInterval || pollInterval < DEFAULT_OBJECTDATA_CACHING_INTERVAL) {
+    pollInterval = DEFAULT_OBJECTDATA_CACHING_INTERVAL;
 }
 
 enum OfflineView {
@@ -65,7 +65,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     onCached = () => {
         this.setState({ isCachingObjectData: false });
         this.objectDataCachingTimer = setTimeout(
-            () => { this.cacheObjectData(); }, 500000,
+            () => { this.cacheObjectData(); }, pollInterval,
         );
     }
 

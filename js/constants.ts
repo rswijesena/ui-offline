@@ -10,7 +10,9 @@ export const CRITERIA = {
     isNotEqual: 'NOT_EQUAL',
 };
 
-export const DEFAULT_POLL_INTERVAL = 30000;
+export const DEFAULT_POLL_INTERVAL = 30000; // 30 seconds
+
+export const DEFAULT_OBJECTDATA_CACHING_INTERVAL = 300000; // 5 minutes
 
 export const STRIP_VALUE_TAGS_REGEX = /[^a-zA-Z0-9 ]/g;
 
