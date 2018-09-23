@@ -1,4 +1,49 @@
-declare const manywho: any;
+import { getStateValue } from '../models/State';
+
+/**
+ * @param content
+ * @param snapshot
+ * @description for replacing value references inside a content string with
+ * the value content values. Applicable to step elements and presentation page components
+ */
+export const parseContent = (content: string, snapshot: any) => {
+    let contentCopy = content;
+
+    // Check for any value references (these are wrapped in square brackets)
+    const valueNames = content.match(/{([^}]*)}/g);
+    if (valueNames && valueNames.length > 0) {
+
+        // For every value reference, retrieve the value
+        // from the flow snaphot
+        valueNames.forEach((valueName) => {
+            const valueObject = snapshot.getValueByName(
+                valueName.split('.')[0].replace(/[^a-zA-Z0-9: ]/g, ''), // this is for when a value property is referenced
+            );
+            const currentValue = getStateValue(
+                { id: valueObject.id },
+                null,
+                valueObject.contentType,
+                '',
+            );
+            if (valueObject.contentType === 'ContentObject') {
+
+                // If an object value is being referenced then the
+                // correct property content value needs to be extracted
+                const property = currentValue.objectData[0].properties.find(
+                    property => property.developerName === valueName.split('.')[1].replace(/[^a-zA-Z0-9 ]/g, ''),
+                );
+                contentCopy = contentCopy.replace(valueName, property.contentValue);
+            }
+            contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
+        });
+        if (contentCopy.indexOf('undefined') !== -1) {
+            return '';
+        }
+        return contentCopy;
+    }
+
+    return content;
+};
 
 /**
  * @param items

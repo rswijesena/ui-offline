@@ -1,4 +1,5 @@
 import { getStateValue } from '../models/State';
+import { clone, parseContent } from '../services/Utils';
 import { IState } from '../interfaces/IModels';
 import PageCondition from './pageconditions/PageCondition';
 
@@ -69,6 +70,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             isEnabled: true,
             isRequired: component.isRequired,
             pageComponentId: component.id,
+            content: component.content ? parseContent(component.content, snapshot) : null,
             contentValue: null,
             objectData: null,
             contentType: manywho.component.contentTypes.string,
@@ -165,7 +167,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             }
         }
 
-        return Object.assign(component, value, { attributes: component.attributes || {} });
+        return Object.assign(clone(component), value, { attributes: component.attributes || {} });
     });
     return {
         developerName: mapElement.developerName,
