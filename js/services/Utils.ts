@@ -36,7 +36,7 @@ export const parseContent = (content: string, snapshot: any) => {
                     contentCopy = contentCopy.replace(valueName, property.contentValue);
                 }
             }
-            contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
+            contentCopy = contentCopy.replace(valueName, (currentValue.contentValue === null ? '' : currentValue.contentValue));
         });
         if (contentCopy.indexOf('undefined') !== -1) {
             return '';
