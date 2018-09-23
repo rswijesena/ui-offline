@@ -29,10 +29,12 @@ export const parseContent = (content: string, snapshot: any) => {
 
                 // If an object value is being referenced then the
                 // correct property content value needs to be extracted
-                const property = currentValue.objectData[0].properties.find(
-                    property => property.developerName === valueName.split('.')[1].replace(/[^a-zA-Z0-9 ]/g, ''),
-                );
-                contentCopy = contentCopy.replace(valueName, property.contentValue);
+                if (currentValue.objectData && currentValue.objectData.length > 0) {
+                    const property = currentValue.objectData[0].properties.find(
+                        property => property.developerName === valueName.split('.')[1].replace(/[^a-zA-Z0-9 ]/g, ''),
+                    );
+                    contentCopy = contentCopy.replace(valueName, property.contentValue);
+                }
             }
             contentCopy = contentCopy.replace(valueName, currentValue.contentValue);
         });
