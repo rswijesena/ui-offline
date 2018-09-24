@@ -57,6 +57,6 @@ module.exports = (env) => {
         defaultDirectory = env.build;
 
     config.output.path = path.resolve(__dirname, defaultDirectory, 'js');
-    config.output.publicPath = defaultDirectory + '/js/';
+    config.output.publicPath = 'dist/js/';
     return config;
 };
