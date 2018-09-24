@@ -10,7 +10,8 @@
     "scripts": {
         "docs": "typedoc js --out docs --ignoreCompilerErrors --mode modules & start docs/index.html",
         "start": "webpack --config webpack.development.config.js --env.build=../ui-html5/build",
-        "dist": "webpack --config webpack.production.config.js && node bundle",
+        "dist": "webpack --config webpack.production.config.js",
+        "postdist": "node bundle",
         "offline": "node ./js/metaData.js",
         "precommit": "lint-staged",
         "test": "jest"
