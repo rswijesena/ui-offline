@@ -399,30 +399,28 @@ const OfflineCore = {
                 });
         }
 
-        const asyncOperations = [];
-
         if (nextMapElement.operations) {
 
-            // Execute operations
-            nextMapElement.operations
-                .filter(operation => !operation.macroElementToExecuteId)
-                .sort((a, b) => a.order - b.order)
-                .forEach((operation) => {
-                    executeOperation(operation, flow.state, snapshot);
-                });
+            const sortedOperations = nextMapElement.operations
+                .sort((a, b) => a.order - b.order);
 
-            // Execute macros
-            nextMapElement.operations
-            .filter(operation => operation.macroElementToExecuteId)
-                .sort((a, b) => a.order - b.order)
-                .forEach((operation) => {
-                    asyncOperations.push(
-                        invokeMacroWorker(operation, flow.state, snapshot),
-                    );
-                });
+            // Using async function as it is important that
+            // asyncronous operations are executed in order
+            const executeOperations = async (operations) => {
+                for (const operation of operations) {
+                    if (operation.macroElementToExecuteId) {
 
-            // Operations that execute macros inside a web worker are asyncronous
-            return Promise.all(asyncOperations).then(() => {
+                        // Execute a macro
+                        await invokeMacroWorker(operation, flow.state, snapshot);
+                    } else {
+
+                        // Execute an operation
+                        await executeOperation(operation, flow.state, snapshot);
+                    }
+                }
+
+                // Once all operations have completed we can return
+                // a response back to the UI
                 return this.constructResponse(
                     nextMapElement,
                     request,
@@ -430,8 +428,11 @@ const OfflineCore = {
                     flow,
                     context,
                 );
-            });
+            };
+
+            return executeOperations(sortedOperations);
         }
+
         return this.constructResponse(
             nextMapElement,
             request,
