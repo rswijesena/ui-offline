@@ -67,6 +67,7 @@
             "**/js/services/*.{ts,tsx}",
             "**/js/services/pageconditions/*.{ts,tsx}",
             "**/js/services/macros/*.{ts,tsx}",
+            "**/js/services/cache/*.{ts,tsx}",
             "**/js/models/*.{ts,tsx}"
         ],
         "setupFiles": [

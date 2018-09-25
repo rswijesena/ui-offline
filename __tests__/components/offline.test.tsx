@@ -17,5 +17,4 @@ describe('Offline component behaviour', () => {
     test('Offline component renders without crashing', () => {
         expect(componentWrapper.length).toEqual(1);
     });
-
 });

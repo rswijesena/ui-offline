@@ -1,7 +1,7 @@
-import { setStateValue } from '../models/State';
-import { DEFAULT_POLL_INTERVAL } from '../constants';
-import Snapshot from './Snapshot';
-import OfflineCore from '../services/OfflineCore';
+import { setStateValue } from '../../models/State';
+import { DEFAULT_POLL_INTERVAL } from '../../constants';
+import Snapshot from '../Snapshot';
+import OfflineCore from '../OfflineCore';
 
 declare const manywho: any;
 declare const metaData: any;

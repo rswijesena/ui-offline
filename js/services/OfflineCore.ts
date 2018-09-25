@@ -1,15 +1,15 @@
-import { addRequest, FlowInit, getObjectData, cacheObjectData, getRequests } from '../models/Flow';
+import { addRequest, FlowInit, getObjectData, getRequests } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import { executeOperation, invokeMacroWorker } from './Operation';
-import { getPageContainers, flattenContainers, generatePage } from './Page';
+import { generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
 import { StateUpdate } from '../models/State';
-import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
+import { getOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
-import { clone, flatten, guid } from '../services/Utils';
+import { flatten, guid } from '../services/Utils';
 
 declare const manywho: any;
 // This is the gloabl metaData object generated when building offline project
@@ -23,51 +23,25 @@ enum EventTypes {
     navigation = 'navigation',
     initialization = 'initialization',
     file = 'fileData',
+    objectData = 'objectData',
 }
 
 const OfflineCore = {
 
-    requests: null,
     isOffline: false,
 
     /**
-     * Called when the flow is toggled to offline mode.
-     * Metadata elements are iterated over to generate an array of request objects (objectDataRequests).
-     * We finish by instantiating a flow object.
      * @param tenantId
      * @param stateId
      * @param stateToken
      * @param authenticationToken
+     * @description initialzing a model in state. This occurs when
+     * a flow is first initialized and is not yet in offline mode
      */
     initialize(tenantId: string, stateId: string, stateToken: string, authenticationToken: string) {
         if (!metaData) {
             return;
         }
-
-        const objectDataRequests = {};
-
-        if (metaData.pageElements) {
-            metaData.pageElements.forEach((page) => {
-                (page.pageComponents || [])
-                    .filter(component => component.objectDataRequest)
-                    .forEach(component => objectDataRequests[component.objectDataRequest.typeElementId] = component.objectDataRequest);
-            });
-        }
-
-        if (metaData.mapElements) {
-            metaData.mapElements.forEach((element) => {
-                (element.dataActions || [])
-                    .filter(action => manywho.utils.isEqual(action.crudOperationType, 'load', true) && action.objectDataRequest)
-                    .forEach(action => objectDataRequests[action.objectDataRequest.typeElementId] = action.objectDataRequest);
-            });
-        }
-
-        const requests = Object.keys(objectDataRequests)
-            .map(key => objectDataRequests[key])
-            .map(this.getObjectDataRequest)
-            .map(this.getChunkedObjectDataRequests);
-
-        this.requests = requests.concat.apply([], requests);
 
         const flow = {
             authenticationToken,
@@ -79,70 +53,7 @@ const OfflineCore = {
             id: metaData.id,
         };
 
-        return setOfflineData(flow)
-            .then(() => FlowInit(flow));
-    },
-
-    /**
-     * Returns an object data request object during initilisation,
-     * based on the generated metadata properties
-     * @param request
-     */
-    getObjectDataRequest(request: any) {
-        const objectDataRequest: any = {
-            authorization: null,
-            configurationValues: null,
-            command: null,
-            culture: {
-                id: null,
-                developerName: null,
-                developerSummary: null,
-                brand: null,
-                language: 'EN',
-                country: 'USA',
-                variant: null,
-            },
-            stateId: '00000000-0000-0000-0000-000000000000',
-            token: null,
-            listFilter: request.listFilter || {},
-        };
-
-        objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
-
-        const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
-
-        objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
-        objectDataRequest.objectDataType = {
-            typeElementId: typeElement.id,
-            developerName: typeElement.developerName,
-            properties: typeElement.properties.map((property) => {
-                return {
-                    developerName: property.developerName,
-                };
-            }),
-        };
-
-        return objectDataRequest;
-    },
-
-    /**
-     * Splits a single request into multiple requests if the `limit` on the `listFilter` of the request
-     * is higher than the `offline.cache.requests.pageSize` setting
-     * @param request
-     */
-    getChunkedObjectDataRequests(request: any) {
-        const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
-        const iterations = Math.ceil(request.listFilter.limit / pageSize);
-        const pages = [];
-
-        for (let i = 0; i < iterations; i += 1) {
-            const page = clone(request);
-            page.listFilter.limit = pageSize;
-            page.listFilter.offset = i * pageSize;
-            pages.push(page);
-        }
-
-        return pages;
+        return FlowInit(flow);
     },
 
     /**
@@ -158,55 +69,6 @@ const OfflineCore = {
         const authenticationToken = manywho.state.getAuthenticationToken(flowKey);
 
         return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
-    },
-
-    /**
-     * Execute every data load in the flow and cache the responses locally
-     * @param flow
-     * @param onProgress
-     * @param onDone
-     */
-    cacheObjectData(flow: IFlow, onProgress, onDone) {
-        if (!this.requests || this.requests.length === 0) {
-            return false;
-        }
-
-        const executeRequest = function (
-            req: any,
-            reqIndex: number,
-            flow: IFlow,
-            currentTypeElementId: null,
-            onProgress: Function,
-            onDone: Function) {
-
-            let requests = req;
-
-            if (reqIndex >= requests.length) {
-                return setOfflineData(flow)
-                    .then(onDone);
-            }
-
-            const request = requests[reqIndex];
-            request.stateId = flow.state.id;
-
-            return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
-                .then((response) => {
-                    if (response.objectData) {
-                        cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    } else {
-                        requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
-                    }
-
-                    return response;
-                })
-                .then((response) => {
-                    const indy = reqIndex + 1;
-                    onProgress(indy, requests.length);
-                    executeRequest(requests, indy, flow, currentTypeElementId, onProgress, onDone);
-                });
-        };
-        executeRequest(this.requests, 0, flow, null, onProgress, onDone);
-        return true;
     },
 
     /**
