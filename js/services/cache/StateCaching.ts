@@ -68,7 +68,7 @@ export const pollForStateValues = (stateId: string, tenantId: string, token: str
                 // This is so the flow can perioically poll for the latest values
                 // in case values have changed from a user joining the state
                 timer = setTimeout(
-                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, 10000,
+                    () => { pollForStateValues(stateId, tenantId, authenticationToken); }, pollInterval,
                 );
             })
             .catch(response => console.error(response));

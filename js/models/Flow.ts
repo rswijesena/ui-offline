@@ -34,7 +34,7 @@ export const FlowInit = (flow: IFlow) => {
 };
 
 /**
- * @param request
+ * @description return current flow model in state
  */
 export const getFlowModel = () => {
     return {
