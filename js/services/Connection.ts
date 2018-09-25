@@ -1,12 +1,11 @@
 import { pollForStateValues } from './cache/StateCaching';
+import store from '../stores/store';
+import { isOffline } from '../actions';
 import OfflineCore from './OfflineCore';
 
 declare const manywho: any;
-declare const metaData: any;
 declare const jQuery: any;
 declare const $: any;
-
-const onlineStatus: any = {};
 
 enum EventTypes {
     invoke = 'invoke',
@@ -26,8 +25,14 @@ export const hasNetwork = () => {
         url: manywho.settings.global('platform.uri') + '/api/health',
         timeout: 1000,
     })
-    .then(() => deferred.resolve(true))
-    .fail(() => deferred.resolve(false));
+    .then(() => {
+        store.dispatch(isOffline(false));
+        deferred.resolve(true);
+    })
+    .fail(() => {
+        store.dispatch(isOffline(true));
+        deferred.resolve(false);
+    });
 
     return deferred;
 };

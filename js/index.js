@@ -3,7 +3,7 @@ import 'script-loader!./lib/localforage-1.5.0.min.js';
 import { request, uploadFiles } from './services/Connection';
 
 // Component required to be included in bundle and register itself
-import './components/Offline';
+import './components/App';
 import "../css/offline.less";
 
 const window2 = window;
