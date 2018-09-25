@@ -385,7 +385,7 @@ const OfflineCore = {
             isEnabled: true,
             isVisible: true,
             label: navigation.label,
-            navigationItemResponses: navigation.navigationItems,
+            navigationItemResponses: navigation.navigationItems.sort((a, b) => a.order - b.order),
             navigationItemDataResponses: flatten(navigation.navigationItems, null, [], 'navigationItems', null).map((item) => {
                 return {
                     navigationItemId: item.id,
