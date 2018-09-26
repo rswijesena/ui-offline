@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
-import { getOfflineData, setOfflineData } from '../services/Storage';
+import { setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 import { DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
 import ObjectDataCaching from '../services/cache/ObjectDataCaching';
@@ -44,10 +44,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         };
     }
 
-    onOfflineClick = () => {
-        this.setState({ view: 0 });
-    }
-
     onOnlineClick = () => {
         hasNetwork()
             .then((response) => {
@@ -64,23 +60,33 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         );
     }
 
-    onOnline = (flow) => {
+    onOnline = () => {
         this.setState({ view: null });
-        OfflineCore.isOffline = false;
 
-        setOfflineData(flow)
-            .then(() => OfflineCore.rejoin(this.props.flowKey));
+        // Out of offline mode and rejoining the flow
+        store.dispatch(isOffline(false));
+        OfflineCore.rejoin(this.props.flowKey);
     }
 
-    onCloseOnline = () => {
-        store.dispatch(isOffline(true));
-        this.setState({ view: null });
+    onCloseOnline = (flow) => {
+
+        // Called when the requests modal is closed
+        // at this point the entry for this state
+        // has been cleared from indexDB, so we need to reinstate it
+        setOfflineData(flow)
+            .then(() => {
+
+                // Back into offline mode
+                store.dispatch(isOffline(true));
+                this.setState({ view: null });
+            });
     }
 
     onCloseNoNetwork: () => void = () => {
         this.setState({ view: null });
     }
 
+    // TODO: move this into the parent component
     cacheObjectData = () => {
         clearTimeout(this.objectDataCachingTimer);
         if (this.flow && OfflineCore.isOffline === false) {
@@ -91,27 +97,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         }
     }
 
-    componentDidMount() {
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
-
-        // When component mounts we assume the flow should be
-        // running in offline mode if there is an entry for the
-        // current state in indexdb
-        hasNetwork()
-            .then((response) => {
-                if (!response) {
-                    getOfflineData(stateId, id, versionId)
-                    .then((flow) => {
-                        if (flow) {
-                            store.dispatch(isOffline(true));
-                        }
-                    });
-                }
-            });
-    }
-
     render() {
         const button = this.props.isOffline ?
             <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>
@@ -120,7 +105,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
         let view = null;
 
-        const wifi = !this.props.isOffline ? <p>Online</p> : <p>Offline</p>;
+        const wifi = !this.props.isOffline ? <p>Online</p> : <p>Offline</p>; // Temporary
 
         switch (this.state.view) {
 
@@ -142,6 +127,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             </div>;
         }
 
+        // TODO: move this into the parent component
         if (this.state.isCachingObjectData) {
             return <div className="caching-spinner">
                 <div className="wait-container">

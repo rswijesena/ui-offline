@@ -2,6 +2,7 @@ import { pollForStateValues } from './cache/StateCaching';
 import store from '../stores/store';
 import { isOffline } from '../actions';
 import OfflineCore from './OfflineCore';
+import { getOfflineData } from './Storage';
 
 declare const manywho: any;
 declare const jQuery: any;
@@ -26,7 +27,6 @@ export const hasNetwork = () => {
         timeout: 1000,
     })
     .then(() => {
-        store.dispatch(isOffline(false));
         deferred.resolve(true);
     })
     .fail(() => {
@@ -38,14 +38,34 @@ export const hasNetwork = () => {
 };
 
 /**
- * Check `isOffline` flag first, if that is false then check via `hasNetwork`
+ * @param stateId
+ * @description determining whether a flow has cached
+ * requests that still need to be synced. If there is
+ * an entry cached in indexDB for the current state
+ * then the flow is classified as "being offline"
  */
-export const isOnline = () => {
-    if (OfflineCore.isOffline) {
-        return ($.Deferred()).resolve(false);
-    }
+export const isOnline = (stateId) => {
 
-    return hasNetwork(); // Ping engine
+    const deferred = jQuery.Deferred();
+
+    getOfflineData(stateId, null, null)
+        .then((flow) => {
+            if (flow) {
+                store.dispatch(isOffline(true));
+                return deferred.resolve(false);
+            }
+
+            store.dispatch(isOffline(false));
+            hasNetwork()
+                .then((response) => {
+                    if (response) {
+                        return deferred.resolve(true);
+                    }
+                    return deferred.resolve(false);
+                });
+        });
+
+    return deferred;
 };
 
 /**
@@ -152,7 +172,7 @@ export const request = (
     authenticationToken: string,
     request: any,
 ) => {
-    return isOnline()
+    return isOnline(stateId)
         .then((response) => {
             if (response) {
 
@@ -261,7 +281,7 @@ export const uploadFiles = (
     onProgress: EventListenerOrEventListenerObject,
     stateId: string,
 ) => {
-    return isOnline()
+    return isOnline(stateId)
         .then((response) => {
             if (response) {
 

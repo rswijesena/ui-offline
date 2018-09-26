@@ -21,7 +21,6 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     onDeleteRequest = (request) => {
         removeRequest(request);
-        setOfflineData(this.flow);
         this.forceUpdate();
     }
 
@@ -42,28 +41,14 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     onDeleteAll = () => {
         removeRequests();
-
-        setOfflineData(this.flow)
-            .then(this.props.onOnline);
+        this.props.onOnline(this.flow);
     }
 
     onClose = () => {
-        manywho.settings.initialize({
-            offline: {
-                isOnline: false,
-            },
-        });
-
         this.props.onClose(this.flow);
     }
 
     componentDidMount() {
-        manywho.settings.initialize({
-            offline: {
-                isOnline: true,
-            },
-        });
-
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
@@ -75,7 +60,12 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                 if (!this.flow.requests || this.flow.requests.length === 0) {
                     this.props.onOnline(this.flow);
                 } else {
-                    this.forceUpdate();
+
+                    // The entry in indexDB needs to be wiped
+                    // otherwise as requests are made to sync with thengine
+                    // the offline middleware will still assume we are in offline mode
+                    removeOfflineData(stateId)
+                        .then(() => this.forceUpdate());
                 }
             });
     }

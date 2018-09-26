@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import store from '../stores/store';
+import { isOffline } from '../actions';
 import OfflineCore from '../services/OfflineCore';
 import Offline from './Offline';
-import { hasNetwork } from '../services/Connection';
 import { getOfflineData } from '../services/Storage';
 
 declare const manywho: any;
@@ -37,17 +37,18 @@ class App extends React.Component<any, any> {
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
-        // We need the state token to initialize the offline functionality,
-        // which is not set in state when the component initially is mounted
-        hasNetwork()
-            .then((response) => {
-                if (response) {
-                    getOfflineData(stateId, id, versionId)
-                    .then((flow) => {
-                        if (!flow && stateToken && !this.state.hasInitialized) {
-                            this.initialize();
-                        }
-                    });
+        // Offline initialization only should happen if data
+        // has been cached in indexDB
+        getOfflineData(stateId, id, versionId)
+            .then((flow) => {
+                if (!flow && stateToken && !this.state.hasInitialized) {
+                    this.initialize();
+                }
+
+                // If there is data in indexDB for this state we
+                // can assume that this flow currently has requests to be synced
+                if (flow) {
+                    store.dispatch(isOffline(true));
                 }
             });
 
