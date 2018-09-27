@@ -24,8 +24,13 @@ class App extends React.Component<any, any> {
         super(props);
         this.state = {
             isCachingObjectData: false,
+            progress: 0,
             hasInitialized: false,
         };
+    }
+
+    onProgress = (current, total) => {
+        this.setState({ progress: Math.min((current / total) * 100, 100) });
     }
 
     onCached = () => {
@@ -39,7 +44,7 @@ class App extends React.Component<any, any> {
         clearTimeout(this.objectDataCachingTimer);
         if (this.flow && store.getState().isOffline !== true) {
             this.setState({ isCachingObjectData: true });
-            if (!ObjectDataCaching(this.flow, this.onCached)) {
+            if (!ObjectDataCaching(this.flow, this.onProgress, this.onCached)) {
                 this.setState({ isCachingObjectData: false });
             }
         }
@@ -90,7 +95,7 @@ class App extends React.Component<any, any> {
             cachingSpinner = <div className="caching-spinner">
                 <div className="wait-container">
                     <div className="wait-spinner-small wait-spinner"></div>
-                    <span className="wait-message">Caching</span>
+                    <span className="wait-message">Caching { String(parseInt(this.state.progress, 10)) }%</span>
                 </div>
             </div>;
         }

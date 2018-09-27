@@ -10,7 +10,7 @@ declare const metaData: any;
  * @description retrieve object data request responses from the engine
  * and set them in the flow model and insert them update indexdb
  */
-const ObjectDataCaching = (flow: IFlow, onDone) => {
+const ObjectDataCaching = (flow: IFlow, onProgress, onDone) => {
 
     const initRequests = generateObjectData();
 
@@ -23,6 +23,7 @@ const ObjectDataCaching = (flow: IFlow, onDone) => {
         reqIndex: number,
         flow: IFlow,
         currentTypeElementId: null,
+        onProgress: Function,
         onDone: Function) {
 
         let requests = req;
@@ -46,10 +47,11 @@ const ObjectDataCaching = (flow: IFlow, onDone) => {
             })
             .then(() => {
                 const ind = reqIndex + 1;
-                executeRequest(requests, ind, flow, currentTypeElementId, onDone);
+                onProgress(ind, requests.length);
+                executeRequest(requests, ind, flow, currentTypeElementId, onProgress, onDone);
             });
     };
-    executeRequest(initRequests, 0, flow, null, onDone);
+    executeRequest(initRequests, 0, flow, null, onProgress, onDone);
     return true;
 };
 
