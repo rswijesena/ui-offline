@@ -1,8 +1,8 @@
 import { createStore } from 'redux';
 import reducers from '../reducers';
 
-const initialState: any = { isOffline: false };
+const initialState: any = { isOffline: false, isReplaying: false };
 
-export default function cacheStore() {
+export default function globalStore() {
     return createStore(reducers, initialState);
 }

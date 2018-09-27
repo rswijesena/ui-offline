@@ -1,7 +1,6 @@
 import { setStateValue } from '../../models/State';
 import { DEFAULT_POLL_INTERVAL } from '../../constants';
 import Snapshot from '../Snapshot';
-import OfflineCore from '../OfflineCore';
 import store from '../../stores/store';
 
 declare const manywho: any;

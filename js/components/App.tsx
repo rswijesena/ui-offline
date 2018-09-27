@@ -35,7 +35,6 @@ class App extends React.Component<any, any> {
         );
     }
 
-    // TODO: move this into the parent component
     cacheObjectData = () => {
         clearTimeout(this.objectDataCachingTimer);
         if (this.flow && store.getState().isOffline !== true) {

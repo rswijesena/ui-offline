@@ -3,7 +3,9 @@ import Request from './Request';
 
 import { getOfflineData, removeOfflineData } from '../services/Storage';
 import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
-
+import { connect } from 'react-redux';
+import store from '../stores/store';
+import { isReplaying } from '../actions';
 import { FlowInit, removeRequest, removeRequests } from '../models/Flow';
 
 declare const manywho: any;
@@ -73,7 +75,11 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                         // otherwise as requests are made to sync with thengine
                         // the offline middleware will still assume we are in offline mode
                         removeOfflineData(stateId)
-                            .then(() => this.forceUpdate());
+                            .then(() => {
+                                // this.forceUpdate()
+                                store.dispatch(isReplaying(true));
+                                this.forceUpdate();
+                            });
                     }
                 } else {
 

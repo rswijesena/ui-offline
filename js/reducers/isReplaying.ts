@@ -1,14 +1,14 @@
 import immutabilityHelper from 'immutability-helper';
 
-const isOffline = (state = [], action) => {
+const isReplaying = (state = [], action) => {
     switch (action.type) {
-    case 'is_OFFLINE':
-        const isOffline = {
+    case 'IS_REPLAYING':
+        const isReplaying = {
             result: action.result,
         };
 
         return immutabilityHelper(state, {
-            $set: isOffline.result,
+            $set: isReplaying.result,
         });
 
     default:
@@ -16,4 +16,4 @@ const isOffline = (state = [], action) => {
     }
 };
 
-export default isOffline;
+export default isReplaying;

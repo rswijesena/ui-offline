@@ -5,7 +5,7 @@ import { setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 import { connect } from 'react-redux';
 import store from '../stores/store';
-import { isOffline } from '../actions';
+import { isOffline, isReplaying } from '../actions';
 
 import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
@@ -51,6 +51,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
         // Out of offline mode and rejoining the flow
         store.dispatch(isOffline(false));
+        store.dispatch(isReplaying(false));
         OfflineCore.rejoin(this.props.flowKey);
     }
 
@@ -64,6 +65,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
                 // Back into offline mode
                 store.dispatch(isOffline(true));
+                store.dispatch(isReplaying(false));
                 this.setState({ view: null });
             });
     }
@@ -79,8 +81,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             </button> : null;
 
         let view = null;
-
-        const wifi = !this.props.isOffline ? <p>Online</p> : <p>Offline</p>; // Temporary
 
         switch (this.state.view) {
 
@@ -98,7 +98,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
                     {button}
                 </div>
                 {view}
-                {wifi}
             </div>;
         }
 

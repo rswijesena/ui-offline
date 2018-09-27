@@ -54,6 +54,12 @@ export const isOnline = (stateId) => {
 
     const deferred = jQuery.Deferred();
 
+    // If requests are being replayed then we want to bypass
+    // the health checks in case a request fails
+    if (store.getState().isReplaying === true) {
+        return deferred.resolve(true);
+    }
+
     getOfflineData(stateId, null, null)
         .then((flow) => {
             if (flow) {

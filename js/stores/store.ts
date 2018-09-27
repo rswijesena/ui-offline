@@ -1,6 +1,6 @@
 
-import cacheStore from './cacheStore';
+import globalStore from './globalStore';
 
-const store = cacheStore();
+const store = globalStore();
 
 export default store;

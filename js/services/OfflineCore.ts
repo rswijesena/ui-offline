@@ -7,7 +7,7 @@ import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
 import { StateUpdate } from '../models/State';
-import { getOfflineData, setOfflineData, removeOfflineData } from './Storage';
+import { getOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
 import { flatten, guid } from '../services/Utils';
 
@@ -27,8 +27,6 @@ enum EventTypes {
 }
 
 const OfflineCore = {
-
-    isOffline: false,
 
     /**
      * @param tenantId
