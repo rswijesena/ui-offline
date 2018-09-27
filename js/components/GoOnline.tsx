@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Request from './Request';
 
-import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
+import { getOfflineData, removeOfflineData } from '../services/Storage';
 import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
 
 import { FlowInit, removeRequest, removeRequests } from '../models/Flow';
@@ -25,11 +25,13 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 
     onReplayDone = (request) => {
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const index = this.flow.requests.indexOf(request);
 
-        if (index === this.flow.requests.length - 1 && this.state.isReplayAll) {
+        if (index === this.flow.requests.length - 1) {
             this.onDeleteRequest(request);
-            this.props.onOnline(this.flow);
+            removeOfflineData(stateId)
+                .then(() => this.props.onOnline());
         } else {
             this.onDeleteRequest(request);
         }
@@ -41,7 +43,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     onDeleteAll = () => {
         removeRequests();
-        this.props.onOnline(this.flow);
+        this.props.onOnline();
     }
 
     onClose = () => {
@@ -55,17 +57,32 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
-                this.flow = FlowInit(flow);
 
-                if (!this.flow.requests || this.flow.requests.length === 0) {
-                    this.props.onOnline(this.flow);
+                if (flow) {
+                    this.flow = FlowInit(flow);
+
+                    if (!this.flow.requests || this.flow.requests.length === 0) {
+
+                        // The data stored inside indexdb contains no requests,
+                        // so just rejoin the flow
+                        removeOfflineData(stateId)
+                            .then(() => this.props.onOnline());
+                    } else {
+
+                        // The entry in indexDB needs to be wiped
+                        // otherwise as requests are made to sync with thengine
+                        // the offline middleware will still assume we are in offline mode
+                        removeOfflineData(stateId)
+                            .then(() => this.forceUpdate());
+                    }
                 } else {
 
-                    // The entry in indexDB needs to be wiped
-                    // otherwise as requests are made to sync with thengine
-                    // the offline middleware will still assume we are in offline mode
-                    removeOfflineData(stateId)
-                        .then(() => this.forceUpdate());
+                    // At this point if there is no data stored in indexdb
+                    // then that would mean that the user has probably been
+                    // paginating through objectdata cached in state or performed
+                    // some other action whereby requests back to the engine have not been required
+                    // Therefore, there are no requests to replay and we can safely rejoin the flow
+                    this.props.onOnline();
                 }
             });
     }

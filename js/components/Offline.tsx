@@ -3,8 +3,6 @@ import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
 import { setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
-import { DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
-import ObjectDataCaching from '../services/cache/ObjectDataCaching';
 import { connect } from 'react-redux';
 import store from '../stores/store';
 import { isOffline } from '../actions';
@@ -12,13 +10,7 @@ import { isOffline } from '../actions';
 import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
 
-declare const manywho: any;
 declare const metaData: any;
-
-let pollInterval = manywho.objectDataCachingInterval;
-if (!pollInterval || pollInterval < DEFAULT_OBJECTDATA_CACHING_INTERVAL) {
-    pollInterval = DEFAULT_OBJECTDATA_CACHING_INTERVAL;
-}
 
 enum OfflineView {
     cache = 0,
@@ -39,25 +31,19 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         super(props);
         this.state = {
             view: null,
-            isCachingObjectData: false,
             hasInitialized: false,
         };
     }
 
     onOnlineClick = () => {
+
+        // Requests can only be replayed if there is network
         hasNetwork()
             .then((response) => {
                 response ?
                 this.setState({ view: OfflineView.replay }) :
                 this.setState({ view: OfflineView.noNetwork });
             });
-    }
-
-    onCached = () => {
-        this.setState({ isCachingObjectData: false });
-        this.objectDataCachingTimer = setTimeout(
-            () => { this.cacheObjectData(); }, pollInterval,
-        );
     }
 
     onOnline = () => {
@@ -86,21 +72,10 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         this.setState({ view: null });
     }
 
-    // TODO: move this into the parent component
-    cacheObjectData = () => {
-        clearTimeout(this.objectDataCachingTimer);
-        if (this.flow && OfflineCore.isOffline === false) {
-            this.setState({ isCachingObjectData: true });
-            if (!ObjectDataCaching(this.flow, this.onCached)) {
-                this.setState({ isCachingObjectData: false });
-            }
-        }
-    }
-
     render() {
         const button = this.props.isOffline ?
-            <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>
-                Go Online
+            <button className="btn btn-success" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-transfer" aria-hidden="true"/>
+                Sync Flow
             </button> : null;
 
         let view = null;
@@ -124,16 +99,6 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
                 </div>
                 {view}
                 {wifi}
-            </div>;
-        }
-
-        // TODO: move this into the parent component
-        if (this.state.isCachingObjectData) {
-            return <div className="caching-spinner">
-                <div className="wait-container">
-                    <div className="wait-spinner-small wait-spinner"></div>
-                    <span className="wait-message">Caching</span>
-                </div>
             </div>;
         }
 
