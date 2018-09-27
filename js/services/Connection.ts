@@ -8,6 +8,8 @@ declare const manywho: any;
 declare const jQuery: any;
 declare const $: any;
 
+const pingTimeout = 3000;
+
 enum EventTypes {
     invoke = 'invoke',
     join = 'join',
@@ -17,14 +19,18 @@ enum EventTypes {
 }
 
 /**
- * Check network availability by pinging the platform's health endpoint `/api/health`
+ * @description Check network availability by pinging the platform's health endpoint `/api/health
+ *
+ * The timeout period starts at the point the $.ajax call is made;
+ * if several other requests are in progress and the browser has no connections available,
+ * it is possible for a request to time out before it can be sent
  */
 export const hasNetwork = () => {
     const deferred = jQuery.Deferred();
 
     $.ajax({
         url: manywho.settings.global('platform.uri') + '/api/health',
-        timeout: 1000,
+        timeout: pingTimeout,
     })
     .then(() => {
         deferred.resolve(true);
