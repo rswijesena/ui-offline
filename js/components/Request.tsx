@@ -6,6 +6,7 @@ import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
 
 declare const manywho: any;
+declare const jQuery: any;
 
 class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
 
@@ -60,8 +61,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             )
             .then(this.onReplayResponse)
             .fail((response) => {
-                // TODO: handle replay failures
-                // OfflineCore.isOffline = true;
+                this.setState({ response, isReplaying: false });
             });
         }
 
@@ -72,8 +72,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
         )
         .then(this.onReplayResponse)
         .fail((response) => {
-            // TODO: handle replay failures
-            // OfflineCore.isOffline = true;
+            this.setState({ response, isReplaying: false });
         });
     }
 
