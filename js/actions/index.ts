@@ -1,9 +1,9 @@
 export const isOffline = result => ({
-    result,
     type: 'is_OFFLINE',
+    payload: result,
 });
 
 export const isReplaying = result => ({
-    result,
     type: 'IS_REPLAYING',
+    payload: result,
 });

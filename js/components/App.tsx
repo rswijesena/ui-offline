@@ -111,11 +111,3 @@ class App extends React.Component<any, any> {
 }
 
 export default App;
-
-manywho.settings.initialize({
-    components: {
-        static: [
-            App,
-        ],
-    },
-});

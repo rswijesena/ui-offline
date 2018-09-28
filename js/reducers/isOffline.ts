@@ -1,15 +1,7 @@
-import immutabilityHelper from 'immutability-helper';
-
 const isOffline = (state = [], action) => {
     switch (action.type) {
     case 'is_OFFLINE':
-        const isOffline = {
-            result: action.result,
-        };
-
-        return immutabilityHelper(state, {
-            $set: isOffline.result,
-        });
+        return action.payload;
 
     default:
         return state;
