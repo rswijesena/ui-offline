@@ -27,6 +27,7 @@ class App extends React.Component<any, any> {
             progress: 0,
             hasInitialized: false,
         };
+        this.initialize = this.initialize.bind(this);
     }
 
     onProgress = (current, total) => {
@@ -50,7 +51,7 @@ class App extends React.Component<any, any> {
         }
     }
 
-    initialize = () => {
+    initialize() {
         const tenantId = manywho.utils.extractTenantId(this.props.flowKey);
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const authenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
