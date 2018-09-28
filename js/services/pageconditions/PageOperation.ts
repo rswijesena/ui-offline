@@ -1,5 +1,4 @@
 import { METADATA_TYPES } from '../../constants';
-import { setStateValue } from '../../models/State';
 
 /**
  * @param pageOperation
