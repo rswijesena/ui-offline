@@ -16,16 +16,23 @@ export const parseContent = (content: string, snapshot: any) => {
         // For every value reference, retrieve the value
         // from the flow snaphot
         valueNames.forEach((valueName) => {
-            const valueObject = snapshot.getValueByName(
-                valueName.split('.')[0].replace(/[^a-zA-Z0-9: ]/g, ''), // this is for when a value property is referenced
-            );
-            const currentValue = getStateValue(
+            let valueObject;
+            try {
+                valueObject = snapshot.getValueByName(
+                    valueName.split('.')[0].replace(/[^a-zA-Z0-9: ]/g, ''), // this is for when a value property is referenced
+                );
+            } catch (err) {
+                valueObject = null;
+            }
+
+            const currentValue = valueObject ? getStateValue(
                 { id: valueObject.id },
                 null,
                 valueObject.contentType,
                 '',
-            );
-            if (valueObject.contentType === 'ContentObject') {
+            ) : { contentValue : null };
+
+            if (valueObject && valueObject.contentType === 'ContentObject') {
 
                 // If an object value is being referenced then the
                 // correct property content value needs to be extracted
