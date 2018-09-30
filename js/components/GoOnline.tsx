@@ -1,14 +1,24 @@
 import * as React from 'react';
 import Request from './Request';
-
 import { getOfflineData, removeOfflineData } from '../services/Storage';
 import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
 import { connect } from 'react-redux';
-import store from '../stores/store';
 import { isReplaying } from '../actions';
 import { FlowInit, removeRequest, removeRequests } from '../models/Flow';
 
 declare const manywho: any;
+
+const mapStateToProps = (state) => {
+    return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toggleIsReplaying: (bool) => {
+            dispatch(isReplaying(bool));
+        },
+    };
+};
 
 class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
@@ -76,9 +86,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                         // the offline middleware will still assume we are in offline mode
                         removeOfflineData(stateId)
                             .then(() => {
-                                // this.forceUpdate()
-                                store.dispatch(isReplaying(true));
-                                this.forceUpdate();
+                                this.props.toggleIsReplaying(true);
                             });
                     }
                 } else {
@@ -132,4 +140,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 }
 
-export default GoOnline;
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(GoOnline);

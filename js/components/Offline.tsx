@@ -4,7 +4,6 @@ import OfflineCore from '../services/OfflineCore';
 import { setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
 import { connect } from 'react-redux';
-import store from '../stores/store';
 import { isOffline, isReplaying } from '../actions';
 
 import GoOnline from './GoOnline';
@@ -20,6 +19,17 @@ enum OfflineView {
 
 const mapStateToProps = (state) => {
     return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toggleIsOffline: (bool) => {
+            dispatch(isOffline(bool));
+        },
+        toggleIsReplaying: (bool) => {
+            dispatch(isReplaying(bool));
+        },
+    };
 };
 
 class Offline extends React.Component<IOfflineProps, IOfflineState> {
@@ -50,8 +60,8 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
         this.setState({ view: null });
 
         // Out of offline mode and rejoining the flow
-        store.dispatch(isOffline(false));
-        store.dispatch(isReplaying(false));
+        this.props.toggleIsOffline(false);
+        this.props.toggleIsReplaying(false);
         OfflineCore.rejoin(this.props.flowKey);
     }
 
@@ -64,8 +74,8 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             .then(() => {
 
                 // Back into offline mode
-                store.dispatch(isOffline(true));
-                store.dispatch(isReplaying(false));
+                this.props.toggleIsOffline(true);
+                this.props.toggleIsReplaying(false);
                 this.setState({ view: null });
             });
     }
@@ -107,4 +117,5 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
 export default connect(
     mapStateToProps,
+    mapDispatchToProps,
 )(Offline);
