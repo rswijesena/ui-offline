@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import store from '../../js/stores/store';
 import GoOnline from '../../js/components/GoOnline';
 
 jest.mock('../../js/services/Storage', () => ({
@@ -23,7 +25,7 @@ describe('GoOnline component behaviour', () => {
     };
 
     beforeEach(() => {
-        componentWrapper = shallow(<GoOnline {...props} />);
+        componentWrapper = shallow(<Provider store={store}><GoOnline {...props} /></Provider>);
     });
 
     test('GoOnline component renders without crashing', () => {
