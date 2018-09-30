@@ -19,7 +19,7 @@ export const parseContent = (content: string, snapshot: any) => {
             let valueObject;
             try {
                 valueObject = snapshot.getValueByName(
-                    valueName.split('.')[0].replace(/[^a-zA-Z0-9: ]/g, ''), // this is for when a value property is referenced
+                    valueName.split('.')[0].replace(/[^a-zA-Z0-9:-]/g, ''), // this is for when a value property is referenced
                 );
             } catch (err) {
                 valueObject = null;
