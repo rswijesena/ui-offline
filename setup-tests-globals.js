@@ -52,7 +52,7 @@ window.manywho = {
     state: {
         getAuthenticationToken: jest.fn(),
         getState: jest.fn(() => {
-            return {token: ''};
+            return {token: 'test'};
         })
     },
     component: {

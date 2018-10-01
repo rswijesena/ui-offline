@@ -33,7 +33,6 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
     onReplayResponse(response) {
         if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
             this.setState({ response, isReplaying: false });
-            OfflineCore.isOffline = true;
         } else if (response && response.invokeType === 'NOT_ALLOWED') {
             OfflineCore.rejoin(this.props.flowKey);
         } else {
@@ -43,7 +42,6 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
 
     onReplay = () => {
         this.setState({ isReplaying: true, response: null });
-        OfflineCore.isOffline = false;
 
         const {
             request,
@@ -62,7 +60,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             )
             .then(this.onReplayResponse)
             .fail((response) => {
-                OfflineCore.isOffline = true;
+                this.setState({ response, isReplaying: false });
             });
         }
 
@@ -73,7 +71,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
         )
         .then(this.onReplayResponse)
         .fail((response) => {
-            OfflineCore.isOffline = true;
+            this.setState({ response: response.statusText, isReplaying: false });
         });
     }
 

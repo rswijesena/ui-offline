@@ -10,14 +10,21 @@ class RequestFault extends React.Component<IRequestFaultProps, any> {
     }
 
     render() {
-        const rootFaults = this.props.response.mapElementInvokeResponses[0].rootFaults || [];
+        if (this.props.response.mapElementInvokeResponses) {
+            const rootFaults = this.props.response.mapElementInvokeResponses[0].rootFaults || [];
+
+            return <div className="request-fault">
+                <h4>Faults</h4>
+                <button className="btn btn-sm btn-primary">Join and fix</button>
+                <ul>
+                    {rootFaults.map(fault => <li className="text-danger">{fault}</li>)}
+                </ul>
+            </div>;
+        }
 
         return <div className="request-fault">
-            <h4>Faults</h4>
-            <button className="btn btn-sm btn-primary">Join and fix</button>
-            <ul>
-                {rootFaults.map(fault => <li className="text-danger">{fault}</li>)}
-            </ul>
+            <h4>Failed Request</h4>
+            <div className="text-danger">{this.props.response}</div>
         </div>;
     }
 }

@@ -6,4 +6,5 @@ export interface IGoOnlineProps {
     flowKey: string;
     onClose: Function;
     onOnline: Function;
+    toggleIsReplaying: Function;
 }

@@ -1,12 +1,24 @@
 import * as React from 'react';
 import Request from './Request';
-
-import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
+import { getOfflineData, removeOfflineData } from '../services/Storage';
 import { IGoOnlineProps, IGoOnlineState } from '../interfaces/IGoOnline';
-
+import { connect } from 'react-redux';
+import { isReplaying } from '../actions';
 import { FlowInit, removeRequest, removeRequests } from '../models/Flow';
 
 declare const manywho: any;
+
+const mapStateToProps = (state) => {
+    return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toggleIsReplaying: (bool) => {
+            dispatch(isReplaying(bool));
+        },
+    };
+};
 
 class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
@@ -21,16 +33,17 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     onDeleteRequest = (request) => {
         removeRequest(request);
-        setOfflineData(this.flow);
         this.forceUpdate();
     }
 
     onReplayDone = (request) => {
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const index = this.flow.requests.indexOf(request);
 
-        if (index === this.flow.requests.length - 1 && this.state.isReplayAll) {
+        if (index === this.flow.requests.length - 1) {
             this.onDeleteRequest(request);
-            this.props.onOnline(this.flow);
+            removeOfflineData(stateId)
+                .then(() => this.props.onOnline());
         } else {
             this.onDeleteRequest(request);
         }
@@ -42,40 +55,48 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     onDeleteAll = () => {
         removeRequests();
-
-        setOfflineData(this.flow)
-            .then(this.props.onOnline);
+        this.props.onOnline();
     }
 
     onClose = () => {
-        manywho.settings.initialize({
-            offline: {
-                isOnline: false,
-            },
-        });
-
         this.props.onClose(this.flow);
     }
 
     componentDidMount() {
-        manywho.settings.initialize({
-            offline: {
-                isOnline: true,
-            },
-        });
-
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const id = manywho.utils.extractFlowId(this.props.flowKey);
         const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
         getOfflineData(stateId, id, versionId)
             .then((flow) => {
-                this.flow = FlowInit(flow);
 
-                if (!this.flow.requests || this.flow.requests.length === 0) {
-                    this.props.onOnline(this.flow);
+                if (flow) {
+                    this.flow = FlowInit(flow);
+
+                    if (!this.flow.requests || this.flow.requests.length === 0) {
+
+                        // The data stored inside indexdb contains no requests,
+                        // so just rejoin the flow
+                        removeOfflineData(stateId)
+                            .then(() => this.props.onOnline());
+                    } else {
+
+                        // The entry in indexDB needs to be wiped
+                        // otherwise as requests are made to sync with thengine
+                        // the offline middleware will still assume we are in offline mode
+                        removeOfflineData(stateId)
+                            .then(() => {
+                                this.props.toggleIsReplaying(true);
+                            });
+                    }
                 } else {
-                    this.forceUpdate();
+
+                    // At this point if there is no data stored in indexdb
+                    // then that would mean that the user has probably been
+                    // paginating through objectdata cached in state or performed
+                    // some other action whereby requests back to the engine have not been required
+                    // Therefore, there are no requests to replay and we can safely rejoin the flow
+                    this.props.onOnline();
                 }
             });
     }
@@ -119,4 +140,7 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 }
 
-export default GoOnline;
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(GoOnline);

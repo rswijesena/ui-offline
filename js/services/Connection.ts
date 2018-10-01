@@ -1,12 +1,14 @@
 import { pollForStateValues } from './cache/StateCaching';
+import store from '../stores/store';
+import { isOffline } from '../actions';
 import OfflineCore from './OfflineCore';
+import { getOfflineData } from './Storage';
 
 declare const manywho: any;
-declare const metaData: any;
 declare const jQuery: any;
 declare const $: any;
 
-const onlineStatus: any = {};
+const pingTimeout = 3000;
 
 enum EventTypes {
     invoke = 'invoke',
@@ -17,30 +19,65 @@ enum EventTypes {
 }
 
 /**
- * Check network availability by pinging the platform's health endpoint `/api/health`
+ * @description Check network availability by pinging the platform's health endpoint `/api/health
+ *
+ * The timeout period starts at the point the $.ajax call is made;
+ * if several other requests are in progress and the browser has no connections available,
+ * it is possible for a request to time out before it can be sent
  */
 export const hasNetwork = () => {
     const deferred = jQuery.Deferred();
 
     $.ajax({
         url: manywho.settings.global('platform.uri') + '/api/health',
-        timeout: 1000,
+        timeout: pingTimeout,
     })
-    .then(() => deferred.resolve(true))
-    .fail(() => deferred.resolve(false));
+    .then(() => {
+        deferred.resolve(true);
+    })
+    .fail(() => {
+        store.dispatch(isOffline(true));
+        deferred.resolve(false);
+    });
 
     return deferred;
 };
 
 /**
- * Check `isOffline` flag first, if that is false then check via `hasNetwork`
+ * @param stateId
+ * @description determining whether a flow has cached
+ * requests that still need to be synced. If there is
+ * an entry cached in indexDB for the current state
+ * then the flow is classified as "being offline"
  */
-export const isOnline = () => {
-    if (OfflineCore.isOffline) {
-        return ($.Deferred()).resolve(false);
+export const isOnline = (stateId) => {
+
+    const deferred = jQuery.Deferred();
+
+    // If requests are being replayed then we want to bypass
+    // the health checks in case a request fails
+    if (store.getState().isReplaying === true) {
+        return deferred.resolve(true);
     }
 
-    return hasNetwork(); // Ping engine
+    getOfflineData(stateId, null, null)
+        .then((flow) => {
+            if (flow) {
+                store.dispatch(isOffline(true));
+                return deferred.resolve(false);
+            }
+
+            store.dispatch(isOffline(false));
+            hasNetwork()
+                .then((response) => {
+                    if (response) {
+                        return deferred.resolve(true);
+                    }
+                    return deferred.resolve(false);
+                });
+        });
+
+    return deferred;
 };
 
 /**
@@ -147,7 +184,7 @@ export const request = (
     authenticationToken: string,
     request: any,
 ) => {
-    return isOnline()
+    return isOnline(stateId)
         .then((response) => {
             if (response) {
 
@@ -256,7 +293,7 @@ export const uploadFiles = (
     onProgress: EventListenerOrEventListenerObject,
     stateId: string,
 ) => {
-    return isOnline()
+    return isOnline(stateId)
         .then((response) => {
             if (response) {
 

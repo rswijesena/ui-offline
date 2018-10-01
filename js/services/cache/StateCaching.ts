@@ -1,7 +1,7 @@
 import { setStateValue } from '../../models/State';
 import { DEFAULT_POLL_INTERVAL } from '../../constants';
 import Snapshot from '../Snapshot';
-import OfflineCore from '../OfflineCore';
+import store from '../../stores/store';
 
 declare const manywho: any;
 declare const metaData: any;
@@ -48,7 +48,7 @@ export const pollForStateValues = (stateId: string, tenantId: string, token: str
 
     clearTimeout(timer);
 
-    if (!OfflineCore.isOffline) { // only poll api whilst online
+    if (!store.getState().isOffline) { // only poll api whilst online
         const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values`;
         const request = {
             headers: {

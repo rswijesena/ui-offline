@@ -1,4 +1,4 @@
-import { addRequest, FlowInit, getObjectData, getRequests } from '../models/Flow';
+import { addRequest, FlowInit, getObjectData, getRequests, getFlowModel } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
 import { executeOperation, invokeMacroWorker } from './Operation';
@@ -27,8 +27,6 @@ enum EventTypes {
 }
 
 const OfflineCore = {
-
-    isOffline: false,
 
     /**
      * @param tenantId
@@ -98,8 +96,15 @@ const OfflineCore = {
             flowStateId = '00000000-0000-0000-0000-000000000000';
         }
 
+        // Lets get the entry in indexDB for this state
         return getOfflineData(flowStateId)
             .then((response) => {
+
+                // When a flow has entered offline mode for the first time
+                // there will be no entry in indexDB, there will however
+                // be a representation of the data needed cached in state
+                const dbResponse = response || getFlowModel();
+
                 if (manywho.utils.isEqual(event, 'initialization')) {
                     const flow = FlowInit({
                         tenantId,
@@ -113,7 +118,10 @@ const OfflineCore = {
                     return setOfflineData(flow)
                         .then(() => flow);
                 }
-                return FlowInit(response);
+
+                // Reinitilize the data in state to ensure
+                // that state matches with cache
+                return FlowInit(dbResponse);
             })
             .then((flow) => {
                 if (manywho.utils.isEqual(event, 'join', true)) {
@@ -121,6 +129,8 @@ const OfflineCore = {
                         {
                             invokeType: 'JOIN',
                             currentMapElementId: flow.state.currentMapElementId,
+                            stateId: flow.state.id,
+                            stateToken: flow.state.token,
                         },
                         flow,
                         context,
@@ -241,7 +251,10 @@ const OfflineCore = {
 
         const snapshot: any = Snapshot(metaData);
 
-        if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
+        if ((manywho.utils.isEqual(mapElement.elementType, 'input', true) ||
+            manywho.utils.isEqual(mapElement.elementType, 'step', true)) &&
+            request.invokeType.toUpperCase() !== 'JOIN' // Join requests should not be synced
+        ) {
             addRequest(request, snapshot);
         }
 

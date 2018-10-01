@@ -75,7 +75,7 @@ describe('Object data response caching behaviour', () => {
             done();
         }
 
-        ObjectDataCaching(mockFlow, callback);
+        ObjectDataCaching(mockFlow, jest.fn(), callback);
     });
 
     test('That an object data request response is set into flow model state', (done) => {
@@ -86,7 +86,7 @@ describe('Object data response caching behaviour', () => {
             done();
         }
 
-        ObjectDataCaching(mockFlow, callback);
+        ObjectDataCaching(mockFlow, jest.fn(), callback);
     });
 
     test('Generating object data requests should return empty if there are no data actions/page component objectdatarequest in snapshot', () => {
