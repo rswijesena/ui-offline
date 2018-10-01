@@ -27,10 +27,16 @@ describe('Base app component behaviour when no data is cached', () => {
             });
         });
         wrapper = mount(<App {...props} />);
+        initSpy.mockRestore();
     });
 
     test('Initialization is called when indexdb is empty and there is a token in state', () => {
         expect(initSpy).toHaveBeenCalled();
+    });
+
+    test('Initialization is not called when hasInitialized state value is true', () => {
+        wrapper.setState({ hasInitialized: true });
+        expect(initSpy).not.toHaveBeenCalled();
     });
 });
 
