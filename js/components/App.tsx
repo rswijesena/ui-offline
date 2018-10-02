@@ -2,18 +2,12 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import store from '../stores/store';
 import { isOffline } from '../actions';
-import { DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
 import ObjectDataCaching from '../services/cache/ObjectDataCaching';
 import OfflineCore from '../services/OfflineCore';
 import Offline from './Offline';
 import { getOfflineData } from '../services/Storage';
 
 declare const manywho: any;
-
-let pollInterval = manywho.objectDataCachingInterval;
-if (!pollInterval || pollInterval < DEFAULT_OBJECTDATA_CACHING_INTERVAL) {
-    pollInterval = DEFAULT_OBJECTDATA_CACHING_INTERVAL;
-}
 
 class App extends React.Component<any, any> {
 
@@ -35,6 +29,10 @@ class App extends React.Component<any, any> {
     }
 
     onCached = () => {
+        const pollInterval = manywho.settings.global(
+            'offline.cache.objectDataCachingInterval',
+            this.props.flowKey,
+        );
         this.setState({ isCachingObjectData: false });
         this.objectDataCachingTimer = setTimeout(
             () => { this.cacheObjectData(); }, pollInterval,

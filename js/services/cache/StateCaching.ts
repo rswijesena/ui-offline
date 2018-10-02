@@ -1,5 +1,4 @@
 import { setStateValue } from '../../models/State';
-import { DEFAULT_POLL_INTERVAL } from '../../constants';
 import Snapshot from '../Snapshot';
 import store from '../../stores/store';
 
@@ -10,13 +9,6 @@ let authenticationToken = undefined;
 let timer = undefined;
 
 const snapshot: any = Snapshot(metaData);
-
-// This needs to be set in the player manually
-// or injected in when generating a Cordova app
-let pollInterval = manywho.pollInterval;
-if (!pollInterval || pollInterval < DEFAULT_POLL_INTERVAL) {
-    pollInterval = DEFAULT_POLL_INTERVAL;
-}
 
 /**
  * @param values an array of values returned from state values endpoint
@@ -45,6 +37,10 @@ const injectValuesIntoState = (values: any) => {
  */
 export const pollForStateValues = (stateId: string, tenantId: string, token: string) => {
     authenticationToken = token;
+
+    // This needs to be set in the player manually
+    // or injected in when generating a Cordova app
+    const pollInterval = manywho.settings.global('offline.cache.pollInterval');
 
     clearTimeout(timer);
 

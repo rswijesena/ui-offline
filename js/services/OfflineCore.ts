@@ -10,6 +10,7 @@ import { StateUpdate } from '../models/State';
 import { getOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
 import { flatten, guid } from '../services/Utils';
+import { DEFAULT_POLL_INTERVAL, DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
 
 declare const manywho: any;
 // This is the gloabl metaData object generated when building offline project
@@ -419,6 +420,8 @@ export default OfflineCore;
 manywho.settings.initialize({
     offline: {
         cache: {
+            pollInterval: DEFAULT_POLL_INTERVAL,
+            objectDataCachingInterval: DEFAULT_OBJECTDATA_CACHING_INTERVAL,
             requests: {
                 limit: 250,
                 pageSize: 10,

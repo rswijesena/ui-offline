@@ -21,14 +21,59 @@ to re-authenticate before they can replay the saved requests.
 ### Data Caching
 
 If the flow contains any data loads either in load map elements or objectdata requests from a table (or other component) when
-the user goes offline each data load is fired immediately to cache a local copy of the data.
+the user goes offline each data load is fired immediately when the flow is initialized to cache a local copy of the data.
+
+Whilst the flow is online, each data load is fired every five minutes to refresh the cache. This can be overridden by modifying the
+`offline.cache.objectDataCachingInterval` setting which accepts a numerical value in milliseconds.
 
 By default 250 records from each data load will be cached on the client. This is controlled by the `offline.cache.requests.limit` setting.
+
+In addition, whilst the flow is online, state values are being cached in memory every 30 seconds. This is so that values persist 
+in the flow even when network connectivity is suddenly lost. This can be overridden by modifying the `offline.cache.pollInterval` setting which
+excepts a numerical value in milliseconds.
+
+State values are also being cached in memory as a user moves through the flow.
 
 ### Data Storage
 
 By default cached data will be stored using the IndexedDB mechnaism, with a fallback to WebSQL. More information on these when
 running in a cordova environment can be found here: https://cordova.apache.org/docs/en/latest/cordova/storage/storage.html
+
+### Supported Functionality
+
+A lot of functionality in flow is supported whist running a flow offline. Below describes
+some caveats/unsupported features.
+
+## Page Conditions
+
+Currently, offline flows can support any page condition created with the basic page condition tool inside the Toolings page editor.
+Page conditions with multiple page operations are also supported.
+The only page condition metadatatypes that are supported at present are: 
+
+- Visibility
+- Required
+- Enabled
+
+Whilst the only page condition criteria's supported are:
+
+- Equal
+- Not equal
+- Is empty
+
+## Macros
+
+Macros are fully supported. However, you should not use macro's that create Date objects or evaluate data randomly
+e.g. using `Math.random()`, as when requests get replayed, these values will differ from when the macro execution
+was simulated offline.
+
+### Unsupported Functionality
+
+- Referencing system values e.g. `$State` in a step/presentation components text content 
+- Message Actions
+- Swimlanes
+- Delete map elements
+- Listners
+- Realtime collaboration
 
 ## Usage
 
