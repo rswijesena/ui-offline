@@ -1,4 +1,5 @@
 import { getStateValue } from '../models/State';
+import { clone, parseContent } from '../services/Utils';
 import { IState } from '../interfaces/IModels';
 import PageCondition from './pageconditions/PageCondition';
 
@@ -69,6 +70,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             isEnabled: true,
             isRequired: component.isRequired,
             pageComponentId: component.id,
+            content: component.content ? parseContent(component.content, snapshot) : null,
             contentValue: null,
             objectData: null,
             contentType: manywho.component.contentTypes.string,
@@ -113,12 +115,20 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
                 }
             }
 
+            const orderColumns = (a, b) => {
+                return a.order - b.order;
+            };
+
             if (typeElementId) {
-                const typeElement = snapshot.metadata.typeElements.find(element => element.id === typeElementId);
                 component.columns = component.columns.map((column) => {
+                    const typeElement = snapshot.metadata.typeElements.find((element) => {
+                        return element.properties.find((property) => {
+                            return property.id === column.typeElementPropertyId;
+                        });
+                    });
                     column.developerName = typeElement.properties.find(prop => prop.id === column.typeElementPropertyId).developerName;
                     return column;
-                });
+                }).sort(orderColumns);
             }
         }
 
@@ -137,14 +147,15 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
 
         if (sourceValue) {
             value.objectData = sourceValue.objectData || sourceValue.defaultObjectData;
-
-            if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
-                value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
-                    objectData.isSelected = !!selectedValue.objectData.find(
-                        item => item.externalId === objectData.externalId && item.isSelected,
-                    );
-                    return objectData;
-                });
+            if (selectedValue) {
+                if (selectedValue.objectData && (sourceValue.objectData || sourceValue.defaultObjectData)) {
+                    value.objectData = (sourceValue.objectData || sourceValue.defaultObjectData).map((objectData) => {
+                        objectData.isSelected = !!selectedValue.objectData.find(
+                            item => item.externalId === objectData.externalId && item.isSelected,
+                        );
+                        return objectData;
+                    });
+                }
             }
         }
 
@@ -156,7 +167,7 @@ export const generatePage = function (request: any, mapElement: any, state: ISta
             }
         }
 
-        return Object.assign(component, value, { attributes: component.attributes || {} });
+        return Object.assign(clone(component), value, { attributes: component.attributes || {} });
     });
     return {
         developerName: mapElement.developerName,

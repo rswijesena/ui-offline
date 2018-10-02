@@ -1,5 +1,7 @@
 import * as React from 'react';
 import RequestFault from './RequestFault';
+import Progress from './Progress';
+import FileList from './FileList';
 import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
 
@@ -13,27 +15,64 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             isCollapsed: true,
             isReplaying: false,
             response: null,
+            progress: 0,
         };
+
+        this.onReplayResponse = this.onReplayResponse.bind(this);
+        this.onProgress = this.onProgress.bind(this);
+    }
+
+    onProgress({ lengthComputable, loaded, total }) {
+        if (lengthComputable) {
+            this.setState({
+                progress: parseInt((loaded / total * 100).toString(), 10),
+            });
+        }
+    }
+
+    onReplayResponse(response) {
+        if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
+            this.setState({ response, isReplaying: false });
+        } else if (response && response.invokeType === 'NOT_ALLOWED') {
+            OfflineCore.rejoin(this.props.flowKey);
+        } else {
+            this.props.onReplayDone(this.props.request);
+        }
     }
 
     onReplay = () => {
         this.setState({ isReplaying: true, response: null });
-        OfflineCore.isOffline = false;
 
-        return manywho.ajax.invoke(this.props.request, this.props.tenantId, this.props.authenticationToken)
-            .then((response) => {
-                if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
-                    this.setState({ response, isReplaying: false });
-                    OfflineCore.isOffline = true;
-                } else if (response && response.invokeType === 'NOT_ALLOWED') {
-                    OfflineCore.rejoin(this.props.flowKey);
-                } else {
-                    this.props.onReplayDone(this.props.request);
-                }
-            })
+        const {
+            request,
+            tenantId,
+            authenticationToken,
+        } = this.props;
+
+        if (this.props.request.type === 'fileData') {
+            return manywho.ajax.uploadFiles(
+                request.files,
+                request,
+                tenantId,
+                authenticationToken,
+                this.onProgress,
+                request.stateId,
+            )
+            .then(this.onReplayResponse)
             .fail((response) => {
-                OfflineCore.isOffline = true;
+                this.setState({ response, isReplaying: false });
             });
+        }
+
+        return manywho.ajax.invoke(
+            request,
+            tenantId,
+            authenticationToken,
+        )
+        .then(this.onReplayResponse)
+        .fail((response) => {
+            this.setState({ response: response.statusText, isReplaying: false });
+        });
     }
 
     onDelete = () => {
@@ -73,7 +112,17 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
         return <li className="list-group-item">
             <div className="pending-request-header">
                 <div>
-                    <span>{this.props.request.currentMapElementDeveloperName}</span>
+                    {
+                        this.props.request.type === 'fileData'
+                        ? (
+                            <div>
+                                <span>{ `Upload File${this.props.request.files.length > 0 ? 's' : ''}:` }</span>
+                                <FileList files={this.props.request.files} />
+                                <Progress progress={this.state.progress} />
+                            </div>
+                        )
+                        : <span>{this.props.request.currentMapElementDeveloperName}</span>
+                    }
                     <small>{this.props.request.invokeType}</small>
                 </div>
                 <button className="btn btn-info btn-sm" onClick={this.onToggleDetails} disabled={isDisabled}>

@@ -6,6 +6,40 @@ const pathsToClean = [
     'dist'
 ];
 
+const publicPaths = {
+    DEVELOPMENT: 'https://manywho-ui-development.s3.eu-west-2.amazonaws.com/',
+    QA: 'https://s3.amazonaws.com/manywho-cdn-react-qa/',
+    STAGING: 'https://s3.amazonaws.com/manywho-cdn-react-staging/',
+    PRODUCTION: 'https://assets.manywho.com/'
+}
+
+const mapPublicPath = (assets, publicPaths) => {
+
+    const assetsKey = typeof assets === 'string' ? assets.toLocaleLowerCase() : null;
+
+    switch (assets) {
+
+        case 'local':
+            return publicPaths.LOCAL;
+
+        case 'development':
+            return publicPaths.DEVELOPMENT;
+
+        case 'qa':
+            return publicPaths.QA;
+
+        case 'staging':
+            return publicPaths.STAGING;
+
+        case 'production':
+            return publicPaths.PRODUCTION;
+
+        default:
+            return publicPaths.PRODUCTION;
+    }
+}
+
+
 const config = {
     entry: './js/index.js',
     devtool: 'source-map',
@@ -52,10 +86,12 @@ const config = {
 
 module.exports = (env) => {
     var defaultDirectory = 'dist';
+    const publicPath = mapPublicPath(env.assets, publicPaths);
 
     if (env && env.build)
         defaultDirectory = env.build;
 
     config.output.path = path.resolve(__dirname, defaultDirectory, 'js');
+    config.output.publicPath = publicPath + 'js/';
     return config;
 };

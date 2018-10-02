@@ -13,7 +13,7 @@
 
         & > .offline-options {
             bottom: 1em;
-            left: 1em;
+            right: 1em;
             pointer-events: initial;
             position: absolute;
 
@@ -62,6 +62,38 @@
             .offline-error {
                 text-align: center;
             }
+        }
+
+        .file-list {
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .file-size {
+            font-size: 10px;
+            color: #b2b2b2;
+            margin-left: 10px;
+        }
+
+        .progress {
+            height: 6px;
+            margin-bottom: 0;
+            margin-top: 5px;
+            margin-right: 30px;
+            background-color: #cae6fc;
+        }
+
+        .progress.empty {
+            background-color: #eee;
+        }
+
+        .progress.full {
+            background-color: #aee4b2;
+        }
+
+        .progress-indicator {
+            height: 100%;
+            background-color: #2196f3;
         }
     }
 
@@ -115,6 +147,30 @@
 
     .replaying {
         margin-bottom: 0;
+    }
+
+    .caching-spinner {
+        position: absolute;
+        bottom: 1em;
+        left: 1em;
+        width: 220px;
+        height: 100px;
+    }
+
+    .caching-spinner .wait-spinner {
+        width: 70px;
+        height: 70px;
+        margin: 0;
+        left: 0
+    }
+
+    .caching-spinner .wait-message {
+        font-size: 1.5em;
+        padding: 0;
+        margin: 0;
+        top: 22px;
+        position: absolute;
+        left: 80px;
     }
 }
 

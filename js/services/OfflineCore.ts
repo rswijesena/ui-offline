@@ -1,17 +1,19 @@
-import { addRequest, FlowInit, getObjectData, cacheObjectData } from '../models/Flow';
+import { addRequest, FlowInit, getObjectData, getRequests, getFlowModel } from '../models/Flow';
 import DataActions from './DataActions';
 import ObjectData from './ObjectData';
-import { executeOperation } from './Operation';
-import { getPageContainers, flattenContainers, generatePage } from './Page';
+import { executeOperation, invokeMacroWorker } from './Operation';
+import { generatePage } from './Page';
 import Rules from './Rules';
 import Snapshot from './Snapshot';
 import Step from './Step';
 import { StateUpdate } from '../models/State';
-import { getOfflineData, removeOfflineData, setOfflineData } from './Storage';
+import { getOfflineData, setOfflineData } from './Storage';
 import { IFlow } from '../interfaces/IModels';
-import { clone, flatten, guid } from '../services/Utils';
+import { flatten, guid } from '../services/Utils';
+import { DEFAULT_POLL_INTERVAL, DEFAULT_OBJECTDATA_CACHING_INTERVAL } from '../constants';
 
 declare const manywho: any;
+// This is the gloabl metaData object generated when building offline project
 declare const metaData: any;
 declare const localforage: any;
 declare const $: any;
@@ -21,51 +23,24 @@ enum EventTypes {
     join = 'join',
     navigation = 'navigation',
     initialization = 'initialization',
+    file = 'fileData',
+    objectData = 'objectData',
 }
 
 const OfflineCore = {
 
-    requests: null,
-    isOffline: false,
-
     /**
-     * Called when the flow is toggled to offline mode.
-     * Metadata elements are iterated over to generate an array of request objects (objectDataRequests).
-     * We finish by instantiating a flow object.
      * @param tenantId
      * @param stateId
      * @param stateToken
      * @param authenticationToken
+     * @description initialzing a model in state. This occurs when
+     * a flow is first initialized and is not yet in offline mode
      */
     initialize(tenantId: string, stateId: string, stateToken: string, authenticationToken: string) {
         if (!metaData) {
             return;
         }
-
-        const objectDataRequests = {};
-
-        if (metaData.pageElements) {
-            metaData.pageElements.forEach((page) => {
-                (page.pageComponents || [])
-                    .filter(component => component.objectDataRequest)
-                    .forEach(component => objectDataRequests[component.objectDataRequest.typeElementId] = component.objectDataRequest);
-            });
-        }
-
-        if (metaData.mapElements) {
-            metaData.mapElements.forEach((element) => {
-                (element.dataActions || [])
-                    .filter(action => manywho.utils.isEqual(action.crudOperationType, 'load', true) && action.objectDataRequest)
-                    .forEach(action => objectDataRequests[action.objectDataRequest.typeElementId] = action.objectDataRequest);
-            });
-        }
-
-        const requests = Object.keys(objectDataRequests)
-            .map(key => objectDataRequests[key])
-            .map(this.getObjectDataRequest)
-            .map(this.getChunkedObjectDataRequests);
-
-        this.requests = requests.concat.apply([], requests);
 
         const flow = {
             authenticationToken,
@@ -77,71 +52,7 @@ const OfflineCore = {
             id: metaData.id,
         };
 
-        return removeOfflineData(stateId)
-            .then(() => setOfflineData(flow))
-            .then(() => FlowInit(flow));
-    },
-
-    /**
-     * Returns an object data request object during initilisation,
-     * based on the generated metadata properties
-     * @param request
-     */
-    getObjectDataRequest(request: any) {
-        const objectDataRequest: any = {
-            authorization: null,
-            configurationValues: null,
-            command: null,
-            culture: {
-                id: null,
-                developerName: null,
-                developerSummary: null,
-                brand: null,
-                language: 'EN',
-                country: 'USA',
-                variant: null,
-            },
-            stateId: '00000000-0000-0000-0000-000000000000',
-            token: null,
-            listFilter: request.listFilter || {},
-        };
-
-        objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
-
-        const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
-
-        objectDataRequest.typeElementBindingId = typeElement.bindings[0].id;
-        objectDataRequest.objectDataType = {
-            typeElementId: typeElement.id,
-            developerName: typeElement.developerName,
-            properties: typeElement.properties.map((property) => {
-                return {
-                    developerName: property.developerName,
-                };
-            }),
-        };
-
-        return objectDataRequest;
-    },
-
-    /**
-     * Splits a single request into multiple requests if the `limit` on the `listFilter` of the request
-     * is higher than the `offline.cache.requests.pageSize` setting
-     * @param request
-     */
-    getChunkedObjectDataRequests(request: any) {
-        const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
-        const iterations = Math.ceil(request.listFilter.limit / pageSize);
-        const pages = [];
-
-        for (let i = 0; i < iterations; i += 1) {
-            const page = clone(request);
-            page.listFilter.limit = pageSize;
-            page.listFilter.offset = i * pageSize;
-            pages.push(page);
-        }
-
-        return pages;
+        return FlowInit(flow);
     },
 
     /**
@@ -157,55 +68,6 @@ const OfflineCore = {
         const authenticationToken = manywho.state.getAuthenticationToken(flowKey);
 
         return manywho.engine.join(tenantId, flowId, flowVersionId, element, stateId, authenticationToken, manywho.settings.flow(null, flowKey));
-    },
-
-    /**
-     * Execute every data load in the flow and cache the responses locally
-     * @param flow
-     * @param onProgress
-     * @param onDone
-     */
-    cacheObjectData(flow: IFlow, onProgress, onDone) {
-        if (!this.requests || this.requests.length === 0) {
-            return false;
-        }
-
-        const executeRequest = function (
-            req: any,
-            reqIndex: number,
-            flow: IFlow,
-            currentTypeElementId: null,
-            onProgress: Function,
-            onDone: Function) {
-
-            let requests = req;
-
-            if (reqIndex >= requests.length) {
-                return setOfflineData(flow)
-                    .then(onDone);
-            }
-
-            const request = requests[reqIndex];
-            request.stateId = flow.state.id;
-
-            return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
-                .then((response) => {
-                    if (response.objectData) {
-                        cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    } else {
-                        requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
-                    }
-
-                    return response;
-                })
-                .then((response) => {
-                    const indy = reqIndex + 1;
-                    onProgress(indy, requests.length);
-                    executeRequest(requests, indy, flow, currentTypeElementId, onProgress, onDone);
-                });
-        };
-        executeRequest(this.requests, 0, flow, null, onProgress, onDone);
-        return true;
     },
 
     /**
@@ -235,8 +97,15 @@ const OfflineCore = {
             flowStateId = '00000000-0000-0000-0000-000000000000';
         }
 
+        // Lets get the entry in indexDB for this state
         return getOfflineData(flowStateId)
             .then((response) => {
+
+                // When a flow has entered offline mode for the first time
+                // there will be no entry in indexDB, there will however
+                // be a representation of the data needed cached in state
+                const dbResponse = response || getFlowModel();
+
                 if (manywho.utils.isEqual(event, 'initialization')) {
                     const flow = FlowInit({
                         tenantId,
@@ -250,7 +119,10 @@ const OfflineCore = {
                     return setOfflineData(flow)
                         .then(() => flow);
                 }
-                return FlowInit(response);
+
+                // Reinitilize the data in state to ensure
+                // that state matches with cache
+                return FlowInit(dbResponse);
             })
             .then((flow) => {
                 if (manywho.utils.isEqual(event, 'join', true)) {
@@ -258,6 +130,8 @@ const OfflineCore = {
                         {
                             invokeType: 'JOIN',
                             currentMapElementId: flow.state.currentMapElementId,
+                            stateId: flow.state.id,
+                            stateToken: flow.state.token,
                         },
                         flow,
                         context,
@@ -274,6 +148,34 @@ const OfflineCore = {
                 }
                 return this.getObjectDataResponse(request, flow, context);
             });
+    },
+
+    getUploadResponse(files, request, stateId) {
+
+        const snapshot = Snapshot(metaData);
+
+        request.type = EventTypes.file;
+        request.files = files;
+
+        // Add request to Flow repository
+        addRequest(request, snapshot);
+
+        // Pull the current offline data from local storage
+        getOfflineData(stateId)
+        .then(
+            (offlineData) => {
+                // Add the requests from the Flow repository
+                // to the offline data object
+                offlineData.requests = getRequests();
+
+                // Push the updated offline data back into local storage
+                setOfflineData(offlineData);
+            },
+        );
+
+        return {
+            objectData: [],
+        };
     },
 
     /**
@@ -349,9 +251,11 @@ const OfflineCore = {
         }
 
         const snapshot: any = Snapshot(metaData);
-        let pageResponse = null;
 
-        if (manywho.utils.isEqual(mapElement.elementType, 'input', true) || manywho.utils.isEqual(mapElement.elementType, 'step', true)) {
+        if ((manywho.utils.isEqual(mapElement.elementType, 'input', true) ||
+            manywho.utils.isEqual(mapElement.elementType, 'step', true)) &&
+            request.invokeType.toUpperCase() !== 'JOIN' // Join requests should not be synced
+        ) {
             addRequest(request, snapshot);
         }
 
@@ -372,17 +276,61 @@ const OfflineCore = {
         }
 
         if (nextMapElement.operations) {
-            nextMapElement.operations
-                .sort((a, b) => a.order - b.order)
-                .forEach((operation) => {
-                    executeOperation(operation, flow.state, snapshot);
-                });
+
+            const sortedOperations = nextMapElement.operations
+                .sort((a, b) => a.order - b.order);
+
+            // Using async function as it is important that
+            // asyncronous operations are executed in order
+            const executeOperations = async (operations) => {
+                for (const operation of operations) {
+                    if (operation.macroElementToExecuteId) {
+
+                        // Execute a macro
+                        await invokeMacroWorker(operation, flow.state, snapshot);
+                    } else {
+
+                        // Execute an operation
+                        await executeOperation(operation, flow.state, snapshot);
+                    }
+                }
+
+                // Once all operations have completed we can return
+                // a response back to the UI
+                return this.constructResponse(
+                    nextMapElement,
+                    request,
+                    snapshot,
+                    flow,
+                    context,
+                );
+            };
+
+            return executeOperations(sortedOperations);
         }
 
+        return this.constructResponse(
+            nextMapElement,
+            request,
+            snapshot,
+            flow,
+            context,
+        );
+    },
+
+    constructResponse(nextMapElement, request, snapshot, flow, context) {
+
+        let pageResponse = null;
         if (nextMapElement.elementType === 'step') {
-            pageResponse = Step.generate(nextMapElement);
+            pageResponse = Step.generate(nextMapElement, snapshot);
         } else if (nextMapElement.elementType === 'input') {
-            pageResponse = generatePage(request, nextMapElement, flow.state, snapshot, flow.tenantId);
+            pageResponse = generatePage(
+                request,
+                nextMapElement,
+                flow.state,
+                snapshot,
+                flow.tenantId,
+            );
         } else if (!nextMapElement.outcomes || nextMapElement.outcomes.length === 0) {
             pageResponse = {
                 developerName: 'done',
@@ -451,7 +399,7 @@ const OfflineCore = {
             isEnabled: true,
             isVisible: true,
             label: navigation.label,
-            navigationItemResponses: navigation.navigationItems,
+            navigationItemResponses: navigation.navigationItems.sort((a, b) => a.order - b.order),
             navigationItemDataResponses: flatten(navigation.navigationItems, null, [], 'navigationItems', null).map((item) => {
                 return {
                     navigationItemId: item.id,
@@ -472,6 +420,8 @@ export default OfflineCore;
 manywho.settings.initialize({
     offline: {
         cache: {
+            pollInterval: DEFAULT_POLL_INTERVAL,
+            objectDataCachingInterval: DEFAULT_OBJECTDATA_CACHING_INTERVAL,
             requests: {
                 limit: 250,
                 pageSize: 10,

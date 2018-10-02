@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { hasNetwork } from '../services/Connection';
 import OfflineCore from '../services/OfflineCore';
-import { getOfflineData, removeOfflineData, setOfflineData } from '../services/Storage';
-import { clone, flatten, guid } from '../services/Utils';
+import { setOfflineData } from '../services/Storage';
 import { IOfflineProps, IOfflineState } from '../interfaces/IOffline';
+import { connect } from 'react-redux';
+import { isOffline, isReplaying } from '../actions';
 
-import GoOffline from './GoOffline';
 import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
 
-declare const manywho: any;
 declare const metaData: any;
 
 enum OfflineView {
@@ -18,77 +17,82 @@ enum OfflineView {
     noNetwork = 2,
 }
 
+const mapStateToProps = (state) => {
+    return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toggleIsOffline: (bool) => {
+            dispatch(isOffline(bool));
+        },
+        toggleIsReplaying: (bool) => {
+            dispatch(isReplaying(bool));
+        },
+    };
+};
+
 class Offline extends React.Component<IOfflineProps, IOfflineState> {
+
+    flow = null;
+    objectDataCachingTimer = null;
 
     constructor(props: any) {
         super(props);
         this.state = {
             view: null,
+            hasInitialized: false,
         };
     }
 
-    onOfflineClick = (e) => {
-        this.setState({ view: 0 });
-    }
+    onOnlineClick = () => {
 
-    onOffline = () => {
-        this.setState({ view: null });
-        OfflineCore.isOffline = true;
-        this.forceUpdate();
-    }
-
-    onOnlineClick = (e) => {
+        // Requests can only be replayed if there is network
         hasNetwork()
             .then((response) => {
-                response ? this.setState({ view: OfflineView.replay }) : this.setState({ view: OfflineView.noNetwork });
+                response ?
+                this.setState({ view: OfflineView.replay }) :
+                this.setState({ view: OfflineView.noNetwork });
             });
     }
 
-    onOnline = (flow) => {
+    onOnline = () => {
         this.setState({ view: null });
-        OfflineCore.isOffline = false;
 
-        setOfflineData(flow)
-            .then(() => OfflineCore.rejoin(this.props.flowKey))
-            .then(() => removeOfflineData(flow.state.id));
+        // Out of offline mode and rejoining the flow
+        this.props.toggleIsOffline(false);
+        this.props.toggleIsReplaying(false);
+        OfflineCore.rejoin(this.props.flowKey);
     }
 
-    onCloseOnline = () => {
-        this.setState({ view: null });
+    onCloseOnline = (flow) => {
+
+        // Called when the requests modal is closed
+        // at this point the entry for this state
+        // has been cleared from indexDB, so we need to reinstate it
+        setOfflineData(flow)
+            .then(() => {
+
+                // Back into offline mode
+                this.props.toggleIsOffline(true);
+                this.props.toggleIsReplaying(false);
+                this.setState({ view: null });
+            });
     }
 
     onCloseNoNetwork: () => void = () => {
         this.setState({ view: null });
     }
 
-    componentDidMount() {
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-        const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
-
-        getOfflineData(stateId, id, versionId)
-            .then((flow) => {
-                if (flow) {
-                    this.onOffline();
-                }
-            });
-    }
-
     render() {
-        const button = OfflineCore.isOffline ?
-            <button className="btn btn-info" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-export" aria-hidden="true"/>
-                Go Online
-            </button> :
-            <button className="btn btn-primary" onClick={this.onOfflineClick}><span className="glyphicon glyphicon-import" aria-hidden="true"/>
-                Go Offline
-            </button>;
+        const button = this.props.isOffline ?
+            <button className="btn btn-success" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-transfer" aria-hidden="true"/>
+                Sync Flow
+            </button> : null;
 
         let view = null;
 
         switch (this.state.view) {
-        case OfflineView.cache:
-            view = <GoOffline onOffline={this.onOffline} flowKey={this.props.flowKey} />;
-            break;
 
         case OfflineView.replay:
             view = <GoOnline onOnline={this.onOnline} onClose={this.onCloseOnline} flowKey={this.props.flowKey} />;
@@ -98,7 +102,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (metaData) {
+        if (metaData && !this.state.isCachingObjectData) {
             return <div className="offline">
                 <div className="offline-options">
                     {button}
@@ -111,12 +115,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 }
 
-export default Offline;
-
-manywho.settings.initialize({
-    components: {
-        static: [
-            Offline,
-        ],
-    },
-});
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Offline);

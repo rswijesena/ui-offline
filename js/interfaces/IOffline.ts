@@ -1,7 +1,15 @@
 export interface IOfflineState {
-    view: number;
+    view?: number;
+    status?: string;
+    progress?: number;
+    isCachingObjectData?: boolean;
+    isDismissEnabled?: boolean;
+    hasInitialized?: boolean;
 }
 
 export interface IOfflineProps {
     flowKey: string;
+    isOffline: boolean;
+    toggleIsOffline: Function;
+    toggleIsReplaying: Function;
 }

@@ -9,7 +9,7 @@ const config = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                loader: "ts-loader",
                 exclude: /node_modules/
             },
             {
@@ -53,5 +53,6 @@ module.exports = (env) => {
         defaultDirectory = env.build;
 
     config.output.path = path.resolve(__dirname, defaultDirectory, 'js');
+    // config.output.publicPath = 'build/js/';
     return config;
 };

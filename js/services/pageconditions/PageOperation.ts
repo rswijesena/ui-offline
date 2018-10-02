@@ -51,7 +51,7 @@ const PageOperation = (
                 pageOperationResult = false;
             }
 
-            const newProps = {
+            const newProps: any = {
                 isVisible: value.isVisible,
                 isRequired: value.isRequired,
                 isEnabled: value.isEnabled,
@@ -64,6 +64,11 @@ const PageOperation = (
 
             case METADATA_TYPES.visible:
                 newProps.isVisible = pageOperationResult;
+
+                // If a component is being hidden, its content value must be cleared
+                if (pageOperationResult === false) {
+                    newProps.contentValue = null;
+                }
                 return Object.assign(value, newProps);
 
             case METADATA_TYPES.required:
