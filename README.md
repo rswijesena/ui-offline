@@ -39,12 +39,12 @@ State values are also being cached in memory as a user moves through the flow.
 By default cached data will be stored using the IndexedDB mechnaism, with a fallback to WebSQL. More information on these when
 running in a cordova environment can be found here: https://cordova.apache.org/docs/en/latest/cordova/storage/storage.html
 
-### Supported Functionality
+## Supported Functionality
 
 A lot of functionality in flow is supported whist running a flow offline. Below describes
 some caveats/unsupported features.
 
-## Page Conditions
+### Page Conditions
 
 Currently, offline flows can support any page condition created with the basic page condition tool inside the Toolings page editor.
 Page conditions with multiple page operations are also supported.
@@ -60,13 +60,13 @@ Whilst the only page condition criteria's supported are:
 - Not equal
 - Is empty
 
-## Macros
+### Macros
 
 Macros are fully supported. However, you should not use macro's that create Date objects or evaluate data randomly
 e.g. using `Math.random()`, as when requests get replayed, these values will differ from when the macro execution
 was simulated offline.
 
-### Unsupported Functionality
+## Unsupported Functionality
 
 - Referencing system values e.g. `$State` in a step/presentation components text content 
 - Message Actions
