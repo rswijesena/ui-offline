@@ -97,8 +97,10 @@ const OfflineCore = {
             flowStateId = '00000000-0000-0000-0000-000000000000';
         }
 
+        const flowId = (request && request.flowId) ? request.flowId.id : null;
+
         // Lets get the entry in indexDB for this state
-        return getOfflineData(flowStateId)
+        return getOfflineData(flowStateId, flowId, event)
             .then((response) => {
 
                 // When a flow has entered offline mode for the first time
@@ -106,7 +108,7 @@ const OfflineCore = {
                 // be a representation of the data needed cached in state
                 const dbResponse = response || getFlowModel();
 
-                if (manywho.utils.isEqual(event, 'initialization')) {
+                if (manywho.utils.isEqual(event, 'initialization') && !response) {
                     const flow = FlowInit({
                         tenantId,
                         state: {
@@ -186,8 +188,14 @@ const OfflineCore = {
     getInitializationResponse(request: any, flow: IFlow, context: any) {
         const snapshot: any = Snapshot(metaData);
 
+        // If on flow initialization there was an entry in indexdb then a current map elemet
+        // id would be available, if not then assume the flow is being initialized
+        // for the first time and use the start map element id
+        const currentElement = (flow.state && flow.state.currentMapElementId) ? flow.state.currentMapElementId :
+        metaData.mapElements.find(element => element.elementType === 'START').id;
+
         return {
-            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
+            currentMapElementId: currentElement,
             currentStreamId: null,
             navigationElementReferences : snapshot.getNavigationElementReferences(),
             stateId: flow.state.id,

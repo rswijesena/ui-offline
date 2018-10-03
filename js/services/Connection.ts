@@ -50,7 +50,7 @@ export const hasNetwork = () => {
  * an entry cached in indexDB for the current state
  * then the flow is classified as "being offline"
  */
-export const isOnline = (stateId) => {
+export const isOnline = (stateId, request, event) => {
 
     const deferred = jQuery.Deferred();
 
@@ -60,7 +60,9 @@ export const isOnline = (stateId) => {
         return deferred.resolve(true);
     }
 
-    getOfflineData(stateId, null, null)
+    const flowId = (request && request.flowId) ? request.flowId.id : null;
+
+    getOfflineData(stateId, flowId, event)
         .then((flow) => {
             if (flow) {
                 store.dispatch(isOffline(true));
@@ -184,7 +186,7 @@ export const request = (
     authenticationToken: string,
     request: any,
 ) => {
-    return isOnline(stateId)
+    return isOnline(stateId, request, event)
         .then((response) => {
             if (response) {
 
@@ -293,7 +295,7 @@ export const uploadFiles = (
     onProgress: EventListenerOrEventListenerObject,
     stateId: string,
 ) => {
-    return isOnline(stateId)
+    return isOnline(stateId, request, event)
         .then((response) => {
             if (response) {
 
