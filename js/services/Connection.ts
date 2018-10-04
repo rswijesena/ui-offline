@@ -200,6 +200,54 @@ export const request = (
 };
 
 /**
+ * Intercepts initialize requests before
+ * an actual api call can get intercepted
+ * @param tenantId
+ * @param flowId
+ * @param flowVersionId
+ * @param container
+ * @param stateId
+ * @param authenticationToken
+ * @param options
+ * @param isInitializing
+ */
+export const initialize = (
+    tenantId: string,
+    flowId: string,
+    flowVersionId: string,
+    container: string,
+    stateId: string,
+    authenticationToken: string,
+    options: any,
+    isInitializing: string | boolean,
+) => {
+
+    // Check if there is any cached data
+    // in indexdb associated to the flow
+    return getOfflineData(stateId, flowId, 'initialization')
+        .then((flow) => {
+
+            // If there is a state cache then we extract
+            // the state id, if not then state id will be null
+            // (normal for initialization requests).
+            //
+            // stateid === true => do a join
+            // stateid === null => move with authorization
+            const currentStateId = flow ? flow.state.id : stateId;
+            return manywho.engine._initialize(
+                tenantId,
+                flowId,
+                flowVersionId,
+                container,
+                currentStateId,
+                authenticationToken,
+                options,
+                isInitializing,
+            );
+        });
+};
+
+/**
  * Perform an upload request to the API in a normal online environment
  * @param event Type of event, `Settings.event(event + '.done')` will be called when the request completes
  * @param url The path to make the request against, excluding the host which is fetched from `Settings.global('platform.uri')`
