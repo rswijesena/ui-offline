@@ -127,7 +127,11 @@ const OfflineCore = {
                 return FlowInit(dbResponse);
             })
             .then((flow) => {
-                if (manywho.utils.isEqual(event, 'join', true)) {
+
+                // If request is an initialization request and there is an entry in indexdb
+                // then we can assume that the flow user wants to pick up where they left
+                // off in a previous state. So we then want to return a join response
+                if ((manywho.utils.isEqual(event, 'join', true) || event === EventTypes.initialization) && flow) {
                     return this.getMapElementResponse(
                         {
                             invokeType: 'JOIN',
@@ -188,14 +192,12 @@ const OfflineCore = {
     getInitializationResponse(request: any, flow: IFlow, context: any) {
         const snapshot: any = Snapshot(metaData);
 
-        // If on flow initialization there was an entry in indexdb then a current map elemet
-        // id would be available, if not then assume the flow is being initialized
-        // for the first time and use the start map element id
-        const currentElement = (flow.state && flow.state.currentMapElementId) ? flow.state.currentMapElementId :
-        metaData.mapElements.find(element => element.elementType === 'START').id;
-
+        // TODO - this will only ever get called when a flow is initialized
+        // when there is no network connection to start with, which is
+        // currently an unsupported scenario. A service worker will need to be
+        // implemented to cache assets
         return {
-            currentMapElementId: currentElement,
+            currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
             currentStreamId: null,
             navigationElementReferences : snapshot.getNavigationElementReferences(),
             stateId: flow.state.id,
