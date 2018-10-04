@@ -75,6 +75,15 @@ was simulated offline.
 - Listners
 - Realtime collaboration
 
+## Supported Browsers
+
+- Chrome
+- Firefox
+- Edge
+- Safari
+- IOS (version 10+)
+- Android (version 6+)
+
 ## Usage
 
 ### Building

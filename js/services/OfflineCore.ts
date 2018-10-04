@@ -97,8 +97,10 @@ const OfflineCore = {
             flowStateId = '00000000-0000-0000-0000-000000000000';
         }
 
+        const flowId = (request && request.flowId) ? request.flowId.id : null;
+
         // Lets get the entry in indexDB for this state
-        return getOfflineData(flowStateId)
+        return getOfflineData(flowStateId, flowId, event)
             .then((response) => {
 
                 // When a flow has entered offline mode for the first time
@@ -106,7 +108,7 @@ const OfflineCore = {
                 // be a representation of the data needed cached in state
                 const dbResponse = response || getFlowModel();
 
-                if (manywho.utils.isEqual(event, 'initialization')) {
+                if (manywho.utils.isEqual(event, 'initialization') && !response) {
                     const flow = FlowInit({
                         tenantId,
                         state: {
@@ -125,7 +127,11 @@ const OfflineCore = {
                 return FlowInit(dbResponse);
             })
             .then((flow) => {
-                if (manywho.utils.isEqual(event, 'join', true)) {
+
+                // If request is an initialization request and there is an entry in indexdb
+                // then we can assume that the flow user wants to pick up where they left
+                // off in a previous state. So we then want to return a join response
+                if ((manywho.utils.isEqual(event, 'join', true) || event === EventTypes.initialization) && flow) {
                     return this.getMapElementResponse(
                         {
                             invokeType: 'JOIN',
@@ -186,6 +192,10 @@ const OfflineCore = {
     getInitializationResponse(request: any, flow: IFlow, context: any) {
         const snapshot: any = Snapshot(metaData);
 
+        // TODO - this will only ever get called when a flow is initialized
+        // when there is no network connection to start with, which is
+        // currently an unsupported scenario. A service worker will need to be
+        // implemented to cache assets
         return {
             currentMapElementId: metaData.mapElements.find(element => element.elementType === 'START').id,
             currentStreamId: null,
