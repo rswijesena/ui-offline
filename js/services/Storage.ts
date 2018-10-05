@@ -3,33 +3,40 @@ declare const localforage: any;
 
 localforage.setDriver(['asyncStorage', 'webSQLStorage']);
 
+enum EventTypes {
+    invoke = 'invoke',
+    join = 'join',
+    navigation = 'navigation',
+    initialization = 'initialization',
+    file = 'fileData',
+    objectData = 'objectData',
+}
+
 /**
  * Get the previously saved local version of the state from local storage.
- * If `stateId` isn't provided then iterate across all local storage
- * to find data with a matching `flowId` and `flowVersionId`
+ * If `stateId` isn't provided and the flow is being initialized then iterate
+ * across all local storage to find data with a matching `flowId`. This is to
+ * allow for when a user reinitializes the flow when they had already cached
+ * requests during another flow state.
  * @param stateId
  * @param flowId
- * @param flowVersionId
+ * @param event
  */
-export const getOfflineData = (stateId: string, flowId: string = null, flowVersionId: string = null) => {
+export const getOfflineData = (stateId: string, flowId: string = null, event: string = null) => {
     return localforage.getItem(`manywho:offline-${stateId}`)
         .then((value) => {
             if (value) {
                 return value;
             }
 
-            return localforage.iterate((value, key) => {
-                if (value.id.id === flowId && value.id.versionId === flowVersionId) {
+            return localforage.iterate((value) => {
+                if (value.id.id === flowId && event === EventTypes.initialization) {
                     return value;
                 }
             })
             .then((flow) => {
                 if (flow) {
-                    return removeOfflineData(flow.state.id)
-                        .then(() => {
-                            flow.state.id = stateId;
-                            return setOfflineData(flow);
-                        });
+                    return flow;
                 }
             });
         });

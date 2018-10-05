@@ -73,11 +73,10 @@ class App extends React.Component<any, any> {
         const stateToken = manywho.state.getState(this.props.flowKey).token;
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
         // Offline initialization only should happen if data
         // has been cached in indexDB
-        getOfflineData(stateId, id, versionId)
+        getOfflineData(stateId, id, null)
             .then((flow) => {
                 if (!flow && stateToken && !this.state.hasInitialized) {
                     this.initialize();

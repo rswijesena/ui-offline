@@ -50,7 +50,7 @@ export const hasNetwork = () => {
  * an entry cached in indexDB for the current state
  * then the flow is classified as "being offline"
  */
-export const isOnline = (stateId) => {
+export const isOnline = (stateId, request, event) => {
 
     const deferred = jQuery.Deferred();
 
@@ -60,7 +60,9 @@ export const isOnline = (stateId) => {
         return deferred.resolve(true);
     }
 
-    getOfflineData(stateId, null, null)
+    const flowId = (request && request.flowId) ? request.flowId.id : null;
+
+    getOfflineData(stateId, flowId, event)
         .then((flow) => {
             if (flow) {
                 store.dispatch(isOffline(true));
@@ -184,7 +186,7 @@ export const request = (
     authenticationToken: string,
     request: any,
 ) => {
-    return isOnline(stateId)
+    return isOnline(stateId, request, event)
         .then((response) => {
             if (response) {
 
@@ -194,6 +196,54 @@ export const request = (
 
             // Device is not connected to the internet
             return offlineRequest(resolveContext, event, urlPart, request, tenantId, stateId);
+        });
+};
+
+/**
+ * Intercepts initialize requests before
+ * an actual api call can get intercepted
+ * @param tenantId
+ * @param flowId
+ * @param flowVersionId
+ * @param container
+ * @param stateId
+ * @param authenticationToken
+ * @param options
+ * @param isInitializing
+ */
+export const initialize = (
+    tenantId: string,
+    flowId: string,
+    flowVersionId: string,
+    container: string,
+    stateId: string,
+    authenticationToken: string,
+    options: any,
+    isInitializing: string | boolean,
+) => {
+
+    // Check if there is any cached data
+    // in indexdb associated to the flow
+    return getOfflineData(stateId, flowId, 'initialization')
+        .then((flow) => {
+
+            // If there is a state cache then we extract
+            // the state id, if not then state id will be null
+            // (normal for initialization requests).
+            //
+            // stateid === true => do a join
+            // stateid === null => move with authorization
+            const currentStateId = flow ? flow.state.id : stateId;
+            return manywho.engine._initialize(
+                tenantId,
+                flowId,
+                flowVersionId,
+                container,
+                currentStateId,
+                authenticationToken,
+                options,
+                isInitializing,
+            );
         });
 };
 
@@ -293,7 +343,7 @@ export const uploadFiles = (
     onProgress: EventListenerOrEventListenerObject,
     stateId: string,
 ) => {
-    return isOnline(stateId)
+    return isOnline(stateId, request, event)
         .then((response) => {
             if (response) {
 

@@ -65,9 +65,8 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     componentDidMount() {
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
         const id = manywho.utils.extractFlowId(this.props.flowKey);
-        const versionId = manywho.utils.extractFlowVersionId(this.props.flowKey);
 
-        getOfflineData(stateId, id, versionId)
+        getOfflineData(stateId, id, null)
             .then((flow) => {
 
                 if (flow) {
