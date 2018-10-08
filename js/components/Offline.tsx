@@ -102,7 +102,7 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (metaData && !this.state.isCachingObjectData) {
+        if (metaData) {
             return <div className="offline">
                 <div className="offline-options">
                     {button}
