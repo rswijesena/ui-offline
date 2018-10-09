@@ -3,6 +3,7 @@ import store from '../stores/store';
 import { isOffline } from '../actions';
 import OfflineCore from './OfflineCore';
 import { getOfflineData } from './Storage';
+import ObjectDataCaching from './cache/ObjectDataCaching';
 
 declare const manywho: any;
 declare const jQuery: any;
@@ -122,11 +123,45 @@ export const onlineRequest = (
             }
         },
     })
-    .done(() => {
-        manywho.settings.event(event + '.done');
-        if (stateId && tenantId && event !== 'objectData') {
-            pollForStateValues(stateId, tenantId, authenticationToken);
+    .done((response) => {
+
+        if (event === EventTypes.initialization || event === EventTypes.join) {
+
+            const isAuthenticated = authenticationToken && response.authorizationContext &&
+            (response.authorizationContext.directoryId &&
+            response.authorizationContext.directoryName &&
+            response.authorizationContext.loginUrl);
+
+            const isPublic = !authenticationToken && !response.authorizationContext &&
+            (!response.authorizationContext.directoryId &&
+            !response.authorizationContext.directoryName &&
+            !response.authorizationContext.loginUrl);
+
+            if (isAuthenticated || isPublic) {
+
+                getOfflineData(stateId, null, null)
+                    .then((flow) => {
+                        if (!flow) {
+                            const flowModel = OfflineCore.initialize(
+                                tenantId,
+                                response.stateId,
+                                response.stateToken,
+                                authenticationToken,
+                            );
+
+                            if (stateId && tenantId) {
+                                pollForStateValues(stateId, tenantId, authenticationToken);
+                            }
+
+                            ObjectDataCaching(flowModel);
+                        }
+                        if (flow) {
+                            store.dispatch(isOffline(true));
+                        }
+                    });
+            }
         }
+        manywho.settings.event(event + '.done');
     })
     .fail(manywho.connection.onError)
     .fail(manywho.settings.event(event + '.fail'));

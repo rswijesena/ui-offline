@@ -85,6 +85,18 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
     }
 
     render() {
+
+        let cachingSpinner = null;
+
+        if (this.props.isCaching > 0 && this.props.isCaching < 100) {
+            cachingSpinner = <div className="caching-spinner">
+                <div className="wait-container">
+                    <div className="wait-spinner-small wait-spinner"></div>
+                    <span className="wait-message">Caching { String(this.props.isCaching) }%</span>
+                </div>
+            </div>;
+        }
+
         const button = this.props.isOffline ?
             <button className="btn btn-success" onClick={this.onOnlineClick}><span className="glyphicon glyphicon-transfer" aria-hidden="true"/>
                 Sync Flow
@@ -102,12 +114,13 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
             view = <NoNetwork onClose={this.onCloseNoNetwork} />;
         }
 
-        if (metaData && !this.state.isCachingObjectData) {
+        if (metaData) {
             return <div className="offline">
                 <div className="offline-options">
                     {button}
                 </div>
                 {view}
+                {cachingSpinner}
             </div>;
         }
 

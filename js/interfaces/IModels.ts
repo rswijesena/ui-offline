@@ -1,6 +1,6 @@
 export interface IFlow {
     authenticationToken?: string;
-    id?: string;
+    id?: any;
     objectData?: any;
     requests?: any;
     state: any;
