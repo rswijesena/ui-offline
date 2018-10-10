@@ -125,14 +125,19 @@ export const onlineRequest = (
     })
     .done((response) => {
 
+        // Here is where we initiate the offline functionality
+        // This happens in join and initialisation responses (when the flow first ran or user has joined)
         if (event === EventTypes.initialization || event === EventTypes.join) {
 
+            // Determine if a flow that requires authentication
+            // has successfully been authenticated
             const isAuthenticated = authenticationToken && response.authorizationContext &&
             (response.authorizationContext.directoryId &&
             response.authorizationContext.directoryName &&
             response.authorizationContext.loginUrl);
 
-            const isPublic = !authenticationToken && !response.authorizationContext &&
+            // Determine if a flow is just public
+            const isPublic = !authenticationToken &&
             (!response.authorizationContext.directoryId &&
             !response.authorizationContext.directoryName &&
             !response.authorizationContext.loginUrl);
@@ -142,6 +147,10 @@ export const onlineRequest = (
                 getOfflineData(stateId, null, null)
                     .then((flow) => {
                         if (!flow) {
+
+                            // Theres nothing cached in indexedb so
+                            // this flow has must be online with no
+                            // pending requests to be replayed
                             const flowModel = OfflineCore.initialize(
                                 tenantId,
                                 response.stateId,
@@ -149,13 +158,17 @@ export const onlineRequest = (
                                 authenticationToken,
                             );
 
+                            // Start polling for state values
                             if (stateId && tenantId) {
                                 pollForStateValues(stateId, tenantId, authenticationToken);
                             }
 
+                            // Start caching object data
                             ObjectDataCaching(flowModel);
                         }
                         if (flow) {
+                            // Data cached in indexdb so flow
+                            // has requests that need to be replayed
                             store.dispatch(isOffline(true));
                         }
                     });

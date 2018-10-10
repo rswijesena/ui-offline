@@ -3,13 +3,14 @@ import { cacheObjectData } from '../../models/Flow';
 import { clone } from '../Utils';
 import store from '../../stores/store';
 import { isCaching } from '../../actions';
+import OnCached from './OnCached';
 
 declare const manywho: any;
 declare const metaData: any;
 
 let objectDataCachingTimer;
 
-const onCached = (flow: IFlow) => {
+export const onCached = (flow: IFlow) => {
     const flowKey = manywho.utils.getFlowKey(
         flow.tenantId,
         flow.id.id,
@@ -51,7 +52,8 @@ const ObjectDataCaching = (flow: IFlow) => {
         let requests = req;
 
         if (reqIndex >= requests.length) {
-            onCached(flow);
+            objectDataCachingTimer = OnCached(flow);
+            return;
         }
 
         const request = requests[reqIndex];
@@ -71,6 +73,10 @@ const ObjectDataCaching = (flow: IFlow) => {
                 const ind = reqIndex + 1;
                 store.dispatch(isCaching(Math.round(Math.min((ind / requests.length) * 100, 100))));
                 executeRequest(requests, ind, flow, currentTypeElementId);
+            })
+            .fail(() => {
+                store.dispatch(isCaching(100));
+                alert('An error caching data has occured, your flow may not work as expected whilst offline');
             });
     };
     executeRequest(initRequests, 0, flow, null);

@@ -4,10 +4,15 @@ import {
     getObjectDataRequest,
     getChunkedObjectDataRequests } from '../../../js/services/cache/ObjectDataCaching';
 import { cacheObjectData } from '../../../js/models/Flow';
+import OnCached from '../../../js/services/cache/OnCached';
 
 jest.mock('../../../js/models/Flow', () => ({
     cacheObjectData: jest.fn(),
 }));
+
+jest.mock('../../../js/services/cache/OnCached');
+
+const OnCachedMock:any = OnCached;
 
 const mockBindingId = 'test';
 const mockTypeElementId = 'test';
@@ -65,28 +70,29 @@ describe('Object data response caching behaviour', () => {
 
     beforeEach(() => {
         mockCacheObjectData.mockClear();
+        OnCachedMock.mockClear();
     });
 
     test('That an object data request is made for every request', (done) => {
         window2.metaData = mockMetaData;
 
-        function callback() {
+        OnCachedMock.mockImplementation(() => {
             expect(globalAny.manywho.ajax.dispatchObjectDataRequest).toHaveBeenCalledTimes(requestIterations);
             done();
-        }
+        });
 
-        ObjectDataCaching(mockFlow, jest.fn(), callback);
+        ObjectDataCaching(mockFlow);
     });
 
     test('That an object data request response is set into flow model state', (done) => {
         window2.metaData = mockMetaData;
 
-        function callback() {
+        OnCachedMock.mockImplementation(() => {
             expect(mockCacheObjectData).toHaveBeenCalledTimes(requestIterations);
             done();
-        }
+        });
 
-        ObjectDataCaching(mockFlow, jest.fn(), callback);
+        ObjectDataCaching(mockFlow);
     });
 
     test('Generating object data requests should return empty if there are no data actions/page component objectdatarequest in snapshot', () => {
