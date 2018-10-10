@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import isOffline from './isOffline';
 import isReplaying from './isReplaying';
-import isCaching from './isCaching';
+import cachingProgress from './cachingProgress';
 
 export default combineReducers({
     isOffline,
     isReplaying,
-    isCaching,
+    cachingProgress,
 });

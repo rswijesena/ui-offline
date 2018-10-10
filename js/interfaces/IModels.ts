@@ -1,6 +1,12 @@
+interface IFlowId {
+    id: string;
+    versionId: string;
+    typeElementPropertyId?: string;
+}
+
 export interface IFlow {
     authenticationToken?: string;
-    id?: any;
+    id?: IFlowId;
     objectData?: any;
     requests?: any;
     state: any;

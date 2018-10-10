@@ -9,7 +9,7 @@ export interface IOfflineState {
 export interface IOfflineProps {
     flowKey: string;
     isOffline: boolean;
-    isCaching: number;
+    cachingProgress: number;
     toggleIsOffline: Function;
     toggleIsReplaying: Function;
 }

@@ -8,7 +8,7 @@ export const isReplaying = result => ({
     payload: result,
 });
 
-export const isCaching = result => ({
-    type: 'IS_CACHING',
+export const cachingProgress = result => ({
+    type: 'CACHE_PROGRESS',
     payload: result,
 });

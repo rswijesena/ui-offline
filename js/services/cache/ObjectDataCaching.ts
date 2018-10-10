@@ -2,7 +2,7 @@ import { IFlow } from '../../interfaces/IModels';
 import { cacheObjectData } from '../../models/Flow';
 import { clone } from '../Utils';
 import store from '../../stores/store';
-import { isCaching } from '../../actions';
+import { cachingProgress } from '../../actions';
 import OnCached from './OnCached';
 
 declare const manywho: any;
@@ -71,11 +71,11 @@ const ObjectDataCaching = (flow: IFlow) => {
             })
             .then(() => {
                 const ind = reqIndex + 1;
-                store.dispatch(isCaching(Math.round(Math.min((ind / requests.length) * 100, 100))));
+                store.dispatch(cachingProgress(Math.round(Math.min((ind / requests.length) * 100, 100))));
                 executeRequest(requests, ind, flow, currentTypeElementId);
             })
             .fail((xhr, status, error) => {
-                store.dispatch(isCaching(100));
+                store.dispatch(cachingProgress(100));
                 alert('An error caching data has occured, your flow may not work as expected whilst offline');
             });
     };

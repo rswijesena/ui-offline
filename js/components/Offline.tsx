@@ -18,7 +18,7 @@ enum OfflineView {
 }
 
 const mapStateToProps = (state) => {
-    return state;
+    return { isOffline: state.isOffline, isReplaying: state.isReplaying, cachingProgress: state.cachingProgress };
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -88,11 +88,11 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
         let cachingSpinner = null;
 
-        if (this.props.isCaching > 0 && this.props.isCaching < 100) {
+        if (this.props.cachingProgress > 0 && this.props.cachingProgress < 100) {
             cachingSpinner = <div className="caching-spinner">
                 <div className="wait-container">
                     <div className="wait-spinner-small wait-spinner"></div>
-                    <span className="wait-message">Caching { String(this.props.isCaching) }%</span>
+                    <span className="wait-message">Caching { String(this.props.cachingProgress) }%</span>
                 </div>
             </div>;
         }
