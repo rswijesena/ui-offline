@@ -1,16 +1,41 @@
 import { IFlow } from '../../interfaces/IModels';
 import { cacheObjectData } from '../../models/Flow';
 import { clone } from '../Utils';
+import store from '../../stores/store';
+import { cachingProgress } from '../../actions';
+import OnCached from './OnCached';
 
 declare const manywho: any;
 declare const metaData: any;
+
+let objectDataCachingTimer;
+
+export const onCached = (flow: IFlow) => {
+    const flowKey = manywho.utils.getFlowKey(
+        flow.tenantId,
+        flow.id.id,
+        flow.id.versionId,
+        flow.state.id,
+        'main',
+    );
+    const pollInterval = manywho.settings.global(
+        'offline.cache.objectDataCachingInterval',
+        flowKey,
+    );
+
+    objectDataCachingTimer = setTimeout(
+        () => { ObjectDataCaching(flow); }, pollInterval,
+    );
+};
 
 /**
  * @param flow
  * @description retrieve object data request responses from the engine
  * and set them in the flow model and insert them update indexdb
  */
-const ObjectDataCaching = (flow: IFlow, onProgress, onDone) => {
+const ObjectDataCaching = (flow: IFlow) => {
+
+    clearTimeout(objectDataCachingTimer);
 
     const initRequests = generateObjectData();
 
@@ -22,14 +47,13 @@ const ObjectDataCaching = (flow: IFlow, onProgress, onDone) => {
         req: any,
         reqIndex: number,
         flow: IFlow,
-        currentTypeElementId: null,
-        onProgress: Function,
-        onDone: Function) {
+        currentTypeElementId: null) {
 
         let requests = req;
 
         if (reqIndex >= requests.length) {
-            return onDone();
+            objectDataCachingTimer = OnCached(flow);
+            return;
         }
 
         const request = requests[reqIndex];
@@ -47,11 +71,15 @@ const ObjectDataCaching = (flow: IFlow, onProgress, onDone) => {
             })
             .then(() => {
                 const ind = reqIndex + 1;
-                onProgress(ind, requests.length);
-                executeRequest(requests, ind, flow, currentTypeElementId, onProgress, onDone);
+                store.dispatch(cachingProgress(Math.round(Math.min((ind / requests.length) * 100, 100))));
+                executeRequest(requests, ind, flow, currentTypeElementId);
+            })
+            .fail((xhr, status, error) => {
+                store.dispatch(cachingProgress(100));
+                alert('An error caching data has occured, your flow may not work as expected whilst offline');
             });
     };
-    executeRequest(initRequests, 0, flow, null, onProgress, onDone);
+    executeRequest(initRequests, 0, flow, null);
     return true;
 };
 
