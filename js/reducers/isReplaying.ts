@@ -1,4 +1,4 @@
-const isReplaying = (state = [], action) => {
+const isReplaying = (state = false, action) => {
     switch (action.type) {
     case 'IS_REPLAYING':
         return action.payload;
