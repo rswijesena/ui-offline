@@ -44,6 +44,11 @@ const ObjectData = {
                     return Rules.compareValues(property, value, property.contentType, where.criteriaType);
                 });
             });
+        } else if (filter.filterId) {
+            filteredObjectData = filteredObjectData.filter((item) => {
+                const value = flow.state.getStateValue(filter.filterId, null, 'CONTENTSTRING', null);
+                return value ? item.externalId === value.contentValue : false;
+            });
         }
 
         if (filter.search) {
