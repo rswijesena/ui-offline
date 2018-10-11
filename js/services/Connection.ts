@@ -159,7 +159,7 @@ export const onlineRequest = (
                             );
 
                             // Start polling for state values
-                            if (stateId && tenantId) {
+                            if (response.stateId && tenantId) {
                                 pollForStateValues(stateId, tenantId, authenticationToken);
                             }
 
