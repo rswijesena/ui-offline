@@ -61,18 +61,35 @@ const ObjectDataCaching = (flow: IFlow) => {
 
         return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
             .then((response) => {
-                if (response.objectData) {
+
+                let newIndex = reqIndex;
+
+                // if there are no further results but object data is returned, then cache it,
+                // then filter out the other unecessary page requests and reset the index to zero
+                // We need to do this since it is always assumed thet there are 25 pages worth
+                // of objectdata requests to be made for every typeElementBinding
+                if (!response.hasMoreResults && response.objectData.length > 0) {
+                    requests = requests.filter(req => req.typeElementBindingId !== request.typeElementBindingId);
                     cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                } else {
-                    requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
+                    newIndex = 0;
                 }
 
-                return response;
+                // If there are further results and object data returned,then cache it
+                // and increment the index by one to retrieve the next pages object data
+                if (response.hasMoreResults && response.objectData) {
+                    cacheObjectData(response.objectData, request.objectDataType.typeElementId);
+                    newIndex = reqIndex + 1;
+                } else if (!response.objectData) {
+                    requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
+                    newIndex = 0;
+                }
+
+                return newIndex;
             })
-            .then(() => {
-                const ind = reqIndex + 1;
-                store.dispatch(cachingProgress(Math.round(Math.min((ind / requests.length) * 100, 100))));
-                executeRequest(requests, ind, flow, currentTypeElementId);
+            .then((newIndex) => {
+
+                store.dispatch(cachingProgress(Math.round(Math.min((newIndex / requests.length) * 100, 100))));
+                executeRequest(requests, newIndex, flow, currentTypeElementId);
             })
             .fail((xhr, status, error) => {
                 store.dispatch(cachingProgress(100));
@@ -170,8 +187,18 @@ export const getChunkedObjectDataRequests = (request: any) => {
 
     for (let i = 0; i < iterations; i += 1) {
         const page = clone(request);
-        page.listFilter.limit = pageSize;
-        page.listFilter.offset = i * pageSize;
+
+        delete page.listFilter;
+
+        // Strip out unsupported filtering metadata
+        page['listFilter'] = {
+            limit: pageSize,
+            offset: i * pageSize,
+            orderBy: request.listFilter.orderBy ? request.listFilter.orderBy : null,
+            orderByDirectionType: request.listFilter.orderByDirectionType ? request.listFilter.orderByDirectionType : null,
+            orderByTypeElementPropertyId: request.listFilter.orderByTypeElementPropertyId ? request.listFilter.orderByTypeElementPropertyId : null,
+        };
+
         pages.push(page);
     }
 

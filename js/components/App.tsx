@@ -13,7 +13,7 @@ class App extends React.Component<any, any> {
         return <div>
             <Provider store={store}>
                 <Offline flowKey={this.props.flowKey} />
-            </Provider>;
+            </Provider>
         </div>;
     }
 }
