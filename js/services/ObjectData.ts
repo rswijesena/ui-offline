@@ -1,4 +1,7 @@
 import { clone } from '../services/Utils';
+import Rules from './Rules';
+import { errorComparator } from 'tslint/lib/verify/lintError';
+import { IFlow } from '../interfaces/IModels';
 
 /**
  * Support for filtering through cached object data
@@ -11,7 +14,7 @@ const ObjectData = {
      * @param objectData
      * @param filter
      */
-    filter: (objectData: any, filter: any) => {
+    filter: (objectData: any, filter: any, typeElementId: string, flow: IFlow) => {
         if (!filter || !objectData) {
             return {
                 objectData,
@@ -20,6 +23,28 @@ const ObjectData = {
         }
 
         let filteredObjectData = clone(objectData);
+
+        if (filter.where) {
+            filteredObjectData = filteredObjectData.filter((item) => {
+                const comparer = filter.comparisonType === 'OR' ? 'some' : 'every';
+
+                return filter.where[comparer]((where) => {
+                    const property = item.properties.find(property => property.typeElementPropertyId === where.columnTypeElementPropertyId);
+
+                    if (!property) {
+                        return true;
+                    }
+
+                    const value = flow.state.getStateValue(filter.valueElementToReferenceId, typeElementId, property.contentType, null);
+
+                    if (!value) {
+                        return true;
+                    }
+
+                    return Rules.compareValues(property, value, property.contentType, where.criteriaType);
+                });
+            });
+        }
 
         if (filter.search) {
             filteredObjectData = filteredObjectData.filter((item) => {

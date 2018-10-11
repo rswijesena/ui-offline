@@ -387,9 +387,13 @@ const OfflineCore = {
      * @param context
      */
     getObjectDataResponse(request: any, flow: IFlow, context: any) {
+        const typeElementId = request.objectDataType ? request.objectDataType.typeElementId : request.typeElementId;
+
         return ObjectData.filter(
-            getObjectData(request.objectDataType ? request.objectDataType.typeElementId : request.typeElementId),
+            getObjectData(typeElementId),
             request.listFilter,
+            typeElementId,
+            flow,
         );
     },
 
