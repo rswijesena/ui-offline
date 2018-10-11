@@ -160,7 +160,7 @@ export const onlineRequest = (
 
                             // Start polling for state values
                             if (response.stateId && tenantId) {
-                                pollForStateValues(stateId, tenantId, authenticationToken);
+                                pollForStateValues(response.stateId, tenantId, authenticationToken);
                             }
 
                             // Start caching object data
