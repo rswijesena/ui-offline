@@ -102,9 +102,9 @@ const Rules = {
         default:
             const rightContentValue = criteriaType === 'IS_EMPTY' ?
                 Rules.getContentValue(right, manywho.component.contentTypes.boolean) :
-                Rules.getContentValue(right, contentType);
+                Rules.getContentValue(right, contentType.toUpperCase());
 
-            return Rules.compareContentValues(Rules.getContentValue(left, contentType), rightContentValue, criteriaType, contentType);
+            return Rules.compareContentValues(Rules.getContentValue(left, contentType.toUpperCase()), rightContentValue, criteriaType, contentType);
         }
     },
 

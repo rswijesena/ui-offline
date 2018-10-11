@@ -1,4 +1,6 @@
 import { clone } from '../services/Utils';
+import { getStateValue } from '../models/State';
+import Rules from './Rules';
 
 /**
  * Support for filtering through cached object data
@@ -20,6 +22,36 @@ const ObjectData = {
         }
 
         let filteredObjectData = clone(objectData);
+
+        // Support for where filtering
+        if (filter.where) {
+            filteredObjectData = filteredObjectData.filter((item) => {
+                const comparer = filter.comparisonType === 'OR' ? 'some' : 'every';
+
+                return filter.where[comparer]((where) => {
+                    const property = item.properties.find(property => property.typeElementPropertyId === where.columnTypeElementPropertyId);
+
+                    if (!property) {
+                        return true;
+                    }
+
+                    const value = getStateValue(filter.where[0].valueElementToReferenceId, null, property.contentType, null);
+
+                    if (!value) {
+                        return true;
+                    }
+
+                    return Rules.compareValues(property, value, property.contentType, where.criteriaType);
+                });
+            });
+
+        // Support for filtering by an ID
+        } else if (filter.filterId) {
+            filteredObjectData = filteredObjectData.filter((item) => {
+                const value = getStateValue(filter.filterId, null, 'CONTENTSTRING', null);
+                return value ? item.externalId === value.contentValue : false;
+            });
+        }
 
         if (filter.search) {
             filteredObjectData = filteredObjectData.filter((item) => {
