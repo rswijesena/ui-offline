@@ -390,6 +390,7 @@ const OfflineCore = {
         return ObjectData.filter(
             getObjectData(request.objectDataType ? request.objectDataType.typeElementId : request.typeElementId),
             request.listFilter,
+            request.objectDataType ? request.objectDataType.typeElementId : request.typeElementId,
         );
     },
 

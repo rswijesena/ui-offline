@@ -61,34 +61,16 @@ const ObjectDataCaching = (flow: IFlow) => {
 
         return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
             .then((response) => {
-
-                let newIndex = reqIndex;
-
-                // if there are no further results but object data is returned, then cache it,
-                // then filter out the other unecessary page requests and reset the index to zero
-                // We need to do this since it is always assumed thet there are 25 pages worth
-                // of objectdata requests to be made for every typeElementBinding
-                if (!response.hasMoreResults && response.objectData.length > 0) {
-                    requests = requests.filter(req => req.typeElementBindingId !== request.typeElementBindingId);
+                if (response.objectData) {
                     cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    newIndex = 0;
-                }
-
-                // If there are further results and object data returned,then cache it
-                // and increment the index by one to retrieve the next pages object data
-                if (response.hasMoreResults && response.objectData) {
-                    cacheObjectData(response.objectData, request.objectDataType.typeElementId);
-                    newIndex = reqIndex + 1;
-                } else if (!response.objectData) {
+                } else {
                     requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
-                    newIndex = 0;
                 }
-
-                return newIndex;
+                return response;
             })
-            .then((newIndex) => {
-
-                store.dispatch(cachingProgress(Math.round(Math.min((newIndex / requests.length) * 100, 100))));
+            .then(() => {
+                const newIndex = reqIndex + 1;
+                store.dispatch(cachingProgress(Math.round(Math.min((newIndex / initRequests.length) * 100, 100))));
                 executeRequest(requests, newIndex, flow, currentTypeElementId);
             })
             .fail((xhr, status, error) => {
@@ -127,8 +109,7 @@ export const generateObjectData = () => {
 
     const requests = Object.keys(objectDataRequests)
         .map(key => objectDataRequests[key])
-        .map(getObjectDataRequest)
-        .map(getChunkedObjectDataRequests);
+        .map(getObjectDataRequest);
 
     return requests.concat.apply([], requests);
 };
@@ -154,10 +135,14 @@ export const getObjectDataRequest = (request: any) => {
         },
         stateId: '00000000-0000-0000-0000-000000000000',
         token: null,
-        listFilter: request.listFilter || {},
+        listFilter: {
+            limit: manywho.settings.global('offline.cache.requests.limit', null, 250),
+            offset: 0,
+            orderBy: request.listFilter.orderBy ? request.listFilter.orderBy : null,
+            orderByDirectionType: request.listFilter.orderByDirectionType ? request.listFilter.orderByDirectionType : null,
+            orderByTypeElementPropertyId: request.listFilter.orderByTypeElementPropertyId ? request.listFilter.orderByTypeElementPropertyId : null,
+        },
     };
-
-    objectDataRequest.listFilter.limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
 
     const typeElement = metaData.typeElements.find(element => element.id === request.typeElementId);
 
@@ -173,36 +158,6 @@ export const getObjectDataRequest = (request: any) => {
     };
 
     return objectDataRequest;
-};
-
-/**
- * @param request
- * @description Splits a single request into multiple requests if the `limit` on the `listFilter` of the request
- * is higher than the `offline.cache.requests.pageSize` setting
- */
-export const getChunkedObjectDataRequests = (request: any) => {
-    const pageSize = manywho.settings.global('offline.cache.requests.pageSize', null, 10);
-    const iterations = Math.ceil(request.listFilter.limit / pageSize);
-    const pages = [];
-
-    for (let i = 0; i < iterations; i += 1) {
-        const page = clone(request);
-
-        delete page.listFilter;
-
-        // Strip out unsupported filtering metadata
-        page['listFilter'] = {
-            limit: pageSize,
-            offset: i * pageSize,
-            orderBy: request.listFilter.orderBy ? request.listFilter.orderBy : null,
-            orderByDirectionType: request.listFilter.orderByDirectionType ? request.listFilter.orderByDirectionType : null,
-            orderByTypeElementPropertyId: request.listFilter.orderByTypeElementPropertyId ? request.listFilter.orderByTypeElementPropertyId : null,
-        };
-
-        pages.push(page);
-    }
-
-    return pages;
 };
 
 export default ObjectDataCaching;
