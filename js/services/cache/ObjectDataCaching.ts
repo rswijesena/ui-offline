@@ -120,6 +120,16 @@ export const generateObjectData = () => {
  * based on the generated metadata properties
  */
 export const getObjectDataRequest = (request: any) => {
+
+    // Check if the limit for the specific type has been configured in
+    // the settings, if not then just use the global limit
+    let limit = manywho.settings.global('offline.cache.requests.limitByType', null, 250);
+    if (!limit[request.typeElementId]) {
+        limit = manywho.settings.global('offline.cache.requests.limit', null, 250);
+    } else {
+        limit = limit[request.typeElementId];
+    }
+
     const objectDataRequest: any = {
         authorization: null,
         configurationValues: null,
@@ -136,7 +146,7 @@ export const getObjectDataRequest = (request: any) => {
         stateId: '00000000-0000-0000-0000-000000000000',
         token: null,
         listFilter: {
-            limit: manywho.settings.global('offline.cache.requests.limit', null, 250),
+            limit,
             offset: 0,
             orderBy: request.listFilter.orderBy ? request.listFilter.orderBy : null,
             orderByDirectionType: request.listFilter.orderByDirectionType ? request.listFilter.orderByDirectionType : null,

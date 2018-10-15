@@ -27,6 +27,16 @@ Whilst the flow is online, each data load is fired every five minutes to refresh
 `offline.cache.objectDataCachingInterval` setting which accepts a numerical value in milliseconds.
 
 By default 250 records from each data load will be cached on the client. This is controlled by the `offline.cache.requests.limit` setting.
+If you want more granular control over limits per dataset then you can do so by adding the following to the `offline.cache.requests` setting:
+
+```javascript
+limitByType: {
+    "<type ID>": 100,
+    "<type ID>": 150,
+}
+```
+
+The keys are the type ID associated to that data load and the values are the limits.
 
 In addition, whilst the flow is online, state values are being cached in memory every 30 seconds. This is so that values persist 
 in the flow even when network connectivity is suddenly lost. This can be overridden by modifying the `offline.cache.pollInterval` setting which
