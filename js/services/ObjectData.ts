@@ -35,8 +35,6 @@ const ObjectData = {
                         return true;
                     }
 
-                    // const typeElementId = objectData.typeElementId ? objectData.typeElementId : null;
-
                     const value = getStateValue(filter.where[0].valueElementToReferenceId, typeElementId, property.contentType, null);
 
                     if (!value) {

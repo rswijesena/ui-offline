@@ -18,14 +18,14 @@ const DataActions = {
     execute: (action: any, flow: IFlow, snapshot: any) => {
         switch (action.crudOperationType.toUpperCase()) {
         case 'LOAD':
-            let objectData = getObjectData(
+            const objectData = getObjectData(
                 action.objectDataRequest.objectDataType ?
                 action.objectDataRequest.objectDataType.typeElementId :
                 action.objectDataRequest.typeElementId,
             );
-            objectData = ObjectData.filter(objectData, action.objectDataRequest.listFilter, action.objectDataRequest.typeElementId);
+            const filteredObjectData = ObjectData.filter(objectData, action.objectDataRequest.listFilter, action.objectDataRequest.typeElementId);
             const value = snapshot.getValue(action.valueElementToApplyId);
-            setStateValue(action.valueElementToApplyId, value.typeElementId, snapshot, objectData);
+            setStateValue(action.valueElementToApplyId, value.typeElementId, snapshot, filteredObjectData);
             break;
 
         case 'SAVE':
