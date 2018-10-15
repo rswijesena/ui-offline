@@ -1,8 +1,7 @@
 import {
     default as ObjectDataCaching,
     generateObjectData,
-    getObjectDataRequest,
-    getChunkedObjectDataRequests } from '../../../js/services/cache/ObjectDataCaching';
+    getObjectDataRequest } from '../../../js/services/cache/ObjectDataCaching';
 import { cacheObjectData } from '../../../js/models/Flow';
 import OnCached from '../../../js/services/cache/OnCached';
 
@@ -16,7 +15,13 @@ const OnCachedMock:any = OnCached;
 
 const mockBindingId = 'test';
 const mockTypeElementId = 'test';
+
+const mockBindingId2 = 'test2';
+const mockTypeElementId2 = 'test2';
+
 const mockTypeName = 'test';
+const mockTypeName2 = 'test2';
+
 const propertyName1 = 'prop1';
 const propertyName2 = 'prop2';
 
@@ -42,6 +47,15 @@ const mockMetaData = {
                         typeElementId: mockTypeElementId,
                     },
                 },
+                {
+                    objectDataRequest: {
+                        command: null,
+                        listFilter: null,
+                        typeElementBindingId: mockBindingId2,
+                        typeElementDeveloperName: null,
+                        typeElementId: mockTypeElementId2,
+                    },
+                },
             ],
         },
     ],
@@ -52,6 +66,19 @@ const mockMetaData = {
             bindings: [
                 {
                     id: mockBindingId,
+                },
+            ],
+            properties: [
+                { developerName: propertyName1 },
+                { developerName: propertyName2 },
+            ],
+        },
+        {
+            id: mockTypeElementId2,
+            developerName: mockTypeName2,
+            bindings: [
+                {
+                    id: mockBindingId2,
                 },
             ],
             properties: [
@@ -109,7 +136,7 @@ describe('Object data response caching behaviour', () => {
     test('Generating object data requests should return an array of object data requests', () => {
         window2.metaData = mockMetaData;
         const objectDataRequests = generateObjectData();
-        expect(objectDataRequests.length).toEqual(requestIterations);
+        expect(objectDataRequests.length).toEqual(mockMetaData.pageElements[0].pageComponents.length);
     });
 
     test('A single object data requests list filter limit should be equal to globally defined limit', () => {
@@ -183,15 +210,4 @@ describe('Object data response caching behaviour', () => {
         expect(result.objectDataType.properties[0].developerName).toEqual(propertyName1);
         expect(result.objectDataType.properties[1].developerName).toEqual(propertyName2);
     });
-
-    test('When splitting an object data request into chunks an array of requests should be returned', () => {
-        const mockRequest = {
-            listFilter: {
-                limit: 250,
-            },
-        };
-        const result = getChunkedObjectDataRequests(mockRequest);
-        expect(result.length).toEqual(requestIterations);
-    });
-
 });

@@ -1,4 +1,6 @@
 import ObjectData from './ObjectData';
+import { getObjectData } from '../models/Flow';
+import { setStateValue } from '../models/State';
 import { IFlow } from '../interfaces/IModels';
 
 /**
@@ -16,10 +18,14 @@ const DataActions = {
     execute: (action: any, flow: IFlow, snapshot: any) => {
         switch (action.crudOperationType.toUpperCase()) {
         case 'LOAD':
-            let objectData = flow.getObjectData(action.objectDataRequest.objectDataType.typeElementId);
-            objectData = ObjectData.filter(objectData, action.objectDataRequest.listFilter);
-            const value = snapshot.getValue(action.valueElementToApplyId.id);
-            flow.state.setValue(action.valueElementToApplyId, value.typeElementId, snapshot, { objectData });
+            const objectData = getObjectData(
+                action.objectDataRequest.objectDataType ?
+                action.objectDataRequest.objectDataType.typeElementId :
+                action.objectDataRequest.typeElementId,
+            );
+            const filteredObjectData = ObjectData.filter(objectData, action.objectDataRequest.listFilter, action.objectDataRequest.typeElementId);
+            const value = snapshot.getValue(action.valueElementToApplyId);
+            setStateValue(action.valueElementToApplyId, value.typeElementId, snapshot, filteredObjectData);
             break;
 
         case 'SAVE':
