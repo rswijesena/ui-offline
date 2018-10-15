@@ -148,9 +148,10 @@ export const getObjectDataRequest = (request: any) => {
         listFilter: {
             limit,
             offset: 0,
-            orderBy: request.listFilter.orderBy ? request.listFilter.orderBy : null,
-            orderByDirectionType: request.listFilter.orderByDirectionType ? request.listFilter.orderByDirectionType : null,
-            orderByTypeElementPropertyId: request.listFilter.orderByTypeElementPropertyId ? request.listFilter.orderByTypeElementPropertyId : null,
+            orderBy: (request.listFilter && request.listFilter.orderBy) ? request.listFilter.orderBy : null,
+            orderByDirectionType: (request.listFilter && request.listFilter.orderByDirectionType) ? request.listFilter.orderByDirectionType : null,
+            orderByTypeElementPropertyId: (request.listFilter && request.listFilter.orderByTypeElementPropertyId) ?
+            request.listFilter.orderByTypeElementPropertyId : null,
         },
     };
 
