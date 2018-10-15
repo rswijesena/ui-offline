@@ -48,9 +48,11 @@ export const getStateValue = (id: any, typeElementId: string, contentType: any, 
 
             if (id.typeElementPropertyId && value.objectData && value.objectData.length > 0) {
                 const property = value.objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
-                value.contentValue = property.contentValue;
-                value.objectData = property.objectData;
-                value.index = 0;
+                if (property) {
+                    value.contentValue = property.contentValue ? property.contentValue : null;
+                    value.objectData = property.objectData ? property.objectData : null;
+                    value.index = 0;
+                }
             }
 
             if (manywho.utils.isEqual(command, 'GET_FIRST', true) && value.objectData) {
@@ -91,8 +93,11 @@ export const setStateValue = (id: any, typeElementId: string, snapshot: any, val
         }
 
         const property = values[id.id].objectData[0].properties.find(prop => prop.typeElementPropertyId === id.typeElementPropertyId);
-        property.contentValue = value.contentValue;
-        property.objectData = value.objectData;
+        if (property) {
+            property.contentValue = value.contentValue;
+            property.objectData = value.objectData;
+        }
+
     } else {
         values[id.id] = clone(value);
     }
