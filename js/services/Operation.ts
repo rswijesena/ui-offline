@@ -83,14 +83,14 @@ export const executeOperation = (operation: any, state: IState, snapshot: any) =
             }
 
             valueToReference = snapshot.getValue(operation.valueElementToReferenceId);
-            const stateValue = getStateValue(
+            const valueToReferenceStateValue = getStateValue(
                 operation.valueElementToReferenceId,
                 valueToReference.typeElementId,
                 valueToReference.contentType,
                 operation.valueElementToReferenceId.command,
             );
-            if (stateValue) {
-                valueToReference = stateValue;
+            if (valueToReferenceStateValue) {
+                valueToReference = valueToReferenceStateValue;
             }
         }
 
@@ -103,14 +103,14 @@ export const executeOperation = (operation: any, state: IState, snapshot: any) =
             const typeElementId = valueToApply ? valueToApply.typeElementId : null;
             const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
 
-            const stateValue = getStateValue(
+            const valueToApplyStateValue = getStateValue(
                 operation.valueElementToApplyId,
                 valueToApply.typeElementId,
                 valueToApply.contentType,
                 operation.valueElementToApplyId.command,
             );
-            if (stateValue) {
-                valueToApply = stateValue;
+            if (valueToApplyStateValue) {
+                valueToApply = valueToApplyStateValue;
             }
 
             switch (operation.valueElementToApplyId.command) {
@@ -133,19 +133,47 @@ export const executeOperation = (operation: any, state: IState, snapshot: any) =
             case 'ADD':
                 valueToReference.objectData = valueToReference.objectData || [];
 
-                let objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
+                let hadExisting = false;
+
+                const objectData = clone(valueToApply.objectData || valueToApply.defaultObjectData || []).map((objectData) => {
                     if (valueToReference.objectData.length > 0) {
-                        const existingItem = valueToReference.objectData.find(item => item.externalId === objectData.externalId);
+                        const existingItem = valueToReference.objectData.find(
+                            item => (item.externalId === objectData.externalId && item.externalId !== undefined),
+                        );
                         if (existingItem) {
                             valueToReference.objectData.splice(valueToReference.objectData.indexOf(existingItem), 1);
+                            hadExisting = true;
                             return existingItem;
                         }
                     }
                     return objectData;
                 });
 
-                objectData = objectData.concat(clone(valueToReference.objectData));
-                valueToReference.objectData = objectData;
+                console.log(objectData);
+
+                if (!hadExisting) {
+                    valueToReference.objectData = [{
+                        typeElementId,
+                        externalId: null,
+                        internalId: guid(),
+                        developerName: valueToReference.objectData[0].developerName,
+                        order: 0,
+                        isSelected: false,
+                        properties: clone(type.properties).map((property) => {
+                            const newProp = valueToReference.objectData[0].properties.filter(
+                                prop => prop.typeElementPropertyId === property.id,
+                            );
+                            property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
+                            property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
+                            property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
+                            return property;
+                        }),
+                        // properties: valueToReference.objectData[0].properties,
+                    }];
+                }
+
+                const concatenatedObjectData = objectData.concat(clone(valueToReference.objectData));
+                valueToReference.objectData = concatenatedObjectData;
                 break;
 
             case 'REMOVE':
