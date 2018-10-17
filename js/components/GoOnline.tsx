@@ -102,6 +102,11 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     render() {
         let requests = null;
+
+        // The auth token must always come from state and not from
+        // the indexdb cache, this will prevent successful replays
+        // occuring inside a flow which has a stale auth token
+        const latestAuthenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         if (this.flow) {
             requests = this.flow.requests.map((request, index) => {
                 request.stateId = this.flow.state.id;
@@ -109,12 +114,13 @@ class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
                 return <Request request={request}
                     tenantId={this.flow.tenantId}
-                    authenticationToken={this.flow.authenticationToken}
+                    authenticationToken={latestAuthenticationToken}
                     isDisabled={false}
                     onDelete={this.onDeleteRequest}
                     onReplayDone={this.onReplayDone}
                     replayNow={index === 0 && this.state.isReplayAll}
                     flowKey={this.props.flowKey}
+                    cancelReplay={this.onClose}
                     key={request.key} />;
             });
         }
