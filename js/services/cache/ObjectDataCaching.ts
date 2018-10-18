@@ -43,6 +43,8 @@ const ObjectDataCaching = (flow: IFlow) => {
         return false;
     }
 
+    store.dispatch(cachingProgress(1));
+
     const executeRequest = function (
         req: any,
         reqIndex: number,
