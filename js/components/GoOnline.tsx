@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
+export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     flow = null;
 
