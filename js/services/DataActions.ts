@@ -1,7 +1,8 @@
 import ObjectData from './ObjectData';
-import { getObjectData } from '../models/Flow';
-import { setStateValue } from '../models/State';
+import { cacheObjectData, getObjectData } from '../models/Flow';
+import { getStateValue, setStateValue } from '../models/State';
 import { IFlow } from '../interfaces/IModels';
+import { clone, guid } from '../services/Utils';
 
 /**
  * Support for executing data actions offline
@@ -29,8 +30,37 @@ const DataActions = {
             break;
 
         case 'SAVE':
-            // No implemention for saving as the state will already be updated. If we can't connect to the mothership then we can't
-            // Save the data back to the 3rd party data store
+            const valueReferenceToSave = snapshot.getValue(action.valueElementToApplyId);
+            const typeElementId = valueReferenceToSave.typeElementId;
+            const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
+
+            const valueToSave = getStateValue(
+                action.valueElementToApplyId,
+                typeElementId,
+                valueReferenceToSave.contentType,
+                null,
+            );
+
+            const newObject = [{
+                typeElementId,
+                externalId: null,
+                internalId: guid(),
+                developerName: valueToSave.objectData[0].developerName,
+                order: 0,
+                isSelected: false,
+                properties: clone(type.properties).map((property) => {
+                    const newProp = valueToSave.objectData[0].properties.filter(
+                        prop => prop.typeElementPropertyId === property.id,
+                    );
+                    property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
+                    property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
+                    property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
+                    return property;
+                }),
+            }];
+
+            cacheObjectData(newObject, typeElementId);
+
             break;
 
         case 'DELETE':
