@@ -42,7 +42,7 @@ describe('GoOnline component behaviour', () => {
         expect(componentWrapper.length).toEqual(1);
     });
 
-    test('The request component always gets an auth token from state passed as a prop', async () => {
+    test('The request component always gets an auth token from state passed as a prop', () => {
         const mockAuthenticationToken = 'test auth';
         globalAny.manywho.state.getAuthenticationToken.mockImplementation(() => {
             return mockAuthenticationToken;
