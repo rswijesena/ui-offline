@@ -1,5 +1,5 @@
 import ObjectData from './ObjectData';
-import { cacheObjectData, getObjectData } from '../models/Flow';
+import { cacheObjectData, getObjectData, patchObjectDataCache } from '../models/Flow';
 import { getStateValue, setStateValue } from '../models/State';
 import { IFlow } from '../interfaces/IModels';
 import { clone, guid } from '../services/Utils';
@@ -45,34 +45,37 @@ const DataActions = {
 
             valueToSave.objectData.map((obj) => {
 
-                // TODO: think will actually need to do a diff on all the
-                // objectdata properties as just checking the internal id
-                // will not support an update scenario
                 const existsInCache = objectData.find(
-                    existingObj => existingObj.internalId === obj.internalId,
+                    existingObj => existingObj.externalId === obj.externalId,
                 );
 
-                if (!existsInCache) {
-                    const newObject = [{
-                        typeElementId,
-                        externalId: null,
-                        internalId: guid(),
-                        developerName: obj.developerName,
-                        order: 0,
-                        isSelected: false,
-                        properties: clone(type.properties).map((property) => {
-                            const newProp = obj.properties.filter(
-                                prop => prop.typeElementPropertyId === property.id,
-                            );
-                            if (newProp.length > 0) {
-                                property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
-                                property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
-                                property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
-                            }
-                            return property;
-                        }),
-                    }];
+                const newObject = [{
+                    typeElementId,
+                    externalId: existsInCache ? existsInCache.externalId : null,
+                    internalId: existsInCache ? existsInCache.internalId : guid(),
+                    developerName: obj.developerName,
+                    order: 0,
+                    isSelected: false,
+                    properties: clone(type.properties).map((property) => {
+                        const newProp = obj.properties.filter(
+                            prop => prop.typeElementPropertyId === property.id,
+                        );
+                        if (newProp.length > 0) {
+                            property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
+                            property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
+                            property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
+                        }
+                        return property;
+                    }),
+                }];
 
+                if (existsInCache) {
+
+                    // Updating a single object in the cache
+                    patchObjectDataCache(newObject, typeElementId);
+                } else {
+
+                    // Adding a new object to the cache
                     cacheObjectData(newObject, typeElementId);
                 }
             });
