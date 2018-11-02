@@ -48,6 +48,8 @@ window.manywho = {
         extractFlowVersionId: jest.fn(),
         extractTenantId: jest.fn(),
         getFlowKey: jest.fn(),
+        isNullOrEmpty: jest.fn(() => false),
+        isEqual: jest.fn(() => false),
     },
     state: {
         getAuthenticationToken: jest.fn(),
