@@ -10,6 +10,7 @@ import GoOnline from './GoOnline';
 import NoNetwork from './NoNetwork';
 
 declare const metaData: any;
+declare const manywho: any;
 
 enum OfflineView {
     cache = 0,
@@ -32,7 +33,7 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-class Offline extends React.Component<IOfflineProps, IOfflineState> {
+export class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
     flow = null;
     objectDataCachingTimer = null;
@@ -95,6 +96,16 @@ class Offline extends React.Component<IOfflineProps, IOfflineState> {
                     <span className="wait-message">Caching { String(this.props.cachingProgress) }%</span>
                 </div>
             </div>;
+        }
+
+        if (this.props.cachingProgress === 100) {
+            manywho.model.addNotification(this.props.flowKey, {
+                message: 'Caching is complete. You are ready to go offline',
+                position: 'center',
+                type: 'success',
+                timeout: 2000,
+                dismissible: true,
+            });
         }
 
         const button = this.props.isOffline ?
