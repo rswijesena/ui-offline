@@ -31,10 +31,16 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
     }
 
     onReplayResponse(response) {
-        if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
-            this.setState({ response, isReplaying: false });
-        } else if (response && response.invokeType === 'NOT_ALLOWED') {
+        if (response && response.invokeType === 'NOT_ALLOWED') {
+
+            // When there is an unauthorised response from a replay
+            // then we want to reinstate the cache and rejoin the flow which
+            // will force the user to log back in
+            this.props.cancelReplay();
             OfflineCore.rejoin(this.props.flowKey);
+
+        } else if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
+            this.setState({ response, isReplaying: false });
         } else {
             this.props.onReplayDone(this.props.request);
         }
