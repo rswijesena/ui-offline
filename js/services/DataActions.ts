@@ -2,7 +2,8 @@ import ObjectData from './ObjectData';
 import { cacheObjectData, getObjectData, patchObjectDataCache } from '../models/Flow';
 import { getStateValue, setStateValue } from '../models/State';
 import { IFlow } from '../interfaces/IModels';
-import { clone, guid } from './Utils';
+import { guid } from './Utils';
+import { clone } from 'ramda';
 
 /**
  * @param action object extracted from the request that describes the data action

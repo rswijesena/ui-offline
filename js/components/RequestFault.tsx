@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { values } from 'ramda';
 import { IRequestFaultProps } from '../interfaces/IRequestFault';
 
 declare const manywho: any;
@@ -15,9 +16,7 @@ class RequestFault extends React.Component<IRequestFaultProps, any> {
             const rootFaults = this.props.response.mapElementInvokeResponses[0].rootFaults || [];
 
             if (!Array.isArray(rootFaults)) {
-                for (const key of Object.keys(rootFaults)) {
-                    rootFaultsContent.push(rootFaults[key]);
-                }
+                rootFaultsContent = values(rootFaults);
             } else {
                 rootFaultsContent = rootFaults;
             }
