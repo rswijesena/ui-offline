@@ -79,7 +79,7 @@ describe('Data action behaviour', () => {
                 typeElementId: mockTypeElementId,
             },
         };
-        const executeDefaultDataAction = DataActions.execute(mockDefaultAction, mockFlow, mockSnapshot);
+        const executeDefaultDataAction = DataActions(mockDefaultAction, mockFlow, mockSnapshot);
         expect(executeDefaultDataAction).toEqual(mockFlow.state);
 
         const mockSaveAction = {
@@ -89,7 +89,7 @@ describe('Data action behaviour', () => {
                 typeElementId: mockTypeElementId,
             },
         };
-        const executeSaveDataAction = DataActions.execute(mockSaveAction, mockFlow, mockSnapshot);
+        const executeSaveDataAction = DataActions(mockSaveAction, mockFlow, mockSnapshot);
         expect(executeSaveDataAction).toEqual(mockFlow.state);
 
         const mockDeleteAction = {
@@ -99,7 +99,7 @@ describe('Data action behaviour', () => {
                 typeElementId: mockTypeElementId,
             },
         };
-        const executeDeleteDataAction = DataActions.execute(mockDeleteAction, mockFlow, mockSnapshot);
+        const executeDeleteDataAction = DataActions(mockDeleteAction, mockFlow, mockSnapshot);
         expect(executeDeleteDataAction).toEqual(mockFlow.state);
     });
 
@@ -112,7 +112,7 @@ describe('Data action behaviour', () => {
         };
 
         setStateValue(mockValueElementToApplyId, mockTypeElementId, mockSnapshot, mockObjectData);
-        DataActions.execute(mockAction, mockFlow, mockSnapshot);
+        DataActions(mockAction, mockFlow, mockSnapshot);
 
         // Calling this function indicates that an update is being performed
         expect(patchObjectDataCache).toHaveBeenCalledTimes(2);
@@ -129,7 +129,7 @@ describe('Data action behaviour', () => {
         };
 
         setStateValue(mockValueElementToApplyId, mockTypeElementId, mockSnapshot, mockObjectData);
-        DataActions.execute(mockAction, mockFlow, mockSnapshot);
+        DataActions(mockAction, mockFlow, mockSnapshot);
 
         // Calling this function indicates that a new object is being cached
         expect(mockCacheObjectData).toHaveBeenCalledTimes(1);
