@@ -38,14 +38,14 @@ const saveData = (action: any, objectData: any, snapshot: any) => {
 
     valueToSave.objectData.forEach((obj) => {
 
-        const existsInCache = objectData.find(
+        const existingObject = objectData.find(
             existingObj => existingObj.externalId === obj.externalId,
         );
 
         const newObject = [{
             typeElementId,
-            externalId: existsInCache ? existsInCache.externalId : null,
-            internalId: existsInCache ? existsInCache.internalId : guid(),
+            externalId: existingObject ? existingObject.externalId : null,
+            internalId: existingObject ? existingObject.internalId : guid(),
             developerName: obj.developerName,
             order: 0,
             isSelected: false,
@@ -62,7 +62,7 @@ const saveData = (action: any, objectData: any, snapshot: any) => {
             }),
         }];
 
-        if (existsInCache) {
+        if (existingObject) {
 
             // Updating a single object in the cache
             patchObjectDataCache(newObject, typeElementId);
