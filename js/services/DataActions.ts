@@ -36,7 +36,7 @@ const saveData = (action: any, objectData: any, snapshot: any) => {
         null,
     );
 
-    valueToSave.objectData.map((obj) => {
+    valueToSave.objectData.forEach((obj) => {
 
         const existsInCache = objectData.find(
             existingObj => existingObj.externalId === obj.externalId,
