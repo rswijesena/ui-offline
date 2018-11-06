@@ -4,6 +4,7 @@ import Progress from './Progress';
 import FileList from './FileList';
 import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
+import Replay from '../services/Replay';
 
 declare const manywho: any;
 
@@ -70,15 +71,20 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             });
         }
 
-        return manywho.ajax.invoke(
-            request,
-            tenantId,
-            authenticationToken,
-        )
-        .then(this.onReplayResponse)
-        .fail((response) => {
-            this.setState({ response: response.statusText, isReplaying: false });
-        });
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
+
+        Replay(request, stateId, tenantId, authenticationToken)
+            .then((response) => {
+                return manywho.ajax.invoke(
+                    response,
+                    tenantId,
+                    authenticationToken,
+                )
+                .then(this.onReplayResponse)
+                .fail((response) => {
+                    this.setState({ response: response.statusText, isReplaying: false });
+                });
+            });
     }
 
     onDelete = () => {
