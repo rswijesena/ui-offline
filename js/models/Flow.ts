@@ -1,4 +1,5 @@
 import { StateInit } from './State';
+import { merge } from 'ramda';
 import { IFlow } from '../interfaces/IModels';
 
 declare var manywho: any;
@@ -101,5 +102,21 @@ export const cacheObjectData = (data: any, typeElementId: string) => {
     } else {
         objectData[typeElementId] = data;
     }
+    return objectData;
+};
+
+/**
+ * @param data
+ * @param typeElementId
+ */
+export const patchObjectDataCache = (data: any, typeElementId: string) => {
+    objectData[typeElementId] = objectData[typeElementId].map((existingObj) => {
+        if (existingObj.internalId === data[0].internalId) {
+            return merge(existingObj, data[0]);
+        }
+
+        return existingObj;
+    });
+
     return objectData;
 };

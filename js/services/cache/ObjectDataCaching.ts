@@ -1,6 +1,5 @@
 import { IFlow } from '../../interfaces/IModels';
 import { cacheObjectData } from '../../models/Flow';
-import { clone } from '../Utils';
 import store from '../../stores/store';
 import { cachingProgress } from '../../actions';
 import OnCached from './OnCached';
