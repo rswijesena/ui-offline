@@ -42,7 +42,7 @@ const ObjectDataCaching = (flow: IFlow) => {
         return false;
     }
 
-    store.dispatch(cachingProgress(1));
+    store.dispatch<any>(cachingProgress({ progress: 1, flowKey: null }));
 
     const executeRequest = function (
         req: any,
@@ -51,6 +51,14 @@ const ObjectDataCaching = (flow: IFlow) => {
         currentTypeElementId: null) {
 
         let requests = req;
+
+        const flowKey = manywho.utils.getFlowKey(
+            flow.tenantId,
+            flow.id.id,
+            flow.id.versionId,
+            flow.state.id,
+            'main',
+        );
 
         if (reqIndex >= requests.length) {
             objectDataCachingTimer = OnCached(flow);
@@ -71,11 +79,11 @@ const ObjectDataCaching = (flow: IFlow) => {
             })
             .then(() => {
                 const newIndex = reqIndex + 1;
-                store.dispatch(cachingProgress(Math.round(Math.min((newIndex / initRequests.length) * 100, 100))));
+                store.dispatch<any>(cachingProgress({ flowKey, progress: Math.round(Math.min((newIndex / initRequests.length) * 100, 100)) }));
                 executeRequest(requests, newIndex, flow, currentTypeElementId);
             })
             .fail((xhr, status, error) => {
-                store.dispatch(cachingProgress(100));
+                store.dispatch<any>(cachingProgress({ flowKey, progress: 100 }));
                 alert('An error caching data has occured, your flow may not work as expected whilst offline');
             });
     };
