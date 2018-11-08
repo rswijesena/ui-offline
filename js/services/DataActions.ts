@@ -1,5 +1,6 @@
 import ObjectData from './ObjectData';
-import { cacheObjectData, getObjectData, patchObjectDataCache } from '../models/Flow';
+import { getOfflineData, setOfflineData } from './Storage';
+import { cacheObjectData, setCurrentRequestOfflineId, getObjectData, patchObjectDataCache } from '../models/Flow';
 import { getStateValue, setStateValue } from '../models/State';
 import { IFlow } from '../interfaces/IModels';
 import { guid } from './Utils';
@@ -25,7 +26,7 @@ const loadData = (action: any, objectData: any, snapshot: any) => {
  * @description simulate saving or updating of object data by mutating the
  * data cached in memory
  */
-const saveData = (action: any, objectData: any, snapshot: any) => {
+const saveData = (action: any, objectData: any, snapshot: any, flow: IFlow) => {
     const valueReferenceToSave = snapshot.getValue(action.valueElementToApplyId);
     const typeElementId = valueReferenceToSave.typeElementId;
     const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
@@ -39,29 +40,67 @@ const saveData = (action: any, objectData: any, snapshot: any) => {
 
     valueToSave.objectData.forEach((obj) => {
 
+        // The offline ID is used to associate cahed objectdata
+        // created whilst offline, to the request the request
+        // that triggers the caching
+        let offlineId = null;
+
         const existingObject = objectData.find(
-            existingObj => existingObj.externalId === obj.externalId,
+            existingObj => existingObj.objectData.externalId === obj.externalId,
         );
 
-        const newObject = [{
-            typeElementId,
-            externalId: existingObject ? existingObject.externalId : null,
-            internalId: existingObject ? existingObject.internalId : guid(),
-            developerName: obj.developerName,
-            order: 0,
-            isSelected: false,
-            properties: clone(type.properties).map((property) => {
-                const newProp = obj.properties.filter(
-                    prop => prop.typeElementPropertyId === property.id,
+        // Objectdata that has already been added but is now being modified
+        if (existingObject && existingObject.offlineId && !existingObject.objectData.externalId) {
+            offlineId = existingObject.offlineId;
+        }
+
+        // A new object
+        if (!existingObject) {
+            offlineId = guid();
+        }
+
+        // AN object that has been cached from the engine response
+        if (existingObject && existingObject.objectData.externalId) {
+            offlineId = null;
+        }
+
+        // Associate objectdata to current request in cache
+        if (offlineId) {
+            const updatedRequests = setCurrentRequestOfflineId(offlineId);
+
+            getOfflineData(flow.state.id)
+                .then(
+                    (offlineData) => {
+                        offlineData.requests = updatedRequests;
+                        // setOfflineData(offlineData);
+                    },
                 );
-                if (newProp.length > 0) {
-                    property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
-                    property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
-                    property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
-                }
-                return property;
-            }),
-        }];
+        }
+
+        const newObject = [
+            {
+                offlineId,
+                objectData: {
+                    typeElementId,
+                    externalId: existingObject ? existingObject.objectData.externalId : null,
+                    internalId: existingObject ? existingObject.objectData.internalId : guid(),
+                    developerName: obj.developerName,
+                    order: 0,
+                    isSelected: false,
+                    properties: clone(type.properties).map((property) => {
+                        const newProp = obj.properties.filter(
+                            prop => prop.typeElementPropertyId === property.id,
+                        );
+                        if (newProp.length > 0) {
+                            property.contentValue = newProp[0].contentValue ? newProp[0].contentValue : null;
+                            property.objectData = newProp[0].objectData ? newProp[0].objectData : null;
+                            property.typeElementPropertyId = newProp[0].typeElementPropertyId ? newProp[0].typeElementPropertyId : null;
+                        }
+                        return property;
+                    }),
+                },
+            },
+        ];
 
         if (existingObject) {
 
@@ -94,7 +133,7 @@ export default (action: any, flow: IFlow, snapshot: any) => {
         loadData(action, objectData, snapshot);
         break;
     case 'SAVE':
-        saveData(action, objectData, snapshot);
+        saveData(action, objectData, snapshot, flow);
         break;
     case 'DELETE':
         // No implementation for a delete as its potential very destructive

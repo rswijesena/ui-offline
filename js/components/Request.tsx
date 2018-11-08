@@ -73,7 +73,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
 
         const stateId = manywho.utils.extractStateId(this.props.flowKey);
 
-        Replay(request)
+        Replay(request, tenantId, authenticationToken, stateId)
             .then((response) => {
                 return manywho.ajax.invoke(
                     response,

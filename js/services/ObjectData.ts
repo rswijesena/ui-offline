@@ -21,7 +21,7 @@ const ObjectData = {
             };
         }
 
-        let filteredObjectData = clone(objectData);
+        let filteredObjectData = clone(objectData.map((obj) => { return obj.objectData; }));
 
         // Support for where filtering
         if (filter.where) {
