@@ -4,6 +4,7 @@ import Progress from './Progress';
 import FileList from './FileList';
 import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
+import Replay from '../services/Replay';
 
 declare const manywho: any;
 
@@ -70,12 +71,20 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             });
         }
 
+        const stateId = manywho.utils.extractStateId(this.props.flowKey);
+
         return manywho.ajax.invoke(
             request.request,
             tenantId,
             authenticationToken,
         )
-        .then(this.onReplayResponse)
+        .then((resp) => {
+            Replay(request, tenantId, authenticationToken, stateId)
+                .then((response) => {
+                    console.log(response);
+                });
+            this.onReplayResponse(resp);
+        })
         .fail((response) => {
             this.setState({ response: response.statusText, isReplaying: false });
         });
@@ -109,7 +118,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
         let request = null;
         if (!this.state.isCollapsed && !this.state.isReplaying && !this.state.response) {
             request = <div className="pending-request-json">
-                <pre>{JSON.stringify(this.props.request, null, 4)}</pre>
+                <pre>{JSON.stringify(this.props.request.request, null, 4)}</pre>
             </div>;
         }
 
@@ -127,9 +136,9 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
                                 <Progress progress={this.state.progress} />
                             </div>
                         )
-                        : <span>{this.props.request.currentMapElementDeveloperName}</span>
+                        : <span>{this.props.request.request.currentMapElementDeveloperName}</span>
                     }
-                    <small>{this.props.request.invokeType}</small>
+                    <small>{this.props.request.request.invokeType}</small>
                 </div>
                 <button className="btn btn-info btn-sm" onClick={this.onToggleDetails} disabled={isDisabled}>
                     {this.state.isCollapsed ? 'Show' : 'Hide'}
