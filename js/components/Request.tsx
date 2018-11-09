@@ -4,7 +4,7 @@ import Progress from './Progress';
 import FileList from './FileList';
 import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
-import Replay from '../services/Replay';
+import extractExternalId from '../services/extractExternalId';
 
 declare const manywho: any;
 
@@ -79,11 +79,14 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             authenticationToken,
         )
         .then((resp) => {
-            Replay(request, tenantId, authenticationToken, stateId)
-                .then((response) => {
-                    console.log(response);
+
+            // This is to accomodate the scenario of
+            // modifying objectdata that had been created whilst offline
+            // that then needs to be saved to a service
+            extractExternalId(request, tenantId, authenticationToken, stateId)
+                .then(() => {
+                    this.onReplayResponse(resp);
                 });
-            this.onReplayResponse(resp);
         })
         .fail((response) => {
             this.setState({ response: response.statusText, isReplaying: false });

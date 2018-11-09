@@ -2,7 +2,12 @@ import { getRequests, getObjectData } from '../models/Flow';
 
 declare const manywho;
 
-const checkForRequestsThatNeedAnExternalId = (offlineId, externalId) => {
+/**
+ * @param offlineId the GUID that links cached requests to objectdata
+ * @param externalId the ID assigned to a value that represents a service record
+ * @description
+ */
+const checkForRequestsThatNeedAnExternalId = (offlineId: string, externalId: string) => {
 
     // Find the objectdata in the cache that is associated to the request
     const objectData = getObjectData('3523c7ce-15ee-4b6a-9976-ff0f099c4ba4'); // TODO get the type element id from somewhere
@@ -21,7 +26,7 @@ const checkForRequestsThatNeedAnExternalId = (offlineId, externalId) => {
                 inputResponse.objectData.forEach((obj) => {
                     if (obj.externalId === null && obj.internalId === assocObjectInternalId) {
 
-                        // Update the matching object data with the external id!
+                        // Update the matching object data with the external id
                         obj.externalId = externalId;
                     }
                 });
@@ -35,11 +40,11 @@ const checkForRequestsThatNeedAnExternalId = (offlineId, externalId) => {
  * @param tenantId
  * @param authenticationToken
  * @param stateId
- * @description //
+ * @description
  */
-const Replay = (request: any, tenantId: string, authenticationToken: string, stateId: string) => {
+const extractExternalId = (request: any, tenantId: string, authenticationToken: string, stateId: string) => {
 
-    if (request.offlineId) {
+    if (request.offlineId) { // TODO get the value id in url from somewhere
         const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values/2cdb838d-24e7-4687-8a31-e24f7985d535`;
         const valueRequest = {
             headers: {
@@ -54,7 +59,11 @@ const Replay = (request: any, tenantId: string, authenticationToken: string, sta
                 return response.json();
             })
             .then((response) => {
-                checkForRequestsThatNeedAnExternalId(request.offlineId, response.objectData[0].externalId);
+
+                checkForRequestsThatNeedAnExternalId(
+                    request.offlineId,
+                    response.objectData[0].externalId,
+                );
                 return response;
             })
             .catch(response => console.error(response));
@@ -63,4 +72,4 @@ const Replay = (request: any, tenantId: string, authenticationToken: string, sta
     return Promise.resolve(request);
 };
 
-export default Replay;
+export default extractExternalId;
