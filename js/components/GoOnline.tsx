@@ -109,8 +109,8 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
         const latestAuthenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         if (this.flow) {
             requests = this.flow.requests.map((request, index) => {
-                request.stateId = this.flow.state.id;
-                request.stateToken = this.flow.state.token;
+                request.request.stateId = this.flow.state.id;
+                request.request.stateToken = this.flow.state.token;
 
                 return <Request request={request}
                     tenantId={this.flow.tenantId}
@@ -121,7 +121,7 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                     replayNow={index === 0 && this.state.isReplayAll}
                     flowKey={this.props.flowKey}
                     cancelReplay={this.onClose}
-                    key={request.key} />;
+                    key={request.request.key} />;
             });
         }
 
