@@ -46,7 +46,7 @@ const saveData = (action: any, objectData: any, snapshot: any, flow: IFlow) => {
         let offlineId = null;
 
         const existingObject = objectData.find(
-            existingObj => existingObj.objectData.externalId === obj.externalId,
+            existingObj => existingObj.objectData.internalId === obj.internalId,
         );
 
         // Objectdata that has already been added but is now being modified

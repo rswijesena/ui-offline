@@ -117,7 +117,7 @@ export const cacheObjectData = (data: any, typeElementId: string) => {
  */
 export const patchObjectDataCache = (data: any, typeElementId: string) => {
     objectData[typeElementId] = objectData[typeElementId].map((existingObj) => {
-        if (existingObj.internalId === data[0].internalId) {
+        if (existingObj.objectData.internalId === data[0].objectData.internalId) {
             return merge(existingObj, data[0]);
         }
 
