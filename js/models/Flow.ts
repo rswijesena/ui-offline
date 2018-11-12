@@ -63,7 +63,7 @@ export const addRequest = (request: any, snapshot: any) => {
     request.key = requests.length;
     request.currentMapElementDeveloperName = currentMapElementDeveloperName;
 
-    requests.push({ request, offlineId: null });
+    requests.push({ request, assocData: null });
 };
 
 /**
@@ -85,9 +85,9 @@ export const getRequests = () => {
     return requests;
 };
 
-export const setCurrentRequestOfflineId = (offlineId) => {
+export const setCurrentRequestOfflineId = (offlineId, valueId, typeElementId) => {
     const currentRequest = requests[requests.length - 1];
-    currentRequest.offlineId = offlineId;
+    currentRequest.assocData = { offlineId, valueId, typeElementId };
     return requests;
 };
 

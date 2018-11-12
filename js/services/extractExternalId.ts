@@ -2,16 +2,22 @@ import { getRequests, getObjectData } from '../models/Flow';
 
 declare const manywho;
 
+interface IassocData {
+    offlineId: string;
+    valueId: string;
+    typeElementId: string;
+}
+
 /**
- * @param offlineId the GUID that links cached requests to objectdata
+ * @param assocData an object containing a GUID that links requests to objectdata
  * @param externalId the ID assigned to a value that represents a service record
  * @description
  */
-const checkForRequestsThatNeedAnExternalId = (offlineId: string, externalId: string) => {
+const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId: string) => {
 
     // Find the objectdata in the cache that is associated to the request
-    const objectData = getObjectData('3523c7ce-15ee-4b6a-9976-ff0f099c4ba4'); // TODO get the type element id from somewhere
-    const assocObject = objectData.find(obj => obj.offlineId === offlineId);
+    const objectData = getObjectData(assocData.typeElementId);
+    const assocObject = objectData.filter(obj => obj.assocData).find(obj => obj.assocData.offlineId === assocData.offlineId);
 
     // Extract it's internalId
     const assocObjectInternalId = assocObject.objectData.internalId;
@@ -44,8 +50,9 @@ const checkForRequestsThatNeedAnExternalId = (offlineId: string, externalId: str
  */
 const extractExternalId = (request: any, tenantId: string, authenticationToken: string, stateId: string) => {
 
-    if (request.offlineId) { // TODO get the value id in url from somewhere
-        const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values/2cdb838d-24e7-4687-8a31-e24f7985d535`;
+    if (request.assocData) {
+        const valueId = request.assocData.valueId;
+        const url = `${manywho.settings.global('platform.uri')}/api/run/1/state/${stateId}/values/${valueId}`;
         const valueRequest = {
             headers: {
                 ManyWhoTenant: tenantId,
@@ -61,7 +68,7 @@ const extractExternalId = (request: any, tenantId: string, authenticationToken: 
             .then((response) => {
 
                 checkForRequestsThatNeedAnExternalId(
-                    request.offlineId,
+                    request.assocData,
                     response.objectData[0].externalId,
                 );
                 return response;

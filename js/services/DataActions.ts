@@ -30,9 +30,10 @@ const saveData = (action: any, objectData: any, snapshot: any, flow: IFlow) => {
     const valueReferenceToSave = snapshot.getValue(action.valueElementToApplyId);
     const typeElementId = valueReferenceToSave.typeElementId;
     const type = typeElementId ? snapshot.metadata.typeElements.find(typeElement => typeElement.id === typeElementId) : null;
+    const valueElementToApplyId = action.valueElementToApplyId;
 
     const valueToSave = getStateValue(
-        action.valueElementToApplyId,
+        valueElementToApplyId,
         typeElementId,
         valueReferenceToSave.contentType,
         null,
@@ -40,18 +41,26 @@ const saveData = (action: any, objectData: any, snapshot: any, flow: IFlow) => {
 
     valueToSave.objectData.forEach((obj) => {
 
-        // The offline ID is used to associate cahed objectdata
-        // created whilst offline, to the request the request
-        // that triggers the caching
+        // The offline ID is used to associate cached objectdata
+        // created whilst offline to the request that triggers the caching
         let offlineId = null;
 
-        const existingObject = objectData.find(
-            existingObj => existingObj.objectData.internalId === obj.internalId,
-        );
+        const existingObject = objectData.find((existingObj) => {
+
+            // For identifying existing objectdata cached whilst offline
+            if (existingObj.objectData.internalId === obj.internalId) {
+                return existingObj;
+            }
+
+            // For identifying existing objectdata cached whilst online
+            if (obj.externalId && existingObj.objectData.externalId === obj.externalId) {
+                return existingObj;
+            }
+        });
 
         // Objectdata that has already been added but is now being modified
-        if (existingObject && existingObject.offlineId && !existingObject.objectData.externalId) {
-            offlineId = existingObject.offlineId;
+        if (existingObject && existingObject.assocData && !existingObject.objectData.externalId) {
+            offlineId = existingObject.assocData.offlineId;
         }
 
         // A new object
@@ -59,27 +68,25 @@ const saveData = (action: any, objectData: any, snapshot: any, flow: IFlow) => {
             offlineId = guid();
         }
 
-        // AN object that has been cached from the engine response
+        // An object that has been cached from the engine response
         if (existingObject && existingObject.objectData.externalId) {
             offlineId = null;
         }
 
         // Associate objectdata to current request in cache
         if (offlineId) {
-            const updatedRequests = setCurrentRequestOfflineId(offlineId);
 
-            getOfflineData(flow.state.id)
-                .then(
-                    (offlineData) => {
-                        offlineData.requests = updatedRequests;
-                        // setOfflineData(offlineData);
-                    },
-                );
+            // The value id is needed later, as when the request is replayed
+            // it is this values state that will contain any external id
+            // that will need to be extracted.
+            // The type elemnt id is needed so that during replay we know what
+            // objectdata types need to be examined from the cache
+            setCurrentRequestOfflineId(offlineId, valueElementToApplyId.id, typeElementId);
         }
 
         const newObject = [
             {
-                offlineId,
+                assocData: { offlineId, typeElementId, valueId: valueElementToApplyId.id },
                 objectData: {
                     typeElementId,
                     externalId: existingObject ? existingObject.objectData.externalId : null,

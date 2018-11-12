@@ -65,7 +65,7 @@ const ObjectDataCaching = (flow: IFlow) => {
                 if (response.objectData) {
                     cacheObjectData(
                         response.objectData.map((objectData) => {
-                            return { objectData, offlineId: null };
+                            return { objectData, assocData: null };
                         }),
                         request.objectDataType.typeElementId,
                     );
