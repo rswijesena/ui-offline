@@ -23,19 +23,23 @@ describe('Flow model expected behaviour', () => {
         const typeElementId = 'test';
 
         const mockObjectOne = {
-            externalId: 'externalId1',
-            internalId: 'internalId1',
-            properties: [
-                {
-                    developerName: 'test',
-                    contentValue: 'test',
-                },
-            ],
+            objectData: {
+                externalId: 'externalId1',
+                internalId: 'internalId1',
+                properties: [
+                    {
+                        developerName: 'test',
+                        contentValue: 'test',
+                    },
+                ],
+            },
         };
 
         const mockObjectTwo = {
-            externalId: 'externalId2',
-            internalId: 'internalId2',
+            objectData: {
+                externalId: 'externalId2',
+                internalId: 'internalId2',
+            },
         };
 
         const tenantId = 'test';
@@ -50,37 +54,43 @@ describe('Flow model expected behaviour', () => {
         FlowInit({ tenantId, state, objectData });
 
         const updatedObject =  [{
-            externalId: 'externalId1',
-            internalId: 'internalId1',
-            properties: [
-                {
-                    developerName: 'testUpdated',
-                    contentValue: 'testUpdated',
-                },
-            ],
+            objectData: {
+                externalId: 'externalId1',
+                internalId: 'internalId1',
+                properties: [
+                    {
+                        developerName: 'testUpdated',
+                        contentValue: 'testUpdated',
+                    },
+                ],
+            },
         }];
 
         const update = patchObjectDataCache(updatedObject, typeElementId);
-        expect(update[typeElementId][0].properties[0].contentValue).toEqual('testUpdated');
+        expect(update[typeElementId][0].objectData.properties[0].contentValue).toEqual('testUpdated');
     });
 
     test('Unmodified objectdata should be returned if object with no matching internal id exists', () => {
         const typeElementId = 'test';
 
         const mockObjectOne = {
-            externalId: 'externalId1',
-            internalId: 'internalId1',
-            properties: [
-                {
-                    developerName: 'test',
-                    contentValue: 'test',
-                },
-            ],
+            objectData: {
+                externalId: 'externalId1',
+                internalId: 'internalId1',
+                properties: [
+                    {
+                        developerName: 'test',
+                        contentValue: 'test',
+                    },
+                ],
+            },
         };
 
         const mockObjectTwo = {
-            externalId: 'externalId2',
-            internalId: 'internalId2',
+            objectData: {
+                externalId: 'externalId2',
+                internalId: 'internalId2',
+            },
         };
 
         const tenantId = 'test';
@@ -95,14 +105,16 @@ describe('Flow model expected behaviour', () => {
         FlowInit({ tenantId, state, objectData });
 
         const updatedObject =  [{
-            externalId: 'externalId3',
-            internalId: 'internalId3',
-            properties: [
-                {
-                    developerName: 'testUpdated',
-                    contentValue: 'testUpdated',
-                },
-            ],
+            objectData: {
+                externalId: 'externalId3',
+                internalId: 'internalId3',
+                properties: [
+                    {
+                        developerName: 'testUpdated',
+                        contentValue: 'testUpdated',
+                    },
+                ],
+            },
         }];
 
         const update = patchObjectDataCache(updatedObject, typeElementId);

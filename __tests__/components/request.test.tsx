@@ -11,7 +11,7 @@ describe('Request component behaviour', () => {
 
     const props = {
         flowKey: '',
-        request: {},
+        request: { request: {}, assocData: null },
         tenantId: '',
         authenticationToken: '',
         onReplayDone: jest.fn(),

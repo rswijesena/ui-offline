@@ -8,13 +8,17 @@ const mockTypeElementId = 'testTypeElementId';
 const mockValueElementToApplyId = 'testValueId';
 
 const mockObjectOne = {
-    externalId: 'externalId1',
-    internalId: 'internalId1',
+    objectData: {
+        externalId: 'externalId1',
+        internalId: 'internalId1',
+    },
 };
 
 const mockObjectTwo = {
-    externalId: 'externalId2',
-    internalId: 'internalId2',
+    objectData: {
+        externalId: 'externalId2',
+        internalId: 'internalId2',
+    },
 };
 
 jest.mock('../../js/models/Flow', () => ({
@@ -26,6 +30,7 @@ jest.mock('../../js/models/Flow', () => ({
     }),
     patchObjectDataCache: jest.fn(),
     cacheObjectData: jest.fn(),
+    setCurrentRequestOfflineId: jest.fn(),
 }));
 
 const mockAction = {
@@ -104,10 +109,21 @@ describe('Data action behaviour', () => {
     });
 
     test('When objectdata is existing then the objectdata memory cache should be updated', () => {
+
+        const mockObjectOneInState = {
+            externalId: 'externalId1',
+            internalId: 'internalId1',
+        };
+
+        const mockObjectTwoInState = {
+            externalId: 'externalId2',
+            internalId: 'internalId2',
+        };
+
         const mockObjectData = {
             objectData: [
-                mockObjectOne,
-                mockObjectTwo,
+                mockObjectOneInState,
+                mockObjectTwoInState,
             ],
         };
 

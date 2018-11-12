@@ -99,7 +99,7 @@ const extractExternalId = (request: any, tenantId: string, authenticationToken: 
             .catch(response => console.error(response));
     }
 
-    return Promise.resolve(request);
+    return Promise.resolve();
 };
 
 export default extractExternalId;
