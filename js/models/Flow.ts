@@ -85,6 +85,12 @@ export const getRequests = () => {
     return requests;
 };
 
+/**
+ * @param offlineId a randomly generated GUID that links cached requests to cached objectdata
+ * @param valueId the id of a value that has objectdat bound to it
+ * @param typeElementId the type id associated to objectdata linked to a request
+ * @description update the assocData property of the last cached request
+ */
 export const setCurrentRequestOfflineId = (offlineId, valueId, typeElementId) => {
     const currentRequest = requests[requests.length - 1];
     currentRequest.assocData = { offlineId, valueId, typeElementId };
