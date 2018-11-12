@@ -1,3 +1,24 @@
+/**
+ * extractExternalId module.
+ * @module services/extractExternalId
+ * @description This module solves the problem of saving objectdata
+ * that should already exist inside a service. An example scenario
+ * would be a flow that enables CRUD operations on Salesforce leads.
+ * When a save data action is simulated for creating a new lead it is impossible
+ * to assign that lead an external ID (for obvious reasons). Consequently, if that lead is then
+ * updated whilst still offline the objectdata sent in the request will have
+ * an external ID of null, causing a service error when the request is replayed.
+ * The solution here is that during the save data action simulation newly cached objectdata
+ * gets associated to the request that triggers it using a generated GUID. All subsequent requests that trigger
+ * modification of the cached objectdata will also get tagged with the GUID.
+ * So after the request that initially triggered the caching of that objectdata is replayed,
+ * the state of the value the objectdata is bound to can be queried to determine the external ID
+ * the engine has assigned to it at that exact point in the flow. This external ID can
+ * then be injected into every other associated request.
+ *
+ * CAVEAT: For this solution to work, in the flow, the value cannot be emptied immediately after the save.
+ */
+
 import { getRequests, getObjectData } from '../models/Flow';
 
 declare const manywho;
@@ -11,7 +32,8 @@ interface IassocData {
 /**
  * @param assocData an object containing a GUID that links requests to objectdata
  * @param externalId the ID assigned to a value that represents a service record
- * @description
+ * @description finding all cached requests that have an association with cached
+ * objectdata and injecting the external id into the request body if applicable.
  */
 const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId: string) => {
 
@@ -42,11 +64,12 @@ const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId:
 };
 
 /**
- * @param request the request being replayed
+ * @param request the cached request to be replayed
  * @param tenantId
  * @param authenticationToken
  * @param stateId
- * @description
+ * @description make a call to the state values endpoint if the cached request is associated
+ * to cached objectdata, in order to extract the values external ID.
  */
 const extractExternalId = (request: any, tenantId: string, authenticationToken: string, stateId: string) => {
 
