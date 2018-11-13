@@ -27,6 +27,7 @@ window.localforage = {
 window.manywho = {
     ajax: {
         dispatchObjectDataRequest: jest.fn(() => Promise.resolve({objectData: []})),
+        invoke: jest.fn(),
     },
     settings: {
         initialize: jest.fn(),

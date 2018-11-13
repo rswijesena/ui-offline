@@ -131,11 +131,11 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             <div className="pending-request-header">
                 <div>
                     {
-                        this.props.request.type === 'fileData'
+                        this.props.request.request.type === 'fileData'
                         ? (
                             <div>
-                                <span>{ `Upload File${this.props.request.files.length > 0 ? 's' : ''}:` }</span>
-                                <FileList files={this.props.request.files} />
+                                <span>{ `Upload File${this.props.request.request.files.length > 0 ? 's' : ''}:` }</span>
+                                <FileList files={this.props.request.request.files} />
                                 <Progress progress={this.state.progress} />
                             </div>
                         )
