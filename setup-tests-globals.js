@@ -39,6 +39,10 @@ window.manywho = {
                 return 10;
             }
 
+            if (a === 'platform.uri') {
+                return 'https://flow.manywho.com';
+            }
+
             return 'https://example.com';
         })
     },

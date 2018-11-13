@@ -35,7 +35,7 @@ interface IassocData {
  * @description finding all cached requests that have an association with cached
  * objectdata and injecting the external id into the request body if applicable.
  */
-const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId: string) => {
+export const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId: string) => {
 
     // Find the objectdata in the cache that is associated to the request
     const objectData = getObjectData(assocData.typeElementId);
@@ -61,6 +61,8 @@ const checkForRequestsThatNeedAnExternalId = (assocData: IassocData, externalId:
             }
         });
     });
+
+    return allRequests;
 };
 
 /**
