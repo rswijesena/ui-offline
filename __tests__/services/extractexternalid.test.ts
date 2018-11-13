@@ -102,7 +102,7 @@ describe('Page service expected behaviour', () => {
         ).toEqual(mockExternalId);
     });
 
-    test('When iternal id does not match that the external id is not modified', () => {
+    test('When internal id does not match then the external id is not modified', () => {
         getObjectDataMock.mockImplementation(() => {
             return [
                 { assocData: { offlineId: 'offlineIdTest1' }, objectData: { internalId: 'internalIdTest4' } },

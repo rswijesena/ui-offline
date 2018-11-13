@@ -1,4 +1,5 @@
-import { FlowInit, cacheObjectData, patchObjectDataCache } from '../../js/models/Flow';
+import { FlowInit, cacheObjectData, patchObjectDataCache, setCurrentRequestOfflineId, getRequests } from '../../js/models/Flow';
+import { guid } from '../../test-utils';
 
 describe('Flow model expected behaviour', () => {
     test('Object data gets concatenated', () => {
@@ -119,5 +120,25 @@ describe('Flow model expected behaviour', () => {
 
         const update = patchObjectDataCache(updatedObject, typeElementId);
         expect(update).toEqual(objectData);
+    });
+
+    test('Last requests assoc data property should get updated', () => {
+        const tenantId = guid();
+        const state = {};
+        const objectData = {};
+        const requests = [
+            { request: {}, assocData: null },
+            { request: {}, assocData: null },
+            { request: {}, assocData: null },
+        ];
+
+        const offlineId = guid();
+        const valueId = guid();
+        const typeElementId = guid();
+
+        FlowInit({ tenantId, state, objectData, requests });
+        setCurrentRequestOfflineId(offlineId, valueId, typeElementId);
+        const updatedRequests = getRequests();
+        expect(updatedRequests[2].assocData).toEqual({ offlineId, valueId, typeElementId });
     });
 });
