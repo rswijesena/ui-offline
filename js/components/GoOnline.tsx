@@ -101,18 +101,18 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 
     render() {
-        let requests = null;
+        let cachedRequests = null;
 
         // The auth token must always come from state and not from
         // the indexdb cache, this will prevent successful replays
         // occuring inside a flow which has a stale auth token
         const latestAuthenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
         if (this.flow) {
-            requests = this.flow.requests.map((request, index) => {
-                request.request.stateId = this.flow.state.id;
-                request.request.stateToken = this.flow.state.token;
+            cachedRequests = this.flow.requests.map((cachedRequest, index) => {
+                cachedRequest.request.stateId = this.flow.state.id;
+                cachedRequest.request.stateToken = this.flow.state.token;
 
-                return <Request request={request}
+                return <Request request={cachedRequest}
                     tenantId={this.flow.tenantId}
                     authenticationToken={latestAuthenticationToken}
                     isDisabled={false}
@@ -121,7 +121,7 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                     replayNow={index === 0 && this.state.isReplayAll}
                     flowKey={this.props.flowKey}
                     cancelReplay={this.onClose}
-                    key={request.request.key} />;
+                    key={cachedRequest.request.key} />;
             });
         }
 
@@ -131,7 +131,7 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                     <h4>Go Online</h4>
                     <div className="pending-requests">
                         <ul className="list-group">
-                            {requests}
+                            {cachedRequests}
                         </ul>
                     </div>
                 </div>

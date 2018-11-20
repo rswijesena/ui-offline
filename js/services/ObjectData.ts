@@ -21,11 +21,12 @@ const ObjectData = {
             };
         }
 
-        let filteredObjectData = clone(objectData.map((obj) => { return obj.objectData; }));
+        const clonedObjectData = clone(objectData.map((obj) => { return obj.objectData; }));
+        let filteredObjectData = [];
 
         // Support for where filtering
         if (filter.where) {
-            filteredObjectData = filteredObjectData.filter((item) => {
+            filteredObjectData = clonedObjectData.filter((item) => {
                 const comparer = filter.comparisonType === 'OR' ? 'some' : 'every';
 
                 return filter.where[comparer]((where) => {
@@ -47,14 +48,14 @@ const ObjectData = {
 
         // Support for filtering by an ID
         } else if (filter.filterId) {
-            filteredObjectData = filteredObjectData.filter((item) => {
+            filteredObjectData = clonedObjectData.filter((item) => {
                 const value = getStateValue(filter.filterId, null, 'CONTENTSTRING', null);
                 return value ? item.externalId === value.contentValue : false;
             });
         }
 
         if (filter.search) {
-            filteredObjectData = filteredObjectData.filter((item) => {
+            filteredObjectData = clonedObjectData.filter((item) => {
                 return item.properties.filter((property) => {
                     return property.contentValue && property.contentValue.toLowerCase().indexOf(filter.search.toLowerCase()) !== -1;
                 }).length > 0;
