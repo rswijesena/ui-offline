@@ -22,9 +22,8 @@ export const cachingProgress = (result) => {
         if (progress === 100 && flowKey) {
             manywho.model.addNotification(flowKey, {
                 message: 'Caching is complete. You are ready to go offline',
-                position: 'center',
+                position: 'bottom',
                 type: 'success',
-                timeout: 2000,
                 dismissible: true,
             });
             dispatch(setCachingProgress(0));
