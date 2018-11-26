@@ -19,7 +19,7 @@ describe('Request component behaviour', () => {
 
     const props = {
         flowKey: '',
-        request: {
+        cachedRequest: {
             request: {
                 invokeType: 'invoke',
             },
@@ -61,7 +61,7 @@ describe('Request component behaviour', () => {
         });
         extractExternalIdMock.mockResolvedValue(Promise.resolve());
         componentWrapper.find('.btn-primary').simulate('click');
-        expect(extractExternalId).toHaveBeenCalledWith(props.request, props.tenantId, props.authenticationToken, 'testStateId');
+        expect(extractExternalId).toHaveBeenCalledWith(props.cachedRequest, props.tenantId, props.authenticationToken, 'testStateId');
     });
 
 });

@@ -112,7 +112,7 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                 cachedRequest.request.stateId = this.flow.state.id;
                 cachedRequest.request.stateToken = this.flow.state.token;
 
-                return <Request request={cachedRequest}
+                return <Request cachedRequest={cachedRequest}
                     tenantId={this.flow.tenantId}
                     authenticationToken={latestAuthenticationToken}
                     isDisabled={false}
