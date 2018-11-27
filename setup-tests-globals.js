@@ -27,6 +27,7 @@ window.localforage = {
 window.manywho = {
     ajax: {
         dispatchObjectDataRequest: jest.fn(() => Promise.resolve({objectData: []})),
+        invoke: jest.fn(),
     },
     settings: {
         initialize: jest.fn(),
@@ -37,6 +38,10 @@ window.manywho = {
 
             if (a === 'offline.cache.requests.pageSize') {
                 return 10;
+            }
+
+            if (a === 'platform.uri') {
+                return 'https://flow.manywho.com';
             }
 
             return 'https://example.com';

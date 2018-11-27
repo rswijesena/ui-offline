@@ -11,7 +11,7 @@ jest.mock('../../js/services/Storage', () => ({
 jest.mock('../../js/models/Flow', () => ({
     FlowInit: jest.fn(() => {
         return {
-            requests: [{ key: 'test' }],
+            requests: [{ request: { key: 'test' }, assocData: null }],
             state: {
                 id: 'test',
                 token: 'test',

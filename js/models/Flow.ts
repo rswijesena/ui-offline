@@ -63,7 +63,7 @@ export const addRequest = (request: any, snapshot: any) => {
     request.key = requests.length;
     request.currentMapElementDeveloperName = currentMapElementDeveloperName;
 
-    requests.push(request);
+    requests.push({ request, assocData: null });
 };
 
 /**
@@ -82,6 +82,18 @@ export const removeRequests = () => {
 };
 
 export const getRequests = () => {
+    return requests;
+};
+
+/**
+ * @param offlineId a randomly generated GUID that links cached requests to cached objectdata
+ * @param valueId the id of a value that has objectdat bound to it
+ * @param typeElementId the type id associated to objectdata linked to a request
+ * @description update the assocData property of the last cached request
+ */
+export const setCurrentRequestOfflineId = (offlineId, valueId, typeElementId) => {
+    const currentRequest = requests[requests.length - 1];
+    currentRequest.assocData = { offlineId, valueId, typeElementId };
     return requests;
 };
 
@@ -111,7 +123,7 @@ export const cacheObjectData = (data: any, typeElementId: string) => {
  */
 export const patchObjectDataCache = (data: any, typeElementId: string) => {
     objectData[typeElementId] = objectData[typeElementId].map((existingObj) => {
-        if (existingObj.internalId === data[0].internalId) {
+        if (existingObj.objectData.internalId === data[0].objectData.internalId) {
             return merge(existingObj, data[0]);
         }
 

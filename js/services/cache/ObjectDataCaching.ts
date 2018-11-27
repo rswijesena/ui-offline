@@ -71,7 +71,12 @@ const ObjectDataCaching = (flow: IFlow) => {
         return manywho.ajax.dispatchObjectDataRequest(request, flow.tenantId, flow.state.id, flow.authenticationToken, request.listFilter.limit)
             .then((response) => {
                 if (response.objectData) {
-                    cacheObjectData(response.objectData, request.objectDataType.typeElementId);
+                    cacheObjectData(
+                        response.objectData.map((objectData) => {
+                            return { objectData, assocData: null };
+                        }),
+                        request.objectDataType.typeElementId,
+                    );
                 } else {
                     requests = requests.filter(item => !item.objectDataType.typeElementId === currentTypeElementId);
                 }
