@@ -52,6 +52,8 @@ const ObjectData = {
                 const value = getStateValue(filter.filterId, null, 'CONTENTSTRING', null);
                 return value ? item.externalId === value.contentValue : false;
             });
+        } else {
+            filteredObjectData = clonedObjectData;
         }
 
         if (filter.search) {
