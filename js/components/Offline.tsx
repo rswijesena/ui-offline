@@ -32,7 +32,7 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export class Offline extends React.Component<IOfflineProps, IOfflineState> {
+class Offline extends React.Component<IOfflineProps, IOfflineState> {
 
     flow = null;
     objectDataCachingTimer = null;

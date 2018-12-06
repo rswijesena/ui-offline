@@ -1,21 +1,19 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Offline } from '../../js/components/Offline';
+import { Provider } from 'react-redux';
+import store from '../../js/stores/store';
+import Offline from '../../js/components/Offline';
 
 describe('Offline component behaviour', () => {
 
     let componentWrapper;
 
     const props = {
-        flowKey: 'test',
-        isOffline: false,
-        cachingProgress: 0,
-        toggleIsOffline: jest.fn(),
-        toggleIsReplaying: jest.fn(),
+        flowKey: '',
     };
 
     beforeEach(() => {
-        componentWrapper = shallow(<Offline {...props} />);
+        componentWrapper = shallow(<Provider store={store}><Offline {...props} /></Provider>);
     });
 
     test('Offline component renders without crashing', () => {
