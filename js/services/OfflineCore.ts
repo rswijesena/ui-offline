@@ -281,7 +281,7 @@ const OfflineCore = {
                 .filter(action => !action.disabled)
                 .sort((a, b) => a.order - b.order)
                 .forEach((action) => {
-                    DataActions(action, flow, snapshot);
+                    DataActions.execute(action, flow, snapshot);
                 });
         }
 

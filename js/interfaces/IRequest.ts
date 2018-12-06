@@ -7,12 +7,11 @@ export interface IRequestState {
 
 export interface IRequestProps {
     flowKey: string;
-    cachedRequest: any;
+    request: any;
     tenantId: string;
     authenticationToken: string;
     onReplayDone: Function;
     onDelete: Function;
     replayNow: boolean;
     isDisabled: boolean;
-    cancelReplay: Function;
 }
