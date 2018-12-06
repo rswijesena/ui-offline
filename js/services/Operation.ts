@@ -19,7 +19,7 @@ const isCommandSupported = (command: string) => {
     if (manywho.utils.isNullOrWhitespace(command) || commands.indexOf(command) !== -1) {
         return true;
     }
-    manywho.log.info('The Operation command is not supported and this operation will be ignored: ' + command);
+    manywho.log.info(`The Operation command is not supported and this operation will be ignored: ${command}`);
     return false;
 };
 

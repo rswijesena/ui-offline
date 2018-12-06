@@ -1,6 +1,7 @@
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const WriteBundleFilePlugin = require('./WriteBundleFilePlugin');
 
 const pathsToClean = [
     'dist'
@@ -74,6 +75,12 @@ const config = {
         new UglifyJsPlugin({
             sourceMap: true
         }),
+        new WriteBundleFilePlugin({
+            bundleKey: 'offline',
+            pathPrefix: '/js/',
+            // remove sourcemaps from the bundle list
+            filenameFilter: filename => !filename.endsWith('.map'),
+        }),
         new CleanWebpackPlugin(pathsToClean),
     ],
     resolve: {
@@ -86,7 +93,8 @@ const config = {
 
 module.exports = (env) => {
     var defaultDirectory = 'dist';
-    const publicPath = mapPublicPath(env.assets, publicPaths);
+    const assets = (env && env.assets) ? env.assets : 'production';
+    const publicPath = mapPublicPath(assets, publicPaths);
 
     if (env && env.build)
         defaultDirectory = env.build;
