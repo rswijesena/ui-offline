@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
+class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
 
     flow = null;
 
@@ -101,27 +101,21 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
     }
 
     render() {
-        let cachedRequests = null;
-
-        // The auth token must always come from state and not from
-        // the indexdb cache, this will prevent successful replays
-        // occuring inside a flow which has a stale auth token
-        const latestAuthenticationToken = manywho.state.getAuthenticationToken(this.props.flowKey);
+        let requests = null;
         if (this.flow) {
-            cachedRequests = this.flow.requests.map((cachedRequest, index) => {
-                cachedRequest.request.stateId = this.flow.state.id;
-                cachedRequest.request.stateToken = this.flow.state.token;
+            requests = this.flow.requests.map((request, index) => {
+                request.stateId = this.flow.state.id;
+                request.stateToken = this.flow.state.token;
 
-                return <Request cachedRequest={cachedRequest}
+                return <Request request={request}
                     tenantId={this.flow.tenantId}
-                    authenticationToken={latestAuthenticationToken}
+                    authenticationToken={this.flow.authenticationToken}
                     isDisabled={false}
                     onDelete={this.onDeleteRequest}
                     onReplayDone={this.onReplayDone}
                     replayNow={index === 0 && this.state.isReplayAll}
                     flowKey={this.props.flowKey}
-                    cancelReplay={this.onClose}
-                    key={cachedRequest.request.key} />;
+                    key={request.key} />;
             });
         }
 
@@ -131,7 +125,7 @@ export class GoOnline extends React.Component<IGoOnlineProps, IGoOnlineState> {
                     <h4>Go Online</h4>
                     <div className="pending-requests">
                         <ul className="list-group">
-                            {cachedRequests}
+                            {requests}
                         </ul>
                     </div>
                 </div>

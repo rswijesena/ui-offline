@@ -4,7 +4,6 @@ import Progress from './Progress';
 import FileList from './FileList';
 import { IRequestProps, IRequestState } from '../interfaces/IRequest';
 import OfflineCore from '../services/OfflineCore';
-import extractExternalId from '../services/extractExternalId';
 
 declare const manywho: any;
 
@@ -32,18 +31,12 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
     }
 
     onReplayResponse(response) {
-        if (response && response.invokeType === 'NOT_ALLOWED') {
-
-            // When there is an unauthorised response from a replay
-            // then we want to reinstate the cache and rejoin the flow which
-            // will force the user to log back in
-            this.props.cancelReplay();
-            OfflineCore.rejoin(this.props.flowKey);
-
-        } else if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
+        if (response && response.mapElementInvokeResponses && response.mapElementInvokeResponses[0].rootFaults) {
             this.setState({ response, isReplaying: false });
+        } else if (response && response.invokeType === 'NOT_ALLOWED') {
+            OfflineCore.rejoin(this.props.flowKey);
         } else {
-            this.props.onReplayDone(this.props.cachedRequest);
+            this.props.onReplayDone(this.props.request);
         }
     }
 
@@ -51,19 +44,19 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
         this.setState({ isReplaying: true, response: null });
 
         const {
-            cachedRequest,
+            request,
             tenantId,
             authenticationToken,
         } = this.props;
 
-        if (this.props.cachedRequest.type === 'fileData') {
+        if (this.props.request.type === 'fileData') {
             return manywho.ajax.uploadFiles(
-                cachedRequest.files,
-                cachedRequest,
+                request.files,
+                request,
                 tenantId,
                 authenticationToken,
                 this.onProgress,
-                cachedRequest.stateId,
+                request.stateId,
             )
             .then(this.onReplayResponse)
             .fail((response) => {
@@ -71,30 +64,19 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             });
         }
 
-        const stateId = manywho.utils.extractStateId(this.props.flowKey);
-
         return manywho.ajax.invoke(
-            cachedRequest.request,
+            request,
             tenantId,
             authenticationToken,
         )
-        .then((resp) => {
-
-            // This is to accomodate the scenario of
-            // modifying objectdata that had been created whilst offline
-            // that then needs to be saved to a service
-            extractExternalId(cachedRequest, tenantId, authenticationToken, stateId)
-                .then(() => {
-                    this.onReplayResponse(resp);
-                });
-        })
+        .then(this.onReplayResponse)
         .fail((response) => {
             this.setState({ response: response.statusText, isReplaying: false });
         });
     }
 
     onDelete = () => {
-        this.props.onDelete(this.props.cachedRequest);
+        this.props.onDelete(this.props.request);
     }
 
     onToggleDetails = () => {
@@ -118,10 +100,10 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             response = <RequestFault response={this.state.response} />;
         }
 
-        let cachedRequest = null;
+        let request = null;
         if (!this.state.isCollapsed && !this.state.isReplaying && !this.state.response) {
-            cachedRequest = <div className="pending-request-json">
-                <pre>{JSON.stringify(this.props.cachedRequest.request, null, 4)}</pre>
+            request = <div className="pending-request-json">
+                <pre>{JSON.stringify(this.props.request, null, 4)}</pre>
             </div>;
         }
 
@@ -131,17 +113,17 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             <div className="pending-request-header">
                 <div>
                     {
-                        this.props.cachedRequest.request.type === 'fileData'
+                        this.props.request.type === 'fileData'
                         ? (
                             <div>
-                                <span>{ `Upload File${this.props.cachedRequest.request.files.length > 0 ? 's' : ''}:` }</span>
-                                <FileList files={this.props.cachedRequest.request.files} />
+                                <span>{ `Upload File${this.props.request.files.length > 0 ? 's' : ''}:` }</span>
+                                <FileList files={this.props.request.files} />
                                 <Progress progress={this.state.progress} />
                             </div>
                         )
-                        : <span>{this.props.cachedRequest.request.currentMapElementDeveloperName}</span>
+                        : <span>{this.props.request.currentMapElementDeveloperName}</span>
                     }
-                    <small>{this.props.cachedRequest.request.invokeType}</small>
+                    <small>{this.props.request.invokeType}</small>
                 </div>
                 <button className="btn btn-info btn-sm" onClick={this.onToggleDetails} disabled={isDisabled}>
                     {this.state.isCollapsed ? 'Show' : 'Hide'}
@@ -151,7 +133,7 @@ class Request extends React.Component<IRequestProps, Partial<IRequestState>> {
             </div>
             {replaying}
             {response}
-            {cachedRequest}
+            {request}
         </li>;
     }
 }

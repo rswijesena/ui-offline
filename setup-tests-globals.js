@@ -27,7 +27,6 @@ window.localforage = {
 window.manywho = {
     ajax: {
         dispatchObjectDataRequest: jest.fn(() => Promise.resolve({objectData: []})),
-        invoke: jest.fn(),
     },
     settings: {
         initialize: jest.fn(),
@@ -40,10 +39,6 @@ window.manywho = {
                 return 10;
             }
 
-            if (a === 'platform.uri') {
-                return 'https://flow.manywho.com';
-            }
-
             return 'https://example.com';
         })
     },
@@ -53,8 +48,6 @@ window.manywho = {
         extractFlowVersionId: jest.fn(),
         extractTenantId: jest.fn(),
         getFlowKey: jest.fn(),
-        isNullOrEmpty: jest.fn(() => false),
-        isEqual: jest.fn(() => false),
     },
     state: {
         getAuthenticationToken: jest.fn(),
