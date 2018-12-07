@@ -77,7 +77,7 @@ const config = {
         }),
         new WriteBundleFilePlugin({
             bundleKey: 'offline',
-            pathPrefix: '/js/',
+            pathPrefix: '/',
             // remove sourcemaps from the bundle list
             filenameFilter: filename => !filename.endsWith('.map'),
         }),
@@ -87,7 +87,7 @@ const config = {
         extensions: [ '.tsx', '.ts', '.js' ]
     },
     output: {
-        filename: 'ui-offline-[chunkhash].js',
+        filename: 'js/ui-offline-[chunkhash].js',
     }
 };
 
@@ -99,7 +99,7 @@ module.exports = (env) => {
     if (env && env.build)
         defaultDirectory = env.build;
 
-    config.output.path = path.resolve(__dirname, defaultDirectory, 'js');
+    config.output.path = path.resolve(__dirname, defaultDirectory);
     config.output.publicPath = publicPath + 'js/';
     return config;
 };
